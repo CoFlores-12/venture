@@ -20,23 +20,57 @@ const EventAppLanding = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-900 to-indigo-800 text-white">
       <nav className="navbar bg-base-200 bg-opacity-20 backdrop-blur-sm sticky top-0 z-50">
-        <div className="container mx-auto px-4 flex flex-row items-center justify-between">
-          <div className="flex-1">
-            <a className="btn btn-ghost text-xl scale-110">
-              
-              <span className="text-black dark:text-white flex flex-row items-end" data-aos="zoom-in"><img  src='/logo.png' height={'40px'} width={40}/>enture</span>
-            </a>
-          </div>
-          <div className="flex-none">
-            <ul className="menu menu-horizontal px-1 hidden md:flex text-black dark:text-white">
-              <li><a>Características</a></li>
-              <li><a>Eventos</a></li>
-              <li><button onClick={() => router.push('/register')} className="btn bg-purple-700 ml-4 text-white">Empezar</button></li>
-            </ul>
-           
-          </div>
-        </div>
-      </nav>
+  <div className="container mx-auto px-4 flex items-center justify-between">
+    {/* Logo */}
+    <div className="flex-1">
+      <a className="btn btn-ghost text-xl scale-110">
+        <span className="text-black dark:text-white flex items-end" data-aos="zoom-in">
+          <img src="/logo.png" height="40px" width={40} />enture
+        </span>
+      </a>
+    </div>
+
+    {/* Menú para pantallas grandes */}
+    <div className="hidden md:flex">
+      <ul className="menu menu-horizontal px-1 text-black dark:text-white">
+        <li><a>Características</a></li>
+        <li><a>Eventos</a></li>
+        <li>
+          <button
+            onClick={() => router.push('/register')}
+            className="btn bg-purple-700 ml-4 text-white"
+          >
+            Empezar
+          </button>
+        </li>
+      </ul>
+    </div>
+
+    {/* Menú para móviles */}
+    <div className="dropdown dropdown-end md:hidden">
+      <label tabIndex={0} className="btn btn-ghost">
+        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none"
+             viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
+                d="M4 6h16M4 12h16M4 18h16" />
+        </svg>
+      </label>
+      <ul tabIndex={0} className="menu menu-sm dropdown-content mt-3 p-2 shadow bg-base-100 rounded-box w-52 text-black dark:text-white">
+        <li><a>Características</a></li>
+        <li><a>Eventos</a></li>
+        <li>
+          <button
+            onClick={() => router.push('/register')}
+            className="btn bg-purple-700 text-white mt-2"
+          >
+            Empezar
+          </button>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
 
       <section className="py-20 px-4">
         <div className="container mx-auto flex flex-col md:flex-row items-center">
@@ -90,14 +124,15 @@ const EventAppLanding = () => {
       <section className="py-20 bg-gray-900 bg-opacity-50">
         <div className="container mx-auto px-4">
           <div className="text-center mb-16"  data-aos="fade-up">
-            <h2 className="text-4xl font-bold mb-4 inline-flex items-center space-x-2">
-              ¿Por qué elegir{' '}
-              <span className="inline-flex items-end ml-2 mb-2">
-                <img src="/logo.png" alt="Logo" className="w-12 h-auto" />
-                <span>enture</span>
-              </span>
-              ?
-            </h2>
+           <h2 className="text-2xl md:text-4xl font-bold mb-4 flex flex-wrap items-center gap-2 text-center justify-center">
+  ¿Por qué elegir
+  <span className="flex items-center gap-2">
+    <img src="/logo.png" alt="Logo" className="w-8 md:w-12 h-auto" />
+    <span>enture</span>
+  </span>
+  ?
+</h2>
+
             <p className="text-xl text-gray-300 max-w-2xl mx-auto">
               La mejor aplicación para descubrir eventos cerca de ti con funciones diseñadas para amantes de la diversión
             </p>
@@ -113,7 +148,7 @@ const EventAppLanding = () => {
               {icon: '⭐', title: 'Favoritos', desc: 'Guarda tus eventos favoritos y recibe actualizaciones'}
             ].map((feature, index) => (
               <div key={index} 
-              className="card bg-base-200 shadow-xl hover:shadow-2xl transition-all"
+              className="card bg-slate-800 shadow-xl hover:shadow-2xl transition-all"
               data-aos="zoom-in"
               data-aos-delay={index * 100} // animación escalonada
               data-aos-duration="800">

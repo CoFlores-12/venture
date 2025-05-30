@@ -1,8 +1,10 @@
 "use client"
+import { useRouter } from 'next/navigation';
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const AuthScreen = () => {
+  const router = useRouter()
   const [isLogin, setIsLogin] = useState(true);
   const [formData, setFormData] = useState({
     email: '',
@@ -20,13 +22,12 @@ const AuthScreen = () => {
   };
 
   const handleSubmit = (e) => {
+    //TODO: Auth
     e.preventDefault();
     if (isLogin) {
-      console.log('Login data:', { email: formData.email, password: formData.password });
-      // Lógica de login aquí
+      router.push('/home')
     } else {
-      console.log('Register data:', formData);
-      // Lógica de registro aquí
+      router.push('/home')
     }
   };
 
