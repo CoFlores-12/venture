@@ -1,6 +1,22 @@
+"use client"
+import { useRouter } from 'next/navigation';
 import React from 'react';
+import 'aos/dist/aos.css';
+import AOS from 'aos';
+import { useEffect } from 'react';
+
+const events = [
+  { title: "Concierto de Verano", time: "Hoy, 20:00", location: "Plaza Central", distance: "2 km", emoji: "🎵" },
+  { title: "Feria Cultural", time: "Sábado, 15:00", location: "Parque Libertad", distance: "5 km", emoji: "🎨" },
+  { title: "Cine al Aire Libre", time: "Domingo, 19:00", location: "Anfiteatro", distance: "3 km", emoji: "🎬" },
+];
 
 const EventAppLanding = () => {
+  const router = useRouter()
+  useEffect(() => {
+    AOS.init({ duration: 1000 });
+  }, []);
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-900 to-indigo-800 text-white">
       <nav className="navbar bg-base-200 bg-opacity-20 backdrop-blur-sm sticky top-0 z-50">
@@ -8,14 +24,14 @@ const EventAppLanding = () => {
           <div className="flex-1">
             <a className="btn btn-ghost text-xl scale-110">
               
-              <span className="text-black dark:text-white"><span className="text-purple-700">V</span>enture</span>
+              <span className="text-black dark:text-white flex flex-row items-end" data-aos="zoom-in"><img  src='/logo.png' height={'40px'} width={40}/>enture</span>
             </a>
           </div>
           <div className="flex-none">
             <ul className="menu menu-horizontal px-1 hidden md:flex text-black dark:text-white">
               <li><a>Características</a></li>
               <li><a>Eventos</a></li>
-              <li> <button className="btn bg-purple-700 ml-4 text-white">Empezar</button></li>
+              <li><button onClick={() => router.push('/register')} className="btn bg-purple-700 ml-4 text-white">Empezar</button></li>
             </ul>
            
           </div>
@@ -24,7 +40,7 @@ const EventAppLanding = () => {
 
       <section className="py-20 px-4">
         <div className="container mx-auto flex flex-col md:flex-row items-center">
-          <div className="md:w-1/2 mb-12 md:mb-0">
+          <div className="md:w-1/2 mb-12 md:mb-0 pl-8"  data-aos="fade-right">
             <h1 className="text-5xl font-bold leading-tight mb-4">
               Encuentra los mejores eventos cerca de ti
             </h1>
@@ -33,50 +49,55 @@ const EventAppLanding = () => {
             </p>
             <div className="flex flex-wrap gap-4">
             
-              <button className="btn btn-outline btn-lg">
+              <button onClick={() => router.push('/register')} className="btn btn-outline btn-lg">
                 Explorar Eventos
               </button>
             </div>
           </div>
-          <div className="md:w-1/2 flex justify-center">
-            <div className="mockup-phone border-primary">
-              <div className="camera"></div> 
-              <div className="display">
-                <div className="artboard artboard-demo phone-1 bg-gray-900">
-                  <div className="flex flex-col h-full">
-                    <div className="bg-gradient-to-r from-pink-600 to-purple-700 p-4">
-                      <h2 className="text-xl font-bold text-white">Eventos Cercanos</h2>
+          <div className="md:w-1/2 flex justify-center"  data-aos="fade-left">
+            <div className="relative w-[300px] mx-auto">
+              <div className="absolute top-[3.5%] left-[7.5%] w-[84.5%] h-[94%] bg-gray-900 rounded-[1rem] z-10 overflow-hidden">
+                <div className="bg-gradient-to-r from-pink-600 to-purple-700 p-3 pt-8">
+                  <h2 className="text-lg font-bold text-white">Eventos Cercanos</h2>
+                </div>
+                <div className="p-3 space-y-3 overflow-y-auto h-[calc(100%-3.5rem)]">
+                  {events.map((event, idx) => (
+                    <div key={idx} className="flex bg-slate-800 rounded-lg shadow p-2 items-center space-x-2">
+                      <div className="w-1/4 bg-slate-900 text-2xl flex justify-center items-center text-white rounded">
+                        {event.emoji}
+                      </div>
+                      <div className="w-3/4 text-white text-sm">
+                        <h3 className="font-bold">{event.title}</h3>
+                        <p>{event.time}</p>
+                        <p className="text-xs">{event.location}</p>
+                        <span className="bg-blue-600 text-xs px-2 py-0.5 rounded mt-1 inline-block">{event.distance}</span>
+                      </div>
                     </div>
-                    <div className="overflow-auto p-4">
-                      {[1, 2, 3].map(i => (
-                        <div key={i} className="card card-side bg-base-200 shadow-xl mb-4">
-                          <figure className="w-1/3">
-                            <div className="bg-gray-600 w-full h-full flex items-center justify-center">
-                              <span className="text-4xl">🎵</span>
-                            </div>
-                          </figure>
-                          <div className="card-body p-4 w-2/3 text-black dark:text-white">
-                            <h3 className="card-title">Concierto de Verano</h3>
-                            <p className="text-sm">Hoy, 20:00</p>
-                            <p className="text-xs">Plaza Central</p>
-                            <div className="badge badge-primary mt-2">2 km</div>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
+                  ))}
                 </div>
               </div>
+
+              <img
+                src="/iphone-mockup.png" 
+                alt="iPhone Mockup"
+                className="w-full h-auto pointer-events-none select-none z-20 relative"
+              />
             </div>
           </div>
         </div>
       </section>
 
-      {/* Features Section */}
       <section className="py-20 bg-gray-900 bg-opacity-50">
         <div className="container mx-auto px-4">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold mb-4">¿Por qué elegir EventFinder?</h2>
+          <div className="text-center mb-16"  data-aos="fade-up">
+            <h2 className="text-4xl font-bold mb-4 inline-flex items-center space-x-2">
+              ¿Por qué elegir{' '}
+              <span className="inline-flex items-end ml-2 mb-2">
+                <img src="/logo.png" alt="Logo" className="w-12 h-auto" />
+                <span>enture</span>
+              </span>
+              ?
+            </h2>
             <p className="text-xl text-gray-300 max-w-2xl mx-auto">
               La mejor aplicación para descubrir eventos cerca de ti con funciones diseñadas para amantes de la diversión
             </p>
@@ -91,7 +112,11 @@ const EventAppLanding = () => {
               {icon: '👥', title: 'Comparte con amigos', desc: 'Invita amigos y coordina planes para eventos'},
               {icon: '⭐', title: 'Favoritos', desc: 'Guarda tus eventos favoritos y recibe actualizaciones'}
             ].map((feature, index) => (
-              <div key={index} className="card bg-base-200 shadow-xl hover:shadow-2xl transition-all">
+              <div key={index} 
+              className="card bg-base-200 shadow-xl hover:shadow-2xl transition-all"
+              data-aos="zoom-in"
+              data-aos-delay={index * 100} // animación escalonada
+              data-aos-duration="800">
                 <div className="card-body items-center text-center text-black dark:text-white">
                   <div className="text-4xl mb-4">{feature.icon}</div>
                   <h3 className="card-title text-2xl mb-2">{feature.title}</h3>
@@ -105,7 +130,7 @@ const EventAppLanding = () => {
 
       <section className="py-20">
         <div className="container mx-auto px-4">
-          <h2 className="text-4xl font-bold text-center mb-16">Explora por categorías</h2>
+          <h2 className="text-4xl font-bold text-center mb-16"  data-aos="fade-up">Explora por categorías</h2>
           
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
             {[
@@ -118,13 +143,14 @@ const EventAppLanding = () => {
               {name: 'Exposiciones', icon: '🖼️', color: 'from-teal-500 to-cyan-600'},
               {name: 'Ferias', icon: '🎡', color: 'from-orange-500 to-red-600'}
             ].map((category, index) => (
-              <div key={index} className="card bg-base-200 shadow-xl overflow-hidden">
+              <div key={index} 
+              className="card bg-base-200 shadow-xl overflow-hidden"
+              data-aos="zoom-in"
+              data-aos-delay={index * 100} // animación escalonada
+              data-aos-duration="800">
                 <div className={`bg-gradient-to-r ${category.color} p-6 flex flex-col items-center justify-center h-40`}>
                   <span className="text-5xl mb-2">{category.icon}</span>
                   <h3 className="text-xl font-bold">{category.name}</h3>
-                </div>
-                <div className="card-body p-4 text-center">
-                  <button className="btn btn-outline btn-sm text-black dark:text-white">Ver eventos</button>
                 </div>
               </div>
             ))}
@@ -132,23 +158,28 @@ const EventAppLanding = () => {
         </div>
       </section>
 
-      <section className="py-20 bg-gradient-to-r from-pink-600 to-purple-700">
+      <section
+        className="py-20 bg-gradient-to-r from-pink-600 to-purple-700"
+        data-aos="fade-up"
+        data-aos-duration="1000"
+      >
         <div className="container mx-auto text-center px-4">
-          <h2 className="text-4xl font-bold mb-6">¡No te pierdas ningún evento!</h2>
-          <p className="text-xl mb-10 max-w-2xl mx-auto">
+          <h2 className="text-4xl font-bold mb-6 text-white">
+            ¡No te pierdas ningún evento!
+          </h2>
+          <p className="text-xl mb-10 max-w-2xl mx-auto text-white/90">
             Descarga nuestra app PWA y recibe notificaciones sobre los eventos más relevantes en tu ciudad
           </p>
-          
-          
         </div>
       </section>
+
 
       <footer className="footer p-10 bg-base-200 text-base-content">
         <div className="container mx-auto">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
             <div>
               <span className="footer-title">
-                <span className="text-black dark:text-white"><span className="text-purple-700">V</span>enture</span>
+                <span className="text-black dark:text-white  flex flex-row items-end"><img src='/logo.png' width={30} height={'40px'}/>enture</span>
                
               </span> 
               <p className="text-gray-300">
@@ -186,16 +217,7 @@ const EventAppLanding = () => {
               <a className="link link-hover">Política de cookies</a>
             </div> 
             <div className='flex flex-col'>
-              <span className="footer-title">Newsletter</span> 
-              <div className="form-control w-80">
-                <label className="label">
-                  <span className="label-text text-gray-300">Recibe noticias sobre eventos</span>
-                </label> 
-                <div className="relative">
-                  <input type="text" placeholder="tu@email.com" className="input input-bordered w-full pr-16 text-gray-800" /> 
-                  <button className="btn btn-primary absolute top-0 right-0 rounded-l-none">Suscribirme</button>
-                </div>
-              </div>
+              
             </div>
           </div>
         </div>
