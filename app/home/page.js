@@ -1,38 +1,16 @@
 "use client"
-import React, { useState, useRef, useEffect } from 'react';
-import { motion, AnimatePresence, useScroll, useMotionValueEvent } from 'framer-motion';
+import React, { useState } from 'react';
+import { motion, AnimatePresence,  } from 'framer-motion';
 import { FiSearch, FiMenu, FiUser, FiHeart, FiBookmark, FiSettings, FiMap, FiX, FiChevronRight } from 'react-icons/fi';
-import MapComponent from '../components/home/map';
+import MapWrapper from '../components/home/mapWrapper';
+
 
 const HomePage = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isMapExpanded, setIsMapExpanded] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-  const mapRef = useRef(null);
-  const containerRef = useRef(null);
-  const { scrollY } = useScroll();
   const [showMapButton, setShowMapButton] = useState(true);
 
-
-
-
-
-  const toggleMap = () => {
-    setIsMapExpanded(!isMapExpanded);
-    if (!isMapExpanded) {
-      setTimeout(() => {
-        window.scrollTo({
-          top: document.body.scrollHeight,
-          behavior: 'smooth'
-        });
-      }, 100);
-    } else {
-      window.scrollTo({
-        top: 0,
-        behavior: 'smooth'
-      });
-    }
-  };
 const events = [
   {
     id: 1,
@@ -148,7 +126,7 @@ const events = [
 
 
   return (
-    <div className="flex flex-col min-h-screen bg-gray-100 relative" ref={containerRef}>
+    <div className="flex flex-col min-h-screen bg-gray-100 relative">
       {/* Header */}
       <header className="bg-white shadow-sm sticky top-0 z-20">
         <div className="container mx-auto px-4 py-3 flex items-center">
@@ -271,40 +249,13 @@ const events = [
         )}
 
         {/* Mapa Interactivo */}
-         <MapComponent
-            events={events}
-            isMapExpanded={isMapExpanded}
-            showMapButton={showMapButton}
-            toggleMap={toggleMap}
-        />
+         <MapWrapper events={events}/>
 
         {/* Espacio adicional para el scroll en móviles */}
         {!isMapExpanded && <div className="h-20"></div>}
       </main>
 
-      {/* Efecto de transición para el mapa expandido */}
-      <AnimatePresence>
-        {isMapExpanded && (
-          <>
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 0.5 }}
-              exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-black z-0 pointer-events-none"
-            />
-            <motion.button
-              onClick={toggleMap}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 20 }}
-              whileTap={{ scale: 0.95 }}
-              className="fixed bottom-6 right-6 bg-white p-3 rounded-full shadow-xl z-20 flex items-center justify-center"
-            >
-              <FiX size={24} className="text-gray-700" />
-            </motion.button>
-          </>
-        )}
-      </AnimatePresence>
+      
     </div>
   );
 };

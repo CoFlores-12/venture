@@ -36,3 +36,7 @@
   background-color: oklch(49.6% 0.265 301.924);
   animation: glow 2s ease-in-out infinite;
 }
+
+.leaflet-top, .leaflet-right {
+    display: none !important;
+}
