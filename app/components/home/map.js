@@ -7,6 +7,7 @@ import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import "./map.css";
 import 'leaflet-routing-machine';
+import Link from 'next/link';
 
 // Fix icon issue with Next.js + Leaflet
 if (typeof window !== 'undefined') {
@@ -86,7 +87,7 @@ const createEmojiIcon = (emoji) =>
   }, []);
 
   return (
-    <MapContainer center={userLocation} zoom={13} style={{ height: '500px', width: '100%' }}>
+    <MapContainer center={userLocation} zoom={13} style={{ height: '500px', width: '100%', zIndex: 10 }}>
       <TileLayer
         attribution='&copy; <a href="https://osm.org/copyright">OpenStreetMap</a>'
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
@@ -109,6 +110,13 @@ const createEmojiIcon = (emoji) =>
                 <p><strong>Fecha:</strong> {event.date}</p>
                 <p><strong>Distancia:</strong>  {distanceKm !== null ? distanceKm.toFixed(2) + ' km' : 'Calculando...'}</p>
                 <p><strong>Categoría:</strong> {event.category}</p>
+                <Link
+                  href={`/event/${event.id}`}
+                  className="btn bg-purple-700 !text-white no-underlin"
+                >
+                  Más Detalles
+                </Link>
+
               </div>
             </Popup>
           </Marker>

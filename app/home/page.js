@@ -16,7 +16,7 @@ const events = [
     id: 1,
     title: "Festival de Música Electrónica",
     location: "Parque Central",
-    date: "Hoy, 20:00",
+    date: "04 JUN",
     distance: "1.2 km",
     category: "🎵 Música",
     emoji: "🎧",
@@ -27,7 +27,7 @@ const events = [
     id: 2,
     title: "Exposición de Arte Moderno",
     location: "Museo para la Identidad Nacional",
-    date: "Mañana, 10:00",
+    date: "05 JUN",
     distance: "3.5 km",
     category: "🖼️ Arte",
     emoji: "🎨",
@@ -38,7 +38,7 @@ const events = [
     id: 3,
     title: "Feria Gastronómica",
     location: "Plaza La Merced",
-    date: "Este fin de semana",
+    date: "15 JUN",
     distance: "2.1 km",
     category: "🍴 Comida",
     emoji: "🍔",
@@ -49,7 +49,7 @@ const events = [
     id: 4,
     title: "Concierto de Jazz",
     location: "Teatro Nacional Manuel Bonilla",
-    date: "Viernes, 21:30",
+    date: "01 JUL",
     distance: "0.8 km",
     category: "🎵 Música",
     emoji: "🎷",
@@ -60,7 +60,7 @@ const events = [
     id: 5,
     title: "Taller de Fotografía",
     location: "Centro Cultural de España en Tegucigalpa",
-    date: "Sábado, 15:00",
+    date: "11 AGO",
     distance: "1.5 km",
     category: "📸 Taller",
     emoji: "📷",
@@ -71,7 +71,7 @@ const events = [
     id: 6,
     title: "Maratón de la Ciudad",
     location: "Bulevar Morazán",
-    date: "Domingo, 7:00",
+    date: "05 SEP",
     distance: "4.2 km",
     category: "🏃‍♂️ Deporte",
     emoji: "🏅",
@@ -82,7 +82,7 @@ const events = [
     id: 7,
     title: "Feria del Libro",
     location: "Plaza San Martín",
-    date: "Todo el mes",
+    date: "30 OCT",
     distance: "2.8 km",
     category: "📚 Literatura",
     emoji: "📖",
@@ -93,7 +93,7 @@ const events = [
     id: 8,
     title: "Festival de Danza Folklórica",
     location: "Plaza Los Dolores",
-    date: "Sábado, 18:00",
+    date: "02 NOV",
     distance: "1.7 km",
     category: "💃 Cultura",
     emoji: "👯",
@@ -104,7 +104,7 @@ const events = [
     id: 9,
     title: "Mercado Artesanal",
     location: "Barrio La Leona",
-    date: "Domingo, 9:00-16:00",
+    date: "20 NOV",
     distance: "0.5 km",
     category: "🛍️ Artesanía",
     emoji: "🧵",
@@ -115,7 +115,7 @@ const events = [
     id: 10,
     title: "Proyección de Cine al Aire Libre",
     location: "Parque Naciones Unidas",
-    date: "Viernes y Sábado, 19:00",
+    date: "17 DIC",
     distance: "3.1 km",
     category: "🎬 Cine",
     emoji: "🎥",
@@ -221,26 +221,24 @@ const events = [
               <div className="overflow-x-auto pb-4 scrollbar-hide">
                 <div className="flex space-x-4" style={{ width: `${events.length * 288}px` }}>
                   {events.map(event => (
-                    <motion.div 
+                    <motion.a 
+                    href={`/event/${event.id}`}
                       key={event.id}
                       whileHover={{ y: -5 }}
                       className="w-72 bg-white rounded-xl shadow-md overflow-hidden flex-shrink-0"
                     >
-                      <div className="h-40 bg-gradient-to-r from-purple-100 to-blue-100 flex items-center justify-center">
+                      <div className="h-24 bg-gradient-to-r from-purple-100 to-blue-100 flex items-center justify-center">
                         <span className="text-6xl">{event.emoji}</span>
                       </div>
-                      <div className="p-4">
+                      <div className="p-4 relative">
+                        
                         <h3 className="font-bold text-gray-800 truncate">{event.title}</h3>
                         <p className="text-sm text-gray-600 mt-1 truncate">{event.location}</p>
-                        <div className="flex justify-between items-center mt-3">
-                          <span className="text-xs text-purple-600 bg-purple-50 px-2 py-1 rounded-full">
-                            {event.category}
-                          </span>
-                          <span className="text-xs text-gray-500">{event.distance}</span>
-                        </div>
                         <p className="text-sm text-gray-500 mt-2">{event.date}</p>
+                        
+                        
                       </div>
-                    </motion.div>
+                    </motion.a>
                   ))}
                 </div>
               </div>
