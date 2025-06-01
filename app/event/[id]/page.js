@@ -6,8 +6,8 @@ import { FaGoogle, FaWaze, FaApple } from 'react-icons/fa';
 import Link from 'next/link';
 import MapWrapperStatic from '@/app/components/mapWrapper';
 import ShareButton from '@/app/components/shareEvent';
+import { SiUber } from 'react-icons/si';
 
-// Datos de eventos en Tegucigalpa
 const events = [
   {
     id: 1,
@@ -232,13 +232,10 @@ const events = [
 ];
 
 const EventDetailPage = () => {
-  // Obtener el ID del evento de los parámetros de la URL
   const { id } = useParams();
   
-  // Buscar el evento correspondiente
   const event = events.find(e => e.id === parseInt(id));
   
-  // Si no se encuentra el evento
   if (!event) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
@@ -253,11 +250,13 @@ const EventDetailPage = () => {
     );
   }
 
-  // Coordenadas para mapas
   const [lat, lng] = event.position;
   const googleMapsUrl = `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`;
   const wazeUrl = `https://www.waze.com/ul?ll=${lat},${lng}&navigate=yes`;
   const appleMapsUrl = `https://maps.apple.com/?q=${lat},${lng}`;
+  const uberUrl = `https://m.uber.com/ul/?action=setPickup&client_id=<TU_CLIENT_ID>&pickup=my_location&dropoff[formatted_address]=${encodeURIComponent(location)}&dropoff[latitude]=${lat}&dropoff[longitude]=${lng}`;
+  const inDriveUrl = `https://indriver.com/`;
+  
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -360,14 +359,17 @@ const EventDetailPage = () => {
                 </div>
                 
                 {/* Botones de acción sobre el mapa */}
-                <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-3">
+                
+              </div>
+            </div>
+            <div className="relative flex flex-wrap gap-3 overflow-x-auto max-w-full py-4 justify-center items-center">
                   <a 
                     href={googleMapsUrl} 
                     target="_blank" 
                     rel="noopener noreferrer"
                     className="bg-white px-4 py-2 rounded-full shadow-md flex items-center text-sm font-medium hover:bg-gray-50"
                   >
-                    <FaGoogle className="text-purple-500 mr-2" /> Google Maps
+                    <FaGoogle className="text-purple-500 mr-2" /> Google
                   </a>
                   <a 
                     href={wazeUrl} 
@@ -384,11 +386,19 @@ const EventDetailPage = () => {
                         className="bg-white px-4 py-2 rounded-full shadow-md flex items-center text-sm font-medium hover:bg-gray-50"
                     >
                         <FaApple className="text-purple-600 mr-2" />
-                        <span>Apple Maps</span>
+                        <span>Apple</span>
                     </a>
+                    <a 
+                href={uberUrl} 
+                 target="_blank" 
+                        rel="noopener noreferrer"
+                        className="bg-white px-4 py-2 rounded-full shadow-md flex items-center text-sm font-medium hover:bg-gray-50"
+              >
+                <SiUber className="text-black text-xl" />
+              </a>
+              
+              
                 </div>
-              </div>
-            </div>
           </div>
           
           {/* Planificador del evento */}
@@ -490,7 +500,6 @@ const EventDetailPage = () => {
   );
 };
 
-// Componente App para simular el enrutamiento
 const App = () => {
   return (
     <div className="App">

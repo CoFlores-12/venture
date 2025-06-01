@@ -152,7 +152,7 @@ const EventAppLanding = () => {
               data-aos="zoom-in"
               data-aos-delay={index * 100} // animación escalonada
               data-aos-duration="800">
-                <div className="card-body items-center text-center text-black dark:text-white">
+                <div className="card-body items-center text-center text-white">
                   <div className="text-4xl mb-4">{feature.icon}</div>
                   <h3 className="card-title text-2xl mb-2">{feature.title}</h3>
                   <p className="text-gray-300">{feature.desc}</p>

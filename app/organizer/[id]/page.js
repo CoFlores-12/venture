@@ -1,17 +1,8 @@
 "use client"
-import React, { useState } from 'react';
+import { useParams } from 'next/navigation'
 import { useRouter } from 'next/navigation';
-import { motion, AnimatePresence,  } from 'framer-motion';
-import { FiSearch, FiMenu, FiUser, FiHeart, FiBookmark, FiSettings, FiMap, FiX, FiChevronRight } from 'react-icons/fi';
-import MapWrapper from '../components/home/mapWrapper';
+import { FiArrowLeft, FiStar, FiCalendar, FiMapPin, FiMessageSquare, FiHeart } from 'react-icons/fi';
 
-
-const HomePage = () => {
-  const router = useRouter()
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isMapExpanded, setIsMapExpanded] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [showMapButton, setShowMapButton] = useState(true);
 
 const events = [
   {
@@ -235,143 +226,201 @@ const events = [
   banner: "https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1200&h=400&q=80"
 }
 ];
+const OrganizerProfile = () => {
+    const router = useRouter()
+   const { id } = useParams();
+    
+    let organizer = events.find(e => e.organizer.profile === `/organizer/${id}`);
 
+
+  const organizerEvents = events.filter(event => event.organizer.profile === `/organizer/${id}`)
+
+    organizer = organizer.organizer
+
+  if (!organizer) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold text-purple-700">Organizador no encontrado</h1>
+          <button 
+            onClick={() => router.push('/')}
+            className="mt-4 btn btn-primary bg-purple-700 hover:bg-purple-800 text-white"
+          >
+            Volver al inicio
+          </button>
+        </div>
+      </div>
+    )
+  }
 
   return (
-    <div className="flex flex-col min-h-screen bg-gray-100 relative">
-      {/* Header */}
-      <header className="bg-white shadow-sm sticky top-0 z-20">
-        <div className="container mx-auto px-4 py-3 flex items-center">
-          <button 
-            onClick={() => setIsMenuOpen(true)}
-            className="p-2 rounded-full bg-gray-100 text-gray-700 mr-3"
-          >
-            <FiMenu size={20} />
-          </button>
-          
-          <div className="flex-1 relative">
-            <input
-              type="text"
-              placeholder="Buscar eventos, lugares..."
-              className="w-full py-2 pl-10 pr-4 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+    <div className="pb-20 bg-gray-50 min-h-screen">
+      {/* Navbar iOS Style */}
+      <nav className="sticky top-0 z-10 bg-white px-4 py-3 border-b border-gray-200 flex items-center shadow-sm">
+        <button 
+          onClick={() => router.back()}
+          className="p-2 rounded-full hover:bg-gray-100 mr-2"
+        >
+          <FiArrowLeft className="text-gray-800 text-lg" />
+        </button>
+        <h1 className="text-lg font-semibold text-gray-900 truncate max-w-xs">
+          {organizer.name}
+        </h1>
+      </nav>
+
+      {/* Header del organizador */}
+      <div className="px-6 pt-6">
+        <div className="flex items-start gap-4 mb-6">
+          <div className="relative">
+            <img 
+              src={organizer.avatar} 
+              alt={`Avatar de ${organizer.name}`} 
+              className="w-20 h-20 rounded-2xl object-cover border-2 border-white shadow-md"
             />
-            <FiSearch className="absolute left-3 top-3 text-gray-400" />
+            <div className="absolute -bottom-2 -right-2 bg-purple-700 text-white rounded-full p-1 shadow-md">
+              <FiStar className="text-sm" />
+            </div>
+          </div>
+          
+          <div className="flex-1 pt-1">
+            <div className="flex items-center justify-between">
+              <h2 className="text-xl font-bold text-gray-900">{organizer.name}</h2>
+              <button className="p-2 rounded-full bg-gray-100 text-gray-600 hover:bg-gray-200">
+                <FiHeart className="text-lg" />
+              </button>
+            </div>
+            
+            <div className="flex items-center gap-2 mt-1">
+              <div className="flex items-center">
+                <FiStar className="text-yellow-400 mr-1" />
+                <span className="text-gray-900 font-medium">{organizer.rating}</span>
+              </div>
+              <span className="text-gray-500">•</span>
+              <span className="text-gray-600">{organizer.eventsOrganized} eventos</span>
+            </div>
+            
+            <p className="text-gray-600 mt-2 text-sm">Creador de experiencias memorables en Tegucigalpa</p>
           </div>
         </div>
-      </header>
+        
+        <div className="flex gap-3 mb-6">
+          <button className="flex-1 py-2.5 px-4 rounded-xl bg-purple-700 text-white font-medium flex items-center justify-center gap-2 shadow-sm hover:bg-purple-800 transition-colors">
+            <FiMessageSquare />
+            Contactar
+          </button>
+          <button className="flex-1 py-2.5 px-4 rounded-xl bg-white border border-gray-300 font-medium flex items-center justify-center gap-2 shadow-sm hover:bg-gray-50 transition-colors">
+            <FiHeart />
+            Seguir
+          </button>
+        </div>
+      </div>
 
-      {/* Menú Lateral */}
-      <AnimatePresence>
-        {isMenuOpen && (
-          <motion.div
-            initial={{ x: '-100%' }}
-            animate={{ x: 0 }}
-            exit={{ x: '-100%' }}
-            transition={{ type: 'tween' }}
-            className="fixed inset-y-0 left-0 w-64 bg-white shadow-lg z-30"
-          >
-            <div className="p-4 border-b border-gray-200 flex justify-between items-center">
-              <h2 className="text-xl font-bold text-gray-800">Mi Cuenta</h2>
-              <button onClick={() => setIsMenuOpen(false)}>
-                <FiX size={20} className="text-gray-500" />
-              </button>
+      {/* Sección de eventos */}
+      <div className="px-6 mb-8">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-lg font-semibold text-gray-900">Próximos eventos</h3>
+          {organizerEvents.length > 0 && (
+            <button className="text-sm text-purple-700 font-medium">Ver todos</button>
+          )}
+        </div>
+        
+        {organizerEvents.length === 0 ? (
+          <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+            <div className="text-center py-8">
+              <FiCalendar className="mx-auto text-3xl text-gray-400 mb-3" />
+              <h4 className="text-gray-700 font-medium mb-1">No hay eventos próximos</h4>
+              <p className="text-gray-500 text-sm">Este organizador no tiene eventos programados actualmente.</p>
             </div>
-            
-            <div className="p-4">
-              <div className="flex items-center mb-6">
-                <div className="w-12 h-12 rounded-full bg-purple-100 flex items-center justify-center mr-3">
-                  <FiUser size={20} className="text-purple-700" />
-                </div>
-                <div>
-                  <h3 className="font-medium text-gray-800">Usuario Ejemplo</h3>
-                  <p className="text-sm text-gray-500">usuario@ejemplo.com</p>
+          </div>
+        ) : (
+          <div className="space-y-3">
+            {organizerEvents.slice(0, 3).map(event => (
+              <div 
+                key={event.id} 
+                className="bg-white rounded-xl p-4 shadow-sm border border-gray-100 hover:shadow-md transition-shadow cursor-pointer"
+                onClick={() => router.push(`/events/${event.id}`)}
+              >
+                <div className="flex gap-3">
+                  <img 
+                    src={event.banner} 
+                    alt={event.title} 
+                    className="w-16 h-16 rounded-lg object-cover"
+                  />
+                  <div className="flex-1 min-w-0">
+                    <h4 className="font-medium text-gray-900 truncate">{event.title}</h4>
+                    <div className="flex items-center text-sm text-gray-500 mt-1">
+                      <FiMapPin className="mr-1" />
+                      <span className="truncate">{event.location}</span>
+                    </div>
+                    <div className="flex items-center justify-between mt-2">
+                      <span className="text-sm font-medium text-purple-700">{event.price}</span>
+                      <span className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-full">
+                        {event.date}
+                      </span>
+                    </div>
+                  </div>
                 </div>
               </div>
-              
-              <nav className="space-y-2">
-                <a href="#" className="flex items-center p-3 rounded-lg text-gray-700 hover:bg-purple-50 hover:text-purple-600">
-                  <FiUser className="mr-3" /> Mi Perfil
-                </a>
-                <a href="#" className="flex items-center p-3 rounded-lg text-gray-700 hover:bg-purple-50 hover:text-purple-600">
-                  <FiHeart className="mr-3" /> Favoritos
-                </a>
-                <a href="#" className="flex items-center p-3 rounded-lg text-gray-700 hover:bg-purple-50 hover:text-purple-600">
-                  <FiBookmark className="mr-3" /> Eventos Guardados
-                </a>
-                <a href="#" className="flex items-center p-3 rounded-lg text-gray-700 hover:bg-purple-50 hover:text-purple-600">
-                  <FiSettings className="mr-3" /> Configuración
-                </a>
-              </nav>
-            </div>
-          </motion.div>
+            ))}
+          </div>
         )}
-      </AnimatePresence>
+      </div>
 
-      {/* Overlay del menú */}
-      {isMenuOpen && (
-        <div 
-          className="fixed inset-0 bg-[#00000050] bg-opacity-50 z-20"
-          onClick={() => setIsMenuOpen(false)}
-        />
-      )}
-
-      {/* Contenido Principal */}
-      <main className={`flex-1 ${isMapExpanded ? 'overflow-hidden' : ''}`}>
-        {/* Sección de Recomendaciones con scroll horizontal */}
-        {!isMapExpanded && (
-          <section className="container mx-auto px-4 py-6">
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-xl font-bold text-gray-800">Recomendados para ti</h2>
-              <button onClick={()=>router.push('/events')} className="text-sm text-purple-600 flex items-center">
-                Ver todos <FiChevronRight className="ml-1" />
-              </button>
-            </div>
-            
-            <div className="relative">
-              <div className="overflow-x-auto pb-4 scrollbar-hide">
-                <div className="flex space-x-4" style={{ width: `${events.length * 288}px` }}>
-                  {events.map(event => (
-                    <motion.a 
-                    href={`/event/${event.id}`}
-                      key={event.id}
-                      whileHover={{ y: -5 }}
-                      className="w-72 bg-white rounded-xl shadow-md overflow-hidden flex-shrink-0 card hover:shadow-2xl transition-shadow"
-                    >
-                      <figure>
-                        <img src={event.banner} alt={event.title} className="h-24 w-full object-cover" />
-                      </figure>
-                      <div className="card-body">
-                        <div className="flex items-center justify-between relative">
-                          <span className="badge absolute -top-[100px] badge-primary bg-purple-700 text-white">{event.category}</span>
-                        </div>
-                        <h3 className="card-title truncate">{event.title}</h3>
-                        <div className="mt-4 flex items-center justify-between">
-                          <div>
-                            <p className="text-sm text-gray-500">{event.date} • {event.time}</p>
-                            <p className="font-semibold text-purple-700">{event.price}</p>
-                          </div>
-                        </div>
-                      </div>
-                    </motion.a>
+      {/* Sección de reseñas */}
+      <div className="px-6">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-lg font-semibold text-gray-900">Reseñas</h3>
+          <button className="text-sm text-purple-700 font-medium">Ver todas</button>
+        </div>
+        
+        <div className="bg-white rounded-xl p-5 shadow-sm border border-gray-100 mb-3">
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center">
+              <div className="w-10 h-10 rounded-full bg-gray-300 mr-3"></div>
+              <div>
+                <h4 className="font-medium text-gray-900">María Fernández</h4>
+                <div className="flex items-center">
+                  {[...Array(5)].map((_, i) => (
+                    <FiStar 
+                      key={i}
+                      className={`text-sm ${i < 4 ? 'text-yellow-400 fill-yellow-400' : 'text-gray-300'}`}
+                    />
                   ))}
                 </div>
               </div>
             </div>
-          </section>
-        )}
-
-        {/* Mapa Interactivo */}
-         <MapWrapper events={events}/>
-
-        {/* Espacio adicional para el scroll en móviles */}
-        {!isMapExpanded && <div className="h-20"></div>}
-      </main>
-
-      
+            <span className="text-xs text-gray-400">Hace 2 semanas</span>
+          </div>
+          <p className="text-gray-700 text-sm">
+            Excelente organización en todos sus eventos. La atención al detalle y la calidad de los artistas invitados es siempre impecable.
+          </p>
+        </div>
+        
+        <div className="bg-white rounded-xl p-5 shadow-sm border border-gray-100">
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center">
+              <div className="w-10 h-10 rounded-full bg-gray-300 mr-3"></div>
+              <div>
+                <h4 className="font-medium text-gray-900">Carlos Martínez</h4>
+                <div className="flex items-center">
+                  {[...Array(5)].map((_, i) => (
+                    <FiStar 
+                      key={i}
+                      className={`text-sm ${i < 5 ? 'text-yellow-400 fill-yellow-400' : 'text-gray-300'}`}
+                    />
+                  ))}
+                </div>
+              </div>
+            </div>
+            <span className="text-xs text-gray-400">Hace 1 mes</span>
+          </div>
+          <p className="text-gray-700 text-sm">
+            Nunca me decepcionan. Cada evento al que asisto supera mis expectativas. La ubicación, el sonido y la energía son siempre perfectos.
+          </p>
+        </div>
+      </div>
     </div>
-  );
-};
+  )
+}
 
-export default HomePage;
+export default OrganizerProfile
