@@ -79,11 +79,11 @@ const EventPlanSelector = ({ onPlanSelect }) => {
               </div>
             )}
             
-            <div className="px-6 py-8 bg-white">
+            <div className="px-6 py-8 bg-white dark:bg-slate-800 dark:text-gray-300">
               <div className="flex items-center justify-between">
-                <h3 className="text-2xl font-bold text-gray-900">{plan.name}</h3>
+                <h3 className="text-2xl font-bold text-gray-900 dark:bg-slate-800 dark:text-gray-300">{plan.name}</h3>
               </div>
-                <span className={`text-3xl font-bold ${plan.id === 'basic' ? 'text-gray-900' : 'text-purple-800'}`}>
+                <span className={`text-3xl font-bold ${plan.id === 'basic' ? 'text-gray-900 dark:bg-slate-800 dark:text-gray-300' : 'text-purple-800'}`}>
                   {plan.price}
                 </span>
               <p className="mt-2 text-gray-600">{plan.description}</p>
@@ -100,13 +100,13 @@ const EventPlanSelector = ({ onPlanSelect }) => {
               </div>
             </div>
             
-            <div className="px-6 py-4 bg-gray-50">
+            <div className="px-6 py-4 bg-gray-50 dark:bg-slate-800 dark:text-gray-300">
               <button
                 onClick={() => handleSelectPlan(plan.id)}
                 className={`w-full py-3 px-4 rounded-md font-medium 
                   ${selectedPlan === plan.id 
                     ? 'bg-purple-800 text-white hover:bg-purple-900' 
-                    : 'bg-white text-purple-800 border border-purple-800 hover:bg-purple-50'}
+                    : 'bg-white text-purple-800 border border-purple-800  dark:bg-slate-900 dark:text-gray-300'}
                   transition-colors duration-300`}
               >
                 {selectedPlan === plan.id ? 'Seleccionado' : 'Seleccionar plan'}

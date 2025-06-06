@@ -67,7 +67,7 @@ const ShareButton = ({ event }) => {
     <div className="relative" ref={menuRef}>
       <button 
         onClick={() => setIsOpen(!isOpen)}
-        className="bg-white bg-opacity-90 rounded-full p-2 shadow-md hover:bg-gray-100 transition-colors"
+        className="bg-white bg-opacity-90 rounded-full dark:bg-slate-800 dark:text-gray-300 p-2 shadow-md  transition-colors"
         aria-label="Compartir evento"
       >
         {isCopied ? (
@@ -75,14 +75,14 @@ const ShareButton = ({ event }) => {
             <FiCheck className="text-xl" />
           </div>
         ) : (
-          <FiShare2 className="text-gray-800 text-xl" />
+          <FiShare2 className="text-gray-800 text-xl dark:bg-slate-800 dark:text-gray-300" />
         )}
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 top-12 w-64 bg-white rounded-xl shadow-lg z-20 overflow-hidden">
+        <div className="absolute right-0 top-12 w-64 bg-white dark:bg-slate-800 dark:text-gray-300 rounded-xl shadow-lg z-20 overflow-hidden">
           <div className="border-b border-gray-100 p-3 flex justify-between items-center">
-            <h3 className="font-medium text-gray-800">Compartir evento</h3>
+            <h3 className="font-medium text-gray-800 dark:bg-slate-800 dark:text-gray-300">Compartir evento</h3>
             <button 
               onClick={() => setIsOpen(false)}
               className="p-1 rounded-full hover:bg-gray-100"

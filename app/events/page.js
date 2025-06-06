@@ -206,14 +206,14 @@ const EventsPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 dark:bg-slate-900">
      
-      <div className="sticky top-0 z-10 bg-white shadow-md p-4">
+      <div className="sticky top-0 z-10 bg-white dark:bg-slate-900 shadow-md p-4">
         <div className="container mx-auto">
           <div className="flex items-center mb-4">
             <button
               onClick={() => router.back()}
-              className="mr-2 flex items-center justify-center rounded-full bg-gray-100 w-9 h-9"
+              className="mr-2 flex items-center justify-center rounded-full bg-gray-100 dark:bg-slate-900 dark:text-white w-9 h-9"
               aria-label="Regresar"
             >
               <FiChevronLeft className="text-gray-700 text-xl" />
@@ -231,7 +231,7 @@ const EventsPage = () => {
             
             <button 
               onClick={() => setShowFilters(!showFilters)}
-              className="ml-3 p-2 bg-purple-100 text-purple-700 rounded-full hover:bg-purple-200 transition-colors"
+              className="ml-3 p-2 bg-purple-100 dark:bg-slate-900 text-purple-700 rounded-full hover:bg-purple-200 transition-colors"
             >
               <FiFilter className="text-xl" />
             </button>
@@ -256,10 +256,10 @@ const EventsPage = () => {
 
       {/* Panel de filtros */}
       {showFilters && (
-        <div className="bg-white border-b border-gray-200 p-4">
+        <div className="bg-white border-b border-gray-200 p-4 dark:bg-slate-900">
           <div className="container mx-auto">
             <div className="flex justify-between items-center mb-4">
-              <h2 className="text-lg font-bold text-gray-800">Filtros</h2>
+              <h2 className="text-lg font-bold text-gray-800 dark:text-gray-300">Filtros</h2>
               <button 
                 onClick={() => setShowFilters(false)}
                 className="text-gray-500"
@@ -269,8 +269,8 @@ const EventsPage = () => {
             </div>
             
             <div className="mb-6">
-              <h3 className="font-medium text-gray-800 mb-3 flex items-center">
-                <FiStar className="mr-2 text-purple-600" /> Categorías
+              <h3 className="font-medium text-gray-800 mb-3 flex items-center dark:text-gray-300">
+                <FiStar className="mr-2 text-purple-600 " /> Categorías
               </h3>
               <div className="flex flex-wrap gap-2">
                 {categories.map(category => (
@@ -280,7 +280,7 @@ const EventsPage = () => {
                     className={`px-3 py-1 rounded-full text-sm font-medium ${
                       selectedCategories.includes(category)
                         ? 'bg-purple-600 text-white'
-                        : 'bg-gray-100 text-gray-800 hover:bg-gray-200'
+                        : 'bg-gray-100 text-gray-800 hover:bg-gray-200 dark:bg-slate-800 dark:text-gray-300'
                     }`}
                   >
                     {category}
@@ -291,7 +291,7 @@ const EventsPage = () => {
             
             {/* Filtro por mes */}
             <div className="mb-6">
-              <h3 className="font-medium text-gray-800 mb-3 flex items-center">
+              <h3 className="font-medium text-gray-800 mb-3 flex items-center dark:text-gray-300">
                 <FiCalendar className="mr-2 text-purple-600" /> Meses
               </h3>
               <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-2">
@@ -302,7 +302,7 @@ const EventsPage = () => {
                     className={`px-3 py-2 rounded-lg text-center ${
                       selectedMonths.includes(month)
                         ? 'bg-purple-600 text-white'
-                        : 'bg-gray-100 text-gray-800 hover:bg-gray-200'
+                        : 'bg-gray-100 text-gray-800 hover:bg-gray-200 dark:bg-slate-800 dark:text-gray-300'
                     }`}
                   >
                     {month}
@@ -313,7 +313,7 @@ const EventsPage = () => {
             
             {/* Ordenar por */}
             <div>
-              <h3 className="font-medium text-gray-800 mb-3 flex items-center">
+              <h3 className="font-medium text-gray-800 mb-3 flex items-center dark:text-gray-300">
                 <FiChevronDown className="mr-2 text-purple-600" /> Ordenar por
               </h3>
               <div className="flex gap-3">
@@ -322,7 +322,7 @@ const EventsPage = () => {
                   className={`px-4 py-2 rounded-lg ${
                     sortBy === 'date'
                       ? 'bg-purple-600 text-white'
-                      : 'bg-gray-100 text-gray-800 hover:bg-gray-200'
+                      : 'bg-gray-100 text-gray-800 hover:bg-gray-200 dark:bg-slate-800 dark:text-gray-300'
                   }`}
                 >
                   Fecha
@@ -332,7 +332,7 @@ const EventsPage = () => {
                   className={`px-4 py-2 rounded-lg ${
                     sortBy === 'distance'
                       ? 'bg-purple-600 text-white'
-                      : 'bg-gray-100 text-gray-800 hover:bg-gray-200'
+                      : 'bg-gray-100 text-gray-800 hover:bg-gray-200 dark:bg-slate-800 dark:text-gray-300'
                   }`}
                 >
                   Distancia
@@ -348,14 +348,14 @@ const EventsPage = () => {
         {/* Eventos destacados */}
         {filteredEvents.filter(e => e.featured).length > 0 && (
           <section className="mb-8">
-            <h2 className="text-xl font-bold text-gray-800 mb-4 flex items-center">
-              <FiStar className="text-yellow-500 mr-2" /> Eventos destacados
+            <h2 className="text-xl font-bold text-gray-800 mb-4 flex items-center dark:text-gray-300">
+              <FiStar className="text-yellow-500 mr-2  " /> Eventos destacados
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {filteredEvents
                 .filter(event => event.featured)
                 .map(event => (
-                  <div key={event.id} className="bg-white rounded-xl shadow-md overflow-hidden border border-yellow-300">
+                  <a href={`/event/${event.id}`} key={event.id} className="bg-white dark:bg-slate-800 dark:text-gray-300 rounded-xl shadow-md overflow-hidden border border-yellow-300">
                     <div className="p-4">
                       <div className="flex justify-between items-start mb-3">
                         <span className="text-3xl">{event.emoji}</span>
@@ -363,7 +363,7 @@ const EventsPage = () => {
                           Destacado
                         </span>
                       </div>
-                      <h3 className="font-bold text-gray-800 text-lg">{event.title}</h3>
+                      <h3 className="font-bold text-gray-800 text-lg dark:bg-slate-800 dark:text-gray-300">{event.title}</h3>
                       <div className="flex items-center text-gray-600 mt-2">
                         <FiCalendar className="mr-2" />
                         <span>{event.date}</span>
@@ -379,7 +379,7 @@ const EventsPage = () => {
                         <span className="text-sm text-gray-500">{event.distance}</span>
                       </div>
                     </div>
-                  </div>
+                  </a>
                 ))}
             </div>
           </section>
@@ -387,7 +387,7 @@ const EventsPage = () => {
 
         {/* Todos los eventos */}
         <section>
-          <h2 className="text-xl font-bold text-gray-800 mb-4">
+          <h2 className="text-xl font-bold text-gray-800 mb-4  dark:text-gray-300">
             {filteredEvents.filter(e => !e.featured).length > 0 ? 'Todos los eventos' : 'No se encontraron eventos'}
           </h2>
           
@@ -395,7 +395,7 @@ const EventsPage = () => {
             {filteredEvents
               .filter(event => !event.featured)
               .map(event => (
-                <div key={event.id} className="bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow overflow-hidden">
+                <a href={`/event/${event.id}`} key={event.id} className="bg-white dark:bg-slate-800 dark:text-gray-300 rounded-xl shadow-sm hover:shadow-md transition-shadow overflow-hidden">
                   <div className="p-4">
                     <div className="flex justify-between items-start">
                       <span className="text-3xl">{event.emoji}</span>
@@ -403,7 +403,7 @@ const EventsPage = () => {
                         {event.date}
                       </span>
                     </div>
-                    <h3 className="font-bold text-gray-800 mt-2">{event.title}</h3>
+                    <h3 className="font-bold text-gray-800 mt-2 dark:bg-slate-800 dark:text-gray-300">{event.title}</h3>
                     <p className="text-sm text-gray-600 mt-1">{event.location}</p>
                     <div className="mt-3 flex justify-between items-center">
                       <span className="text-xs bg-purple-100 text-purple-800 px-2 py-1 rounded-full">
@@ -412,7 +412,7 @@ const EventsPage = () => {
                       <span className="text-xs text-gray-500">{event.distance}</span>
                     </div>
                   </div>
-                </div>
+                </a>
               ))}
           </div>
         </section>

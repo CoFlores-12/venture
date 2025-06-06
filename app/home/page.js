@@ -238,26 +238,21 @@ const HomePage = () => {
 
 
   return (
-    <div className="flex flex-col min-h-screen bg-gray-100 relative">
+    <div className="flex flex-col min-h-screen bg-gray-100 dark:bg-slate-900 relative">
       {/* Header */}
-      <header className="bg-white shadow-sm sticky top-0 z-20">
+      <header className="bg-white dark:bg-slate-900 shadow-sm sticky top-0 z-20">
         <div className="container mx-auto px-4 py-3 flex items-center">
           <button 
             onClick={() => setIsMenuOpen(true)}
-            className="p-2 rounded-full bg-gray-100 text-gray-700 mr-3"
+            className="p-2 rounded-full bg-gray-100 dark:bg-slate-900 dark:text-white text-gray-700 mr-3"
           >
             <FiMenu size={20} />
           </button>
           
-          <div className="flex-1 relative">
-            <input
-              type="text"
-              placeholder="Buscar eventos, lugares..."
-              className="w-full py-2 pl-10 pr-4 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
-            <FiSearch className="absolute left-3 top-3 text-gray-400" />
+          <div className="flex-1 relative flex justify-center -left-7.5">
+            <span className="text-black dark:text-white flex items-end" data-aos="zoom-in">
+              <img src="/logo.png" height="30px" width={30} />enture
+            </span>
           </div>
         </div>
       </header>
@@ -270,10 +265,10 @@ const HomePage = () => {
             animate={{ x: 0 }}
             exit={{ x: '-100%' }}
             transition={{ type: 'tween' }}
-            className="fixed inset-y-0 left-0 w-64 bg-white shadow-lg z-30"
+            className="fixed inset-y-0 left-0 w-64 bg-white dark:bg-slate-900 text-gray-800 dark:text-white shadow-lg z-30"
           >
             <div className="p-4 border-b border-gray-200 flex justify-between items-center">
-              <h2 className="text-xl font-bold text-gray-800">Mi Cuenta</h2>
+              <h2 className="text-xl font-bold ">Mi Cuenta</h2>
               <button onClick={() => setIsMenuOpen(false)}>
                 <FiX size={20} className="text-gray-500" />
               </button>
@@ -285,25 +280,25 @@ const HomePage = () => {
                   <FiUser size={20} className="text-purple-700" />
                 </div>
                 <div>
-                  <h3 className="font-medium text-gray-800">Usuario Ejemplo</h3>
+                  <h3 className="font-medium ">Usuario Ejemplo</h3>
                   <p className="text-sm text-gray-500">usuario@ejemplo.com</p>
                 </div>
               </div>
               
               <nav className="space-y-2">
-                <a href="#" className="flex items-center p-3 rounded-lg text-gray-700 hover:bg-purple-50 hover:text-purple-600">
+                <a href="#" className="flex items-center p-3 rounded-lg hover:bg-purple-50 hover:text-purple-600">
                   <FiUser className="mr-3" /> Mi Perfil
                 </a>
-                <a href="#" className="flex items-center p-3 rounded-lg text-gray-700 hover:bg-purple-50 hover:text-purple-600">
+                <a href="#" className="flex items-center p-3 rounded-lg hover:bg-purple-50 hover:text-purple-600">
                   <FiHeart className="mr-3" /> Favoritos
                 </a>
-                <a href="#" className="flex items-center p-3 rounded-lg text-gray-700 hover:bg-purple-50 hover:text-purple-600">
+                <a href="#" className="flex items-center p-3 rounded-lg  hover:bg-purple-50 hover:text-purple-600">
                   <FiBookmark className="mr-3" /> Eventos Guardados
                 </a>
-                <a href="#" className="flex items-center p-3 rounded-lg text-gray-700 hover:bg-purple-50 hover:text-purple-600">
+                <a href="#" className="flex items-center p-3 rounded-lg  hover:bg-purple-50 hover:text-purple-600">
                   <FiSettings className="mr-3" /> Configuración
                 </a>
-                <a href="/events/new" className="flex items-center p-3 rounded-lg text-gray-700 hover:bg-purple-50 hover:text-purple-600">
+                <a href="/events/new" className="flex items-center p-3 rounded-lg  hover:bg-purple-50 hover:text-purple-600">
                   <FiPlus className="mr-3" /> Crear Evento
                 </a>
               </nav>
@@ -326,7 +321,7 @@ const HomePage = () => {
         {!isMapExpanded && (
           <section className="container mx-auto px-4 py-6">
             <div className="flex justify-between items-center mb-4">
-              <h2 className="text-xl font-bold text-gray-800">Recomendados para ti</h2>
+              <h2 className="text-xl font-bold text-gray-800 dark:text-gray-300">Recomendados para ti</h2>
               <button onClick={()=>router.push('/events')} className="text-sm text-purple-600 flex items-center">
                 Ver todos <FiChevronRight className="ml-1" />
               </button>
@@ -340,7 +335,7 @@ const HomePage = () => {
                     href={`/event/${event.id}`}
                       key={event.id}
                       whileHover={{ y: -5 }}
-                      className="w-72 bg-white rounded-xl shadow-md overflow-hidden flex-shrink-0 card hover:shadow-2xl transition-shadow"
+                      className="w-72 bg-white dark:bg-slate-800 rounded-xl shadow-md overflow-hidden flex-shrink-0 card hover:shadow-2xl transition-shadow"
                     >
                       <figure>
                         <img src={event.banner} alt={event.title} className="h-24 w-full object-cover" />

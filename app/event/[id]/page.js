@@ -259,7 +259,7 @@ const EventDetailPage = () => {
   
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 dark:bg-slate-800 dark:text-gray-300">
       {/* Banner superior */}
       <div className="relative">
         <img 
@@ -270,15 +270,15 @@ const EventDetailPage = () => {
         <div className="absolute inset-0 bg-gradient-to-t from-black to-transparent opacity-80"></div>
         
         <div className="absolute top-4 left-4">
-          <Link href="/home" className="bg-white bg-opacity-90 rounded-full p-2 shadow-md inline-block">
-            <FiArrowLeft className="text-gray-800 text-xl" />
+          <Link href="/home" className="bg-white dark:bg-slate-800 dark:text-gray-300 bg-opacity-90 rounded-full p-2 shadow-md inline-block">
+            <FiArrowLeft className="text-gray-800 dark:bg-slate-800 dark:text-gray-300 text-xl" />
           </Link>
         </div>
         
         <div className="absolute top-4 right-4 flex space-x-2">
-         <ShareButton event={event} />
-          <button className="bg-white bg-opacity-90 rounded-full p-2 shadow-md">
-            <FiHeart className="text-gray-800 text-xl" />
+         <ShareButton event={event}/>
+          <button className="bg-white  bg-opacity-90 rounded-full p-2 shadow-md dark:bg-slate-800 dark:text-gray-300">
+            <FiHeart className="text-gray-800 text-xl dark:bg-slate-800 dark:text-gray-300  " />
           </button>
         </div>
         
@@ -287,7 +287,7 @@ const EventDetailPage = () => {
 
       {/* Contenido principal */}
       <div className="px-4 py-6 -mt-10 relative z-10">
-        <div className="bg-white rounded-2xl shadow-lg p-6">
+        <div className="bg-white dark:bg-slate-900 dark:text-gray-300 rounded-2xl shadow-lg p-6">
           {/* Categoría y título */}
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center">
@@ -299,7 +299,7 @@ const EventDetailPage = () => {
             <span className="text-sm text-gray-500">{event.distance}</span>
           </div>
           
-          <h1 className="text-2xl font-bold text-gray-900 mb-4">{event.title}</h1>
+          <h1 className="text-2xl font-bold text-gray-900 mb-4 dark:bg-slate-900 dark:text-gray-300">{event.title}</h1>
           
           {/* Información del evento */}
           <div className="space-y-4 mb-6">
@@ -333,13 +333,13 @@ const EventDetailPage = () => {
           
           {/* Descripción */}
           <div className="mb-6">
-            <h2 className="text-lg font-bold text-gray-900 mb-2">Descripción del evento</h2>
+            <h2 className="text-lg font-bold text-gray-900 mb-2  dark:text-gray-300">Descripción del evento</h2>
             <p className="text-gray-700">{event.description}</p>
           </div>
           
           {/* Mapa de ubicación */}
           <div className="mb-8">
-            <h2 className="text-lg font-bold text-gray-900 mb-3">Ubicación</h2>
+            <h2 className="text-lg font-bold text-gray-900 mb-3  dark:text-gray-300">Ubicación</h2>
             <div className="rounded-xl overflow-hidden h-56 relative bg-gray-100 border border-gray-200">
                
                  <div className='absolute z-10  w-full h-full '>
@@ -367,7 +367,7 @@ const EventDetailPage = () => {
                     href={googleMapsUrl} 
                     target="_blank" 
                     rel="noopener noreferrer"
-                    className="bg-white px-4 py-2 rounded-full shadow-md flex items-center text-sm font-medium hover:bg-gray-50"
+                    className="bg-white dark:bg-slate-800 dark:text-gray-300 px-4 py-2 rounded-full shadow-md flex items-center text-sm font-medium hover:bg-gray-50"
                   >
                     <FaGoogle className="text-purple-500 mr-2" /> Google
                   </a>
@@ -375,7 +375,7 @@ const EventDetailPage = () => {
                     href={wazeUrl} 
                     target="_blank" 
                     rel="noopener noreferrer"
-                    className="bg-white px-4 py-2 rounded-full shadow-md flex items-center text-sm font-medium hover:bg-gray-50"
+                    className="bg-white dark:bg-slate-800 dark:text-gray-300 px-4 py-2 rounded-full shadow-md flex items-center text-sm font-medium hover:bg-gray-50"
                   >
                     <FaWaze className="text-purple-600 mr-2" /> Waze
                   </a>
@@ -383,7 +383,7 @@ const EventDetailPage = () => {
                         href={appleMapsUrl} 
                         target="_blank" 
                         rel="noopener noreferrer"
-                        className="bg-white px-4 py-2 rounded-full shadow-md flex items-center text-sm font-medium hover:bg-gray-50"
+                        className="bg-white dark:bg-slate-800 dark:text-gray-300 px-4 py-2 rounded-full shadow-md flex items-center text-sm font-medium hover:bg-gray-50"
                     >
                         <FaApple className="text-purple-600 mr-2" />
                         <span>Apple</span>
@@ -392,7 +392,7 @@ const EventDetailPage = () => {
                 href={uberUrl} 
                  target="_blank" 
                         rel="noopener noreferrer"
-                        className="bg-white px-4 py-2 rounded-full shadow-md flex items-center text-sm font-medium hover:bg-gray-50"
+                        className="bg-white dark:bg-slate-800 dark:text-gray-300 px-4 py-2 rounded-full shadow-md flex items-center text-sm font-medium hover:bg-gray-50"
               >
                 <SiUber className="text-black text-xl" />
               </a>
@@ -403,16 +403,16 @@ const EventDetailPage = () => {
           
           {/* Planificador del evento */}
           <div className="mb-8">
-            <h2 className="text-lg font-bold text-gray-900 mb-3">Organizado por</h2>
+            <h2 className="text-lg font-bold text-gray-900 mb-3  dark:text-gray-300">Organizado por</h2>
             <Link href={event.organizer.profile} className="block">
-              <div className="flex items-center p-4 bg-gray-50 rounded-xl hover:bg-purple-50 transition">
+              <div className="flex items-center p-4 bg-gray-50 dark:bg-slate-800 dark:text-gray-300 rounded-xl hover:bg-purple-50 transition">
                 <img 
                   src={event.organizer.avatar} 
                   alt={event.organizer.name} 
                   className="w-16 h-16 rounded-full object-cover mr-4"
                 />
                 <div>
-                  <h3 className="font-bold text-gray-900">{event.organizer.name}</h3>
+                  <h3 className="font-bold text-gray-900 dark:bg-slate-800 dark:text-gray-300">{event.organizer.name}</h3>
                   <div className="flex items-center mt-1">
                     <div className="flex text-yellow-400 mr-2">
                       {[...Array(5)].map((_, i) => (
@@ -438,7 +438,7 @@ const EventDetailPage = () => {
           
           {/* Botón de compra */}
           {event.price !== "Entrada libre" ? (
-            <div className="sticky bottom-6 z-40 bg-white p-4">
+            <div className="sticky bottom-6 z-40 bg-white p-4 dark:bg-slate-800 dark:text-gray-300">
               <button className="w-full bg-gradient-to-r from-purple-600 to-indigo-700 text-white py-4 rounded-xl font-bold text-lg shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200">
                 Comprar boletos - {event.price}
               </button>
@@ -463,8 +463,8 @@ const EventDetailPage = () => {
       
       {/* Footer de seguridad */}
       <div className="px-4 pb-8">
-        <div className="bg-white rounded-xl shadow-sm p-4">
-          <h3 className="font-bold text-gray-900 mb-2">Evento seguro</h3>
+        <div className="bg-white rounded-xl shadow-sm p-4 dark:bg-slate-900 dark:text-gray-300">
+          <h3 className="font-bold text-gray-900 mb-2  dark:text-gray-300">Evento seguro</h3>
           <p className="text-sm text-gray-600">
             Este evento ha sido verificado por nuestro equipo. La información proporcionada es precisa y confiable.
           </p>

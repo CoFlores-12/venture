@@ -14,12 +14,17 @@ const MapWithNoSSR = dynamic(
   }
 )
 
+
 const EventCreateForm = () => {
   const router = useRouter()
+
+  const [errors, setErrors] = useState({})
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [mapReady, setMapReady] = useState(false)
   const [formData, setFormData] = useState({
     title: '',
     description: '',
-    position: [14.1020, -87.2179], // Coordenadas iniciales de Tegucigalpa
+    position: [14.1020, -87.2179], // Default Tegucigalpa
     date: '',
     startTime: '',
     endTime: '',
@@ -30,14 +35,20 @@ const EventCreateForm = () => {
       { id: Date.now(), type: 'General', price: '', quantity: '' }
     ]
   })
-  const [errors, setErrors] = useState({})
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [mapReady, setMapReady] = useState(false)
   
   const handlePlanSelect = (selectedPlan) => {
     console.log('Plan seleccionado:', selectedPlan);
     // Aquí puedes manejar la selección del plan
   };
+
+    const handleChange = (e) => {
+    const { name, value } = e.target
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }))
+  }
+
 
   const handleImageChange = (e) => {
     const file = e.target.files[0]
@@ -165,7 +176,7 @@ const EventCreateForm = () => {
   }
 
   return (
-    <div className="max-w-3xl mx-auto p-4 md:p-6">
+    <div className="max-w-3xl mx-auto p-4 md:p-6 ">
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-bold text-purple-700">Crear nuevo evento</h1>
         <button 
@@ -196,7 +207,7 @@ const EventCreateForm = () => {
               </button>
             </div>
           ) : (
-            <label className="flex flex-col items-center justify-center w-full h-48 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100 transition-colors">
+            <label className="flex flex-col items-center justify-center w-full h-48 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:bg-slate-800 dark:text-gray-300  transition-colors">
               <div className="flex flex-col items-center justify-center pt-5 pb-6">
                 <FiImage className="text-3xl text-gray-400 mb-2" />
                 <p className="text-sm text-gray-500">Sube una imagen para tu evento</p>
@@ -256,9 +267,29 @@ const EventCreateForm = () => {
         
         {/* Mapa para selección de ubicación */}
         <div>
-          <label className="block text-sm font-medium mb-2 flex items-center">
-            <FiMapPin className="mr-2" /> Ubicación del evento
-          </label>
+          <div>
+            <label className="block text-sm font-medium mb-2 flex items-center">
+              <FiMapPin className="mr-2" /> Ubicación del evento
+            </label>
+            <label htmlFor="description" className="block text-sm font-medium mb-2">
+              Nombre del lugar
+            </label>
+            <div className="relative">
+              <input
+                type="text"
+                id="location"
+                name="location"
+                value={formData.location}
+                onChange={(e) => handleChange(e)}
+                className={`input input-bordered w-full ${errors.location ? 'input-error' : ''}`}
+                placeholder="Ej: Parque Central"
+              />
+              {errors.location && (
+                <p className="mt-1 text-sm text-error">{errors.location}</p>
+              )}
+            </div>
+          </div>
+          
           <div className="h-64 rounded-lg overflow-hidden shadow-md border border-gray-200">
             <MapWithNoSSR 
               position={formData.position} 
