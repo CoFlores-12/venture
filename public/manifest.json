@@ -1,0 +1,17 @@
+{
+    "name": "Venture",
+    "short_name": "Venture",
+    "description": "Venture App",
+    "start_url": "/home",
+    "display": "standalone",
+    "background_color": "#8200db",
+    "theme_color": "#8200db",
+    "icons": [
+      {
+        "src": "/logo.png",
+        "sizes": "512x512",
+        "type": "image/png"
+      }
+    ]
+  }
+  

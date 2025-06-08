@@ -4,6 +4,8 @@ import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence,  } from 'framer-motion';
 import { FiSearch, FiMenu, FiUser, FiHeart, FiBookmark, FiSettings, FiMap, FiX, FiChevronRight, FiPlus } from 'react-icons/fi';
 import MapWrapper from '../components/home/mapWrapper';
+import { useSession } from "next-auth/react";
+import LogoutButton from '../components/LogoutBtn';
 
 
 const HomePage = () => {
@@ -12,6 +14,7 @@ const HomePage = () => {
   const [isMapExpanded, setIsMapExpanded] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [showMapButton, setShowMapButton] = useState(true);
+  const { data: session, status } = useSession();
 
   const events = [
     {
@@ -274,14 +277,14 @@ const HomePage = () => {
               </button>
             </div>
             
-            <div className="p-4">
+            <div className="p-4 relative">
               <div className="flex items-center mb-6">
-                <div className="w-12 h-12 rounded-full bg-purple-100 flex items-center justify-center mr-3">
+                <div className="w-12 h-12 aspect-square rounded-full bg-purple-100 flex items-center justify-center mr-3">
                   <FiUser size={20} className="text-purple-700" />
                 </div>
-                <div>
+                <div className='max-w-[75%]'>
                   <h3 className="font-medium ">Usuario Ejemplo</h3>
-                  <p className="text-sm text-gray-500">usuario@ejemplo.com</p>
+                  <p className="text-sm text-gray-500 truncate">{session?.user?.email || "invitado@ejemplo.com"}</p>
                 </div>
               </div>
               
@@ -302,6 +305,9 @@ const HomePage = () => {
                   <FiPlus className="mr-3" /> Crear Evento
                 </a>
               </nav>
+              <div className="">
+                <LogoutButton />
+              </div>
             </div>
           </motion.div>
         )}

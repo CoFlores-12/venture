@@ -2,6 +2,7 @@
 import { useRouter } from 'next/navigation';
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import GoogleBtn from '../components/GoogleBtn';
 
 const AuthScreen = () => {
   const router = useRouter()
@@ -104,7 +105,9 @@ const AuthScreen = () => {
                 >
                   Iniciar Sesión
                 </button>
+
               </form>
+              <GoogleBtn />
               
               <div className="mt-6 text-center">
                 <button

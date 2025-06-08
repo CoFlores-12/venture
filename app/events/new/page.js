@@ -38,7 +38,6 @@ const EventCreateForm = () => {
   
   const handlePlanSelect = (selectedPlan) => {
     console.log('Plan seleccionado:', selectedPlan);
-    // Aquí puedes manejar la selección del plan
   };
 
     const handleChange = (e) => {
@@ -82,7 +81,6 @@ const EventCreateForm = () => {
     { value: 'culture', label: '💃 Cultura' }
   ]
 
-  // Manejador para la selección de ubicación en el mapa
   const handleMapClick = (latlng) => {
     setFormData(prev => ({
       ...prev,
