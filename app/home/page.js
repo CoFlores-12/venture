@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence,  } from 'framer-motion';
 import { FiSearch, FiMenu, FiUser, FiHeart, FiBookmark, FiSettings, FiMap, FiX, FiChevronRight, FiPlus } from 'react-icons/fi';
+import { VscOrganization } from "react-icons/vsc";
 import MapWrapper from '../components/home/mapWrapper';
 import { useSession } from "next-auth/react";
 import LogoutButton from '../components/LogoutBtn';
@@ -303,6 +304,9 @@ const HomePage = () => {
                 </a>
                 <a href="/events/new" className="flex items-center p-3 rounded-lg  hover:bg-purple-50 hover:text-purple-600">
                   <FiPlus className="mr-3" /> Crear Evento
+                </a>
+                 <a href="/join" className="flex items-center p-3 rounded-lg  hover:bg-purple-50 hover:text-purple-600">
+                  <VscOrganization  className="mr-3" /> Convertirse en organizador
                 </a>
               </nav>
               <div className="">
