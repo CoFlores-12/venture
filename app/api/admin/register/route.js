@@ -1,16 +1,10 @@
 import { NextResponse } from 'next/server';
-
-// Simple admin users storage (in production, use a database)
-let adminUsers = [
-  {
-    id: "1",
-    name: "Admin User",
-    email: "admin@venture.com",
-    password: "admin123", // In production, use hashed passwords
-    adminCode: "VENTURE2024",
-    role: "admin"
-  }
-];
+import { 
+  ADMIN_CONFIG, 
+  addAdminUser, 
+  findAdminByEmail, 
+  getSafeAdminList 
+} from '../../../lib/admin-config';
 
 export async function POST(request) {
   try {
@@ -26,7 +20,7 @@ export async function POST(request) {
     }
 
     // Check if admin code is valid (in production, this should be more secure)
-    if (adminCode !== 'VENTURE2024') {
+    if (adminCode !== ADMIN_CONFIG.ADMIN_REGISTRATION_CODE) {
       return NextResponse.json(
         { error: 'Código de administrador inválido' },
         { status: 400 }
@@ -34,7 +28,7 @@ export async function POST(request) {
     }
 
     // Check if email already exists
-    const existingAdmin = adminUsers.find(user => user.email === email);
+    const existingAdmin = findAdminByEmail(email);
     if (existingAdmin) {
       return NextResponse.json(
         { error: 'Ya existe un administrador con este email' },
@@ -43,16 +37,12 @@ export async function POST(request) {
     }
 
     // Create new admin user
-    const newAdmin = {
-      id: (adminUsers.length + 1).toString(),
+    const newAdmin = addAdminUser({
       name,
       email,
       password, // In production, hash this password
-      adminCode,
-      role: 'admin'
-    };
-
-    adminUsers.push(newAdmin);
+      adminCode
+    });
 
     return NextResponse.json(
       { 
@@ -78,7 +68,5 @@ export async function POST(request) {
 
 export async function GET() {
   // Return admin users (without passwords)
-  const safeAdmins = adminUsers.map(({ password, adminCode, ...admin }) => admin);
-  
-  return NextResponse.json(safeAdmins);
+  return NextResponse.json(getSafeAdminList());
 } 

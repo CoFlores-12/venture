@@ -293,7 +293,10 @@ const AdminDashboard = () => {
                   <div className="text-blue-600 dark:text-blue-400 text-xl sm:text-2xl mb-1 sm:mb-2">📋</div>
                   <p className="text-xs sm:text-sm font-medium text-gray-900 dark:text-white">Gestionar Eventos</p>
                 </button>
-                <button className="p-3 sm:p-4 bg-green-50 dark:bg-green-900/20 rounded-lg hover:bg-green-100 dark:hover:bg-green-900/30 transition-colors">
+                <button 
+                  onClick={() => router.push('/admin/users')}
+                  className="p-3 sm:p-4 bg-green-50 dark:bg-green-900/20 rounded-lg hover:bg-green-100 dark:hover:bg-green-900/30 transition-colors"
+                >
                   <div className="text-green-600 dark:text-green-400 text-xl sm:text-2xl mb-1 sm:mb-2">👥</div>
                   <p className="text-xs sm:text-sm font-medium text-gray-900 dark:text-white">Gestionar Usuarios</p>
                 </button>

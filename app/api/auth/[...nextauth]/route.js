@@ -1,18 +1,7 @@
 import NextAuth from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import CredentialsProvider from "next-auth/providers/credentials";
-
-// Simple admin users storage (in production, use a database)
-const adminUsers = [
-  {
-    id: "1",
-    name: "Admin User",
-    email: "admin@venture.com",
-    password: "admin123", // In production, use hashed passwords
-    adminCode: "VENTURE2024",
-    role: "admin"
-  }
-];
+import { findAdminByCredentials } from "../../../lib/admin-config";
 
 const handler = NextAuth({
   providers: [
@@ -32,11 +21,10 @@ const handler = NextAuth({
           return null;
         }
 
-        const admin = adminUsers.find(
-          (user) => 
-            user.email === credentials.email && 
-            user.password === credentials.password &&
-            user.adminCode === credentials.adminCode
+        const admin = findAdminByCredentials(
+          credentials.email, 
+          credentials.password, 
+          credentials.adminCode
         );
 
         if (admin) {
