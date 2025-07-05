@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Offline - Venture</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
+  <style>
+
+    body {
+      margin: 0;
+      font-family: 'inter', sans-serif;
+      background: #f5f5f7;
+      color: #333;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      text-align: center;
+      padding: 20px;
+    }
+
+    @keyframes rotate {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+    }
+
+    .outerCircle{
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        border: 3px solid transparent;
+        border-top-color: #4f02be;
+        border-radius: 50%;
+        animation: rotate 1.5s linear infinite;
+    }
+    .innerCircle {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        right: 10px;
+        bottom: 10px;
+        border: 3px solid transparent;
+        border-top-color: #f76a12;
+        border-radius: 50%;
+        animation: rotate 1s linear infinite reverse;
+    }
+
+    .logo-container {
+      padding: 30px;
+      border-radius: 50%;
+      margin-bottom: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 140px;
+      height: 140px;
+       width: 80px;
+  height: 80px;
+  margin: 0 auto 20px;
+  position: relative;
+    }
+
+    img.logo {
+      max-width: 80px;
+      max-height: 80px;
+      filter: drop-shadow(0 2px 5px rgba(0,0,0,0.15));
+    }
+
+    h1 {
+      font-size: 2.5rem;
+      font-weight: 700;
+      margin-bottom: 12px;
+      color: #4f02be;
+    }
+
+    p {
+      font-size: 1.1rem;
+      margin-bottom: 40px;
+      max-width: 320px;
+      line-height: 1.5;
+      color: #555;
+    }
+
+    .buttons {
+      display: flex;
+      gap: 20px;
+      justify-content: center;
+      flex-wrap: wrap;
+      width: 100%;
+      max-width: 360px;
+    }
+
+    .btn {
+      flex: 1 1 140px;
+      background-color: #f76a12;
+      border-radius: 35px;
+      color: white;
+      font-weight: 700;
+      font-size: 1.1rem;
+      padding: 15px 0;
+      text-decoration: none;
+      box-shadow: 0 6px 15px rgba(247, 106, 18, 0.4);
+      transition: background-color 0.3s ease, box-shadow 0.3s ease;
+      user-select: none;
+    }
+
+    .btn:hover,
+    .btn:focus {
+      background-color: #d95b0f;
+      box-shadow: 0 10px 25px rgba(217, 91, 15, 0.6);
+      outline: none;
+      cursor: pointer;
+    }
+
+    /* Botón secundario con color violeta */
+    .btn-secondary {
+      background-color: #4f02be;
+      box-shadow: 0 6px 15px rgba(79, 2, 190, 0.4);
+    }
+
+    .btn-secondary:hover,
+    .btn-secondary:focus {
+      background-color: #3c018f;
+      box-shadow: 0 10px 25px rgba(60, 1, 143, 0.6);
+    }
+
+  </style>
+</head>
+<body>
+  <div class="logo-container">
+    <div class="outerCircle"></div>
+    <div class="innerCircle"></div>
+    <img src="/logo.png" alt="Venture Logo" class="logo" />
+  </div>
+  <h1>Oops! Estás desconectado</h1>
+  <p>No podemos cargar la página solicitada porque no tienes conexión a internet.</p>
+  <div class="buttons">
+    <a href="/home" class="btn btn-secondary" aria-label="Ir a Inicio">Ir a Inicio</a>
+    <a href="/mis-compras" class="btn" aria-label="Ver Mis Compras">Mis Compras</a>
+  </div>
+</body>
+</html>

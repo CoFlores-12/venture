@@ -143,7 +143,7 @@ const LoadingModal = ({
 
   return (
     <Overlay>
-      <ModalContainer className='bg-white text-black'>
+      <ModalContainer className='bg-white text-black dark:bg-slate-800 dark:text-white'>
         <Spinner>
           <OuterCircle />
           <InnerCircle />

@@ -1,7 +1,10 @@
 const CACHE_NAME = "app-cache-v1";
 const CACHE_URLS = [
     "/", 
-    "/home"
+    "/home",
+    "/logo.png",
+    "/offline.html",
+    "https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap"
 ];
 
 self.addEventListener("install", (event) => {

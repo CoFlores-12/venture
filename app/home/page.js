@@ -27,6 +27,14 @@ const HomePage = () => {
     .then(res =>{
       setEvents(res);
       setLoading(false);
+      localStorage.setItem('cachedEvents', JSON.stringify(res));
+    }).catch((error)=> {
+      console.error('Error fetching events:', error);
+      const cached = localStorage.getItem('cachedEvents');
+      if (cached) {
+        setEvents(JSON.parse(cached));
+      }
+      setLoading(false);
     })
   }, []);
   

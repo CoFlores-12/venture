@@ -25,7 +25,15 @@ const EventsPage = () => {
         setEvents(res);
         setFilteredEvents(res)
         setLoading(false);
-      })
+        localStorage.setItem('cachedEventsAll', JSON.stringify(res));
+      }).catch((error)=> {
+      console.error('Error fetching events:', error);
+      const cached = localStorage.getItem('cachedEventsAll');
+      if (cached) {
+        setEvents(JSON.parse(cached));
+      }
+      setLoading(false);
+    })
     }, []);
 
   const categories = [...new Set(events.map(event => event.category))];
