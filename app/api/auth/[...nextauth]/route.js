@@ -1,14 +1,42 @@
 import NextAuth from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import CredentialsProvider from "next-auth/providers/credentials";
-import { findAdminByCredentials } from "../../../lib/admin-config";
+import { findAdminByCredentials } from "@/src/lib/admin-config";
+import { findUserByCredentials } from "@/src/lib/user-config";
 
 const handler = NextAuth({
   providers: [
+    //User Google login
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
     }),
+
+    //User login
+     CredentialsProvider({
+      id: "user-login",
+      name: "Usuario",
+      credentials: {
+        email: { label: "Correo", type: "email" },
+        password: { label: "Contraseña", type: "password" },
+      },
+      async authorize(credentials) {
+        if (!credentials?.email || !credentials?.password) return null;
+
+        const user = await findUserByCredentials(credentials.email, credentials.password);
+        if (!user) return null;
+
+        return {
+          id: user._id,
+          name: user.nombre,
+          email: user.correo,
+          role: user.rol || "user",
+        };
+      }
+    }),
+
+
+    //Admin Login
     CredentialsProvider({
       name: "Admin Credentials",
       credentials: {
@@ -21,18 +49,20 @@ const handler = NextAuth({
           return null;
         }
 
-        const admin = findAdminByCredentials(
+        const admin =await findAdminByCredentials(
           credentials.email, 
           credentials.password, 
           credentials.adminCode
         );
-
+        
+        
+        
         if (admin) {
           return {
-            id: admin.id,
-            name: admin.name,
-            email: admin.email,
-            role: admin.role
+            id: admin._id,
+            name: admin.nombre,
+            email: admin.correo,
+            role: admin.rol
           };
         }
 
@@ -61,7 +91,6 @@ const handler = NextAuth({
       return session;
     },
     async redirect({ url, baseUrl }) {
-      // Check if the user is an admin and redirect accordingly
       if (url.includes('/admin/login') && url.includes('callback')) {
         return `${baseUrl}/admin/dashboard`;
       }

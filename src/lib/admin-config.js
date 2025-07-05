@@ -1,3 +1,8 @@
+import { connectToMongoose } from "./db";
+import bcrypt from "bcryptjs";
+import AdminSchema from "../models/admin";
+
+
 // Centralized admin configuration
 // In production, this should be moved to environment variables and database
 
@@ -42,14 +47,35 @@ export const addAdminUser = (adminData) => {
   return newAdmin;
 };
 
-export const findAdminByCredentials = (email, password, adminCode) => {
-  return adminUsers.find(
-    (user) => 
-      user.email === email && 
-      user.password === password &&
-      user.adminCode === adminCode
-  );
-};
+
+/**
+ * Busca y autentica un administrador por email, password y adminCode.
+ * @param {string} email
+ * @param {string} password
+ * @param {string} adminCode
+ * @returns {Promise<Object|null>} - Admin autenticado o null
+ */
+export async function findAdminByCredentials(email, password, adminCode) {
+  await connectToMongoose();
+  
+
+  const admin = await AdminSchema.findOne({ correo: email.toLowerCase() });
+  
+  if (!admin) return null;
+  
+  const isPasswordValid = await bcrypt.compare(password, admin.passwordHash);
+  if (!isPasswordValid) return null;
+  
+  const isCodeValid = await bcrypt.compare(adminCode, admin.adminCode);
+  if (!isCodeValid) return null;
+  
+  return {
+    _id: admin._id.toString(),
+    nombre: admin.nombre,
+    correo: admin.correo,
+    rol: admin.rol || "admin",
+  };
+}
 
 export const findAdminByEmail = (email) => {
   return adminUsers.find(user => user.email === email);

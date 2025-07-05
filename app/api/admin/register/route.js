@@ -4,7 +4,7 @@ import {
   addAdminUser, 
   findAdminByEmail, 
   getSafeAdminList 
-} from '../../../lib/admin-config';
+} from '../../../../src/lib/admin-config';
 
 export async function POST(request) {
   try {
