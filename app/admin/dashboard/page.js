@@ -1,12 +1,12 @@
 "use client"
 import { useRouter } from 'next/navigation';
-import { useSession, signOut } from 'next-auth/react';
+import { useAdminAuth } from '../../hooks/useAdminAuth';
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 
 const AdminDashboard = () => {
   const router = useRouter();
-  const { data: session, status } = useSession();
+  const { admin, loading, logout } = useAdminAuth();
   const [stats, setStats] = useState({
     totalEvents: 0,
     pendingEvents: 0,
@@ -17,12 +17,12 @@ const AdminDashboard = () => {
 
   // Check if user is authenticated and is admin
   useEffect(() => {
-    if (status === 'loading') return;
+    if (loading) return;
     
-    if (!session || session.user.role !== 'admin') {
+    if (!admin) {
       router.push('/admin/login');
     }
-  }, [session, status, router]);
+  }, [admin, loading, router]);
 
   // Simulate loading data
   useEffect(() => {
@@ -94,12 +94,11 @@ const AdminDashboard = () => {
   ];
 
   const handleLogout = async () => {
-    await signOut({ redirect: false });
-    router.push('/admin/login');
+    await logout();
   };
 
   // Show loading while checking authentication
-  if (status === 'loading') {
+  if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600"></div>
@@ -108,7 +107,7 @@ const AdminDashboard = () => {
   }
 
   // Show loading while checking authentication
-  if (!session || session.user.role !== 'admin') {
+  if (!admin) {
     return null; // Will redirect in useEffect
   }
 
@@ -134,11 +133,11 @@ const AdminDashboard = () => {
               <div className="flex items-center space-x-2">
                 <div className="w-8 h-8 bg-red-600 rounded-full flex items-center justify-center">
                   <span className="text-white text-sm font-medium">
-                    {session.user.name?.charAt(0) || 'A'}
+                    {admin?.name?.charAt(0) || 'A'}
                   </span>
                 </div>
                 <span className="text-sm font-medium text-gray-700 dark:text-gray-300 hidden sm:block">
-                  {session.user.name || 'Admin'}
+                  {admin?.name || 'Admin'}
                 </span>
               </div>
               <button

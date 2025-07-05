@@ -1,12 +1,12 @@
 "use client"
 import { useRouter } from 'next/navigation';
-import { useSession } from 'next-auth/react';
+import { useAdminAuth } from '../../hooks/useAdminAuth';
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 
 const UserManagement = () => {
   const router = useRouter();
-  const { data: session, status } = useSession();
+  const { admin, loading: authLoading } = useAdminAuth();
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedUser, setSelectedUser] = useState(null);
@@ -16,16 +16,16 @@ const UserManagement = () => {
 
   // Check if user is authenticated and is admin
   useEffect(() => {
-    if (status === 'loading') return;
+    if (authLoading) return;
     
-    if (!session || session.user.role !== 'admin') {
+    if (!admin) {
       router.push('/admin/login');
     }
-  }, [session, status, router]);
+  }, [admin, authLoading, router]);
 
   // Load users data from API
   useEffect(() => {
-    if (session?.user?.role === 'admin') {
+    if (admin) {
       const fetchUsers = async () => {
         try {
           const response = await fetch('/api/admin/users');
@@ -126,7 +126,7 @@ const UserManagement = () => {
   });
 
   // Show loading while checking authentication
-  if (status === 'loading') {
+  if (authLoading) {
     return (
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600"></div>
@@ -134,7 +134,7 @@ const UserManagement = () => {
     );
   }
 
-  if (!session || session.user.role !== 'admin') {
+  if (!admin) {
     return null; // Will redirect in useEffect
   }
 

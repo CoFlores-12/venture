@@ -1,7 +1,5 @@
 import NextAuth from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
-import CredentialsProvider from "next-auth/providers/credentials";
-import { findAdminByCredentials } from "../../../lib/admin-config";
 
 const handler = NextAuth({
   providers: [
@@ -9,36 +7,6 @@ const handler = NextAuth({
       clientId: process.env.GOOGLE_CLIENT_ID,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
     }),
-    CredentialsProvider({
-      name: "Admin Credentials",
-      credentials: {
-        email: { label: "Email", type: "email" },
-        password: { label: "Password", type: "password" },
-        adminCode: { label: "Admin Code", type: "password" }
-      },
-      async authorize(credentials) {
-        if (!credentials?.email || !credentials?.password || !credentials?.adminCode) {
-          return null;
-        }
-
-        const admin = findAdminByCredentials(
-          credentials.email, 
-          credentials.password, 
-          credentials.adminCode
-        );
-
-        if (admin) {
-          return {
-            id: admin.id,
-            name: admin.name,
-            email: admin.email,
-            role: admin.role
-          };
-        }
-
-        return null;
-      }
-    })
   ],
   session: {
     strategy: "jwt",
@@ -51,21 +19,18 @@ const handler = NextAuth({
     async jwt({ token, account, user }) {
       if (account && user) {
         token.accessToken = account.access_token;
-        token.role = user.role;
+        // Set default role for regular users
+        token.role = user.role || 'user';
       }
       return token;
     },
     async session({ session, token }) {
       session.accessToken = token.accessToken;
-      session.user.role = token.role;
+      session.user.role = token.role || 'user';
       return session;
     },
     async redirect({ url, baseUrl }) {
-      // Check if the user is an admin and redirect accordingly
-      if (url.includes('/admin/login') && url.includes('callback')) {
-        return `${baseUrl}/admin/dashboard`;
-      }
-      return `${baseUrl}/home`; // Default redirect
+      return `${baseUrl}/home`; // Default redirect for regular users
     },
   },
 });
