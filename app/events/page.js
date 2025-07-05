@@ -1,145 +1,40 @@
 "use client";
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { motion, AnimatePresence,  } from 'framer-motion';
 import { FiSearch, FiCalendar, FiMapPin, FiFilter, FiX, FiStar, FiChevronDown, FiChevronUp, FiChevronLeft  } from 'react-icons/fi';
+import EventCardSkeleton from '../components/EventCardSkeleton';
+import LoadingModal from '../components/loadingOverlay';
 
 const EventsPage = () => {
     const router = useRouter()
-  const events = [
-    {
-      id: 1,
-      title: "Festival de Música Electrónica",
-      location: "Parque Central",
-      date: "04 JUN",
-      distance: "1.2 km",
-      category: "🎵 Música",
-      emoji: "🎧",
-      position: [14.1020, -87.2179],
-      description: "Festival anual de música electrónica con DJs internacionales en el corazón de la ciudad",
-      featured: true
-    },
-    {
-      id: 2,
-      title: "Exposición de Arte Moderno",
-      location: "Museo para la Identidad Nacional",
-      date: "05 JUN",
-      distance: "3.5 km",
-      category: "🖼️ Arte",
-      emoji: "🎨",
-      position: [14.0892, -87.2018],
-      description: "Exposición de artistas hondureños contemporáneos con obras innovadoras"
-    },
-    {
-      id: 3,
-      title: "Feria Gastronómica",
-      location: "Plaza La Merced",
-      date: "15 JUN",
-      distance: "2.1 km",
-      category: "🍴 Comida",
-      emoji: "🍔",
-      position: [14.0945, -87.1910],
-      description: "Feria de comida tradicional hondureña con chefs locales e internacionales",
-      featured: true
-    },
-    {
-      id: 4,
-      title: "Concierto de Jazz",
-      location: "Teatro Nacional Manuel Bonilla",
-      date: "01 JUL",
-      distance: "0.8 km",
-      category: "🎵 Música",
-      emoji: "🎷",
-      position: [14.0996, -87.2065],
-      description: "Noche de jazz con la Orquesta Sinfónica Nacional y artistas invitados"
-    },
-    {
-      id: 5,
-      title: "Taller de Fotografía",
-      location: "Centro Cultural de España",
-      date: "11 AGO",
-      distance: "1.5 km",
-      category: "📸 Taller",
-      emoji: "📷",
-      position: [14.1002, -87.2043],
-      description: "Taller práctico de fotografía urbana con equipo profesional incluido"
-    },
-    {
-      id: 6,
-      title: "Maratón de la Ciudad",
-      location: "Bulevar Morazán",
-      date: "05 SEP",
-      distance: "4.2 km",
-      category: "🏃‍♂️ Deporte",
-      emoji: "🏅",
-      position: [14.0898, -87.1823],
-      description: "Maratón anual 10K con participantes de todo Centroamérica",
-      featured: true
-    },
-    {
-      id: 7,
-      title: "Feria del Libro",
-      location: "Plaza San Martín",
-      date: "30 OCT",
-      distance: "2.8 km",
-      category: "📚 Literatura",
-      emoji: "📖",
-      position: [14.0957, -87.1891],
-      description: "Feria internacional del libro con autores locales e internacionales"
-    },
-    {
-      id: 8,
-      title: "Festival de Danza Folklórica",
-      location: "Plaza Los Dolores",
-      date: "02 NOV",
-      distance: "1.7 km",
-      category: "💃 Cultura",
-      emoji: "👯",
-      position: [14.0978, -87.1935],
-      description: "Presentación de grupos de danza folklórica de todas las regiones de Honduras"
-    },
-    {
-      id: 9,
-      title: "Mercado Artesanal",
-      location: "Barrio La Leona",
-      date: "20 NOV",
-      distance: "0.5 km",
-      category: "🛍️ Artesanía",
-      emoji: "🧵",
-      position: [14.1038, -87.1954],
-      description: "Mercado de artesanías tradicionales y productos locales"
-    },
-    {
-      id: 10,
-      title: "Proyección de Cine al Aire Libre",
-      location: "Parque Naciones Unidas",
-      date: "17 DIC",
-      distance: "3.1 km",
-      category: "🎬 Cine",
-      emoji: "🎥",
-      position: [14.0793, -87.1874],
-      description: "Ciclo de cine centroamericano con proyecciones gratuitas"
-    }
-  ];
 
-  // Estados para los filtros
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategories, setSelectedCategories] = useState([]);
   const [selectedMonths, setSelectedMonths] = useState([]);
   const [showFilters, setShowFilters] = useState(false);
   const [sortBy, setSortBy] = useState('date');
+  const [events, setEvents] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [filteredEvents, setFilteredEvents] = useState(events);
 
-  // Categorías únicas
+    useEffect(() => {
+      fetch('/api/events/get')  
+      .then(res => {return res.json()})
+      .then(res =>{
+        setEvents(res);
+        setFilteredEvents(res)
+        setLoading(false);
+      })
+    }, []);
+
   const categories = [...new Set(events.map(event => event.category))];
   
-  // Meses únicos
   const months = [...new Set(events.map(event => event.date.split(' ')[1]))];
   
-  // Función para filtrar eventos
   useEffect(() => {
     let result = [...events];
     
-    // Filtrar por término de búsqueda
     if (searchTerm) {
       const term = searchTerm.toLowerCase();
       result = result.filter(event => 
@@ -149,12 +44,10 @@ const EventsPage = () => {
       );
     }
     
-    // Filtrar por categorías seleccionadas
     if (selectedCategories.length > 0) {
       result = result.filter(event => selectedCategories.includes(event.category));
     }
     
-    // Filtrar por meses seleccionados
     if (selectedMonths.length > 0) {
       result = result.filter(event => {
         const eventMonth = event.date.split(' ')[1];
@@ -162,7 +55,6 @@ const EventsPage = () => {
       });
     }
     
-    // Ordenar resultados
     result.sort((a, b) => {
       if (sortBy === 'date') {
         const monthsOrder = ["ENE", "FEB", "MAR", "ABR", "MAY", "JUN", "JUL", "AGO", "SEP", "OCT", "NOV", "DIC"];
@@ -188,7 +80,6 @@ const EventsPage = () => {
     }
   };
 
-  // Manejar selección de meses
   const toggleMonth = (month) => {
     if (selectedMonths.includes(month)) {
       setSelectedMonths(selectedMonths.filter(m => m !== month));
@@ -197,7 +88,6 @@ const EventsPage = () => {
     }
   };
 
-  // Resetear todos los filtros
   const resetFilters = () => {
     setSearchTerm('');
     setSelectedCategories([]);
@@ -294,7 +184,7 @@ const EventsPage = () => {
               <h3 className="font-medium text-gray-800 mb-3 flex items-center dark:text-gray-300">
                 <FiCalendar className="mr-2 text-purple-600" /> Meses
               </h3>
-              <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-2">
+              <div className="grid grid-cols-12 gap-2">
                 {months.map(month => (
                   <button
                     key={month}
@@ -311,34 +201,6 @@ const EventsPage = () => {
               </div>
             </div>
             
-            {/* Ordenar por */}
-            <div>
-              <h3 className="font-medium text-gray-800 mb-3 flex items-center dark:text-gray-300">
-                <FiChevronDown className="mr-2 text-purple-600" /> Ordenar por
-              </h3>
-              <div className="flex gap-3">
-                <button
-                  onClick={() => setSortBy('date')}
-                  className={`px-4 py-2 rounded-lg ${
-                    sortBy === 'date'
-                      ? 'bg-purple-600 text-white'
-                      : 'bg-gray-100 text-gray-800 hover:bg-gray-200 dark:bg-slate-800 dark:text-gray-300'
-                  }`}
-                >
-                  Fecha
-                </button>
-                <button
-                  onClick={() => setSortBy('distance')}
-                  className={`px-4 py-2 rounded-lg ${
-                    sortBy === 'distance'
-                      ? 'bg-purple-600 text-white'
-                      : 'bg-gray-100 text-gray-800 hover:bg-gray-200 dark:bg-slate-800 dark:text-gray-300'
-                  }`}
-                >
-                  Distancia
-                </button>
-              </div>
-            </div>
           </div>
         </div>
       )}
@@ -346,79 +208,98 @@ const EventsPage = () => {
       {/* Resultados */}
       <main className="container mx-auto p-4">
         {/* Eventos destacados */}
-        {filteredEvents.filter(e => e.featured).length > 0 && (
+        {(filteredEvents.filter(e => e.featured).length > 0 || loading) && (
           <section className="mb-8">
             <h2 className="text-xl font-bold text-gray-800 mb-4 flex items-center dark:text-gray-300">
               <FiStar className="text-yellow-500 mr-2  " /> Eventos destacados
             </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+              { loading && (
+                    [1,2,3,4].map((item)=>(
+                      <EventCardSkeleton id={item} />
+                    ))
+                  )}
               {filteredEvents
                 .filter(event => event.featured)
                 .map(event => (
-                  <a href={`/event/${event.id}`} key={event.id} className="bg-white dark:bg-slate-800 dark:text-gray-300 rounded-xl shadow-md overflow-hidden border border-yellow-300">
-                    <div className="p-4">
-                      <div className="flex justify-between items-start mb-3">
-                        <span className="text-3xl">{event.emoji}</span>
-                        <span className="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full">
-                          Destacado
-                        </span>
+                  <motion.a 
+                    href={`/event/${event.id}`}
+                      key={event.id}
+                      whileHover={{ y: -5 }}
+                      className="min-w-72 bg-white dark:bg-slate-800 rounded-xl shadow-md overflow-hidden flex-shrink-0 card hover:shadow-2xl transition-shadow border-1 border-yellow-300"
+                    >
+                      <figure>
+                        <img src={event.banner} alt={event.title} className="h-24 w-full object-cover" />
+                      </figure>
+                      <div className="card-body">
+                        <div className="flex items-center justify-between relative">
+                          <span className="badge absolute -top-[100px] badge-primary bg-purple-700 text-white">{event.category}</span>
+                          <span className="text-xs absolute -top-[100px] right-0 bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full">
+                            Destacado
+                          </span>
+                        </div>
+                        <h3 className="card-title truncate">{event.title}</h3>
+                        <div className="mt-4 flex items-center justify-between">
+                          <div>
+                            <p className="text-sm text-gray-500">{event.date} • {event.time}</p>
+                            <p className="font-semibold text-purple-700">{event.price}</p>
+                          </div>
+                        </div>
                       </div>
-                      <h3 className="font-bold text-gray-800 text-lg dark:bg-slate-800 dark:text-gray-300">{event.title}</h3>
-                      <div className="flex items-center text-gray-600 mt-2">
-                        <FiCalendar className="mr-2" />
-                        <span>{event.date}</span>
-                      </div>
-                      <div className="flex items-center text-gray-600 mt-1">
-                        <FiMapPin className="mr-2" />
-                        <span>{event.location}</span>
-                      </div>
-                      <div className="mt-3 flex justify-between items-center">
-                        <span className="text-sm bg-purple-100 text-purple-800 px-2 py-1 rounded-full">
-                          {event.category}
-                        </span>
-                        <span className="text-sm text-gray-500">{event.distance}</span>
-                      </div>
-                    </div>
-                  </a>
+                    </motion.a>
                 ))}
             </div>
           </section>
         )}
 
+        {/* Overlay cargando */}
+        { loading && (
+          <LoadingModal />
+        )}
+
         {/* Todos los eventos */}
         <section>
           <h2 className="text-xl font-bold text-gray-800 mb-4  dark:text-gray-300">
-            {filteredEvents.filter(e => !e.featured).length > 0 ? 'Todos los eventos' : 'No se encontraron eventos'}
+            {(filteredEvents.filter(e => !e.featured).length > 0 || loading) ? 'Todos los eventos' : 'No se encontraron eventos'}
           </h2>
           
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+            { loading && (
+                    [1,2,3,4].map((item)=>(
+                      <EventCardSkeleton id={item} />
+                    ))
+                  )}
             {filteredEvents
               .filter(event => !event.featured)
               .map(event => (
-                <a href={`/event/${event.id}`} key={event.id} className="bg-white dark:bg-slate-800 dark:text-gray-300 rounded-xl shadow-sm hover:shadow-md transition-shadow overflow-hidden">
-                  <div className="p-4">
-                    <div className="flex justify-between items-start">
-                      <span className="text-3xl">{event.emoji}</span>
-                      <span className="text-xs bg-gray-100 text-gray-800 px-2 py-1 rounded-full">
-                        {event.date}
-                      </span>
-                    </div>
-                    <h3 className="font-bold text-gray-800 mt-2 dark:bg-slate-800 dark:text-gray-300">{event.title}</h3>
-                    <p className="text-sm text-gray-600 mt-1">{event.location}</p>
-                    <div className="mt-3 flex justify-between items-center">
-                      <span className="text-xs bg-purple-100 text-purple-800 px-2 py-1 rounded-full">
-                        {event.category}
-                      </span>
-                      <span className="text-xs text-gray-500">{event.distance}</span>
-                    </div>
-                  </div>
-                </a>
+                <motion.a 
+                    href={`/event/${event.id}`}
+                      key={event.id}
+                      whileHover={{ y: -5 }}
+                      className="min-w-72 bg-white dark:bg-slate-800 rounded-xl shadow-md overflow-hidden flex-shrink-0 card hover:shadow-2xl transition-shadow"
+                    >
+                      <figure>
+                        <img src={event.banner} alt={event.title} className="h-24 w-full object-cover" />
+                      </figure>
+                      <div className="card-body">
+                        <div className="flex items-center justify-between relative">
+                          <span className="badge absolute -top-[100px] badge-primary bg-purple-700 text-white">{event.category}</span>
+                        </div>
+                        <h3 className="card-title truncate">{event.title}</h3>
+                        <div className="mt-4 flex items-center justify-between">
+                          <div>
+                            <p className="text-sm text-gray-500">{event.date} • {event.time}</p>
+                            <p className="font-semibold text-purple-700">{event.price}</p>
+                          </div>
+                        </div>
+                      </div>
+                    </motion.a>
               ))}
           </div>
         </section>
         
         {/* Sin resultados */}
-        {filteredEvents.length === 0 && (
+        {filteredEvents.length === 0 && !loading && (
           <div className="text-center py-12">
             <div className="text-5xl mb-4">🔍</div>
             <h3 className="text-xl font-medium text-gray-800 mb-2">No encontramos eventos</h3>
@@ -431,6 +312,7 @@ const EventsPage = () => {
             </button>
           </div>
         )}
+        
       </main>
 
       {/* Filtros flotantes para móviles */}
