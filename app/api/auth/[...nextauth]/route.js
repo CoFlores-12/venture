@@ -45,7 +45,7 @@ const handler = NextAuth({
     maxAge: 60 * 60 * 24 * 365,
   },
   pages: {
-    signIn: '/register', // Default sign in page
+    signIn: '/register', // si usas una página personalizada de login
   },
   callbacks: {
     async jwt({ token, account, user }) {
@@ -66,6 +66,7 @@ const handler = NextAuth({
         return `${baseUrl}/admin/dashboard`;
       }
       return `${baseUrl}/home`; // Default redirect
+
     },
   },
 });
