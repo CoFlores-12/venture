@@ -1,7 +1,6 @@
 import NextAuth from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import CredentialsProvider from "next-auth/providers/credentials";
-import { findAdminByCredentials } from "@/src/lib/admin-config";
 import { findUserByCredentials } from "@/src/lib/user-config";
 
 const handler = NextAuth({
@@ -34,41 +33,6 @@ const handler = NextAuth({
         };
       }
     }),
-
-
-    //Admin Login
-    CredentialsProvider({
-      name: "Admin Credentials",
-      credentials: {
-        email: { label: "Email", type: "email" },
-        password: { label: "Password", type: "password" },
-        adminCode: { label: "Admin Code", type: "password" }
-      },
-      async authorize(credentials) {
-        if (!credentials?.email || !credentials?.password || !credentials?.adminCode) {
-          return null;
-        }
-
-        const admin =await findAdminByCredentials(
-          credentials.email, 
-          credentials.password, 
-          credentials.adminCode
-        );
-        
-        
-        
-        if (admin) {
-          return {
-            id: admin._id,
-            name: admin.nombre,
-            email: admin.correo,
-            role: admin.rol
-          };
-        }
-
-        return null;
-      }
-    })
   ],
   session: {
     strategy: "jwt",
@@ -81,21 +45,19 @@ const handler = NextAuth({
     async jwt({ token, account, user }) {
       if (account && user) {
         token.accessToken = account.access_token;
-        token.role = user.role;
+        // Set default role for regular users
+        token.role = user.role || 'user';
       }
       return token;
     },
     async session({ session, token }) {
       session.accessToken = token.accessToken;
-      session.user.role = token.role;
+      session.user.role = token.role || 'user';
       return session;
     },
     async redirect({ url, baseUrl }) {
-      if (url.includes('/admin/login') && url.includes('callback')) {
-        return `${baseUrl}/admin/dashboard`;
-      }
-      return `${baseUrl}/home`; // Default redirect
 
+      return `${baseUrl}/home`; // Default redirect
     },
   },
 });
