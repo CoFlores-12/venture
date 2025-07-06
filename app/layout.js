@@ -2,10 +2,12 @@
 import { SessionProvider } from 'next-auth/react';
 import { Inter } from 'next/font/google'
 import "./globals.css";
+import useServiceWorker from "./service-worker-register";
 
 const inter = Inter({ subsets: ['latin'] })
 
 export default function RootLayout({ children }) {
+  useServiceWorker();
   return (
     <html lang="es">
       <head>
