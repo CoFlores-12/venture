@@ -45,7 +45,7 @@ const UserManagement = () => {
 
       fetchUsers();
     }
-  }, [session]);
+  }, [admin]);
 
   const handleViewUser = (user) => {
     setSelectedUser(user);
