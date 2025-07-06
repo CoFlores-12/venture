@@ -153,7 +153,7 @@ const HomePage = () => {
                 <div className="flex space-x-4" style={{ width: `${events.length * 288}px` }}>
                   { loading && (
                     [1,2,3,4,5].map((item)=>(
-                      <EventCardSkeleton id={item} />
+                      <EventCardSkeleton key={item} id={item} />
                     ))
                   )}
                   {events.map(event => (

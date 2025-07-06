@@ -113,7 +113,9 @@ const DotsContainer = styled.div`
   margin-top: 15px;
 `;
 
-const LoadingDot = styled.div`
+const LoadingDot = styled.div.withConfig({
+  shouldForwardProp: (prop) => prop !== 'active'
+})`
   width: 8px;
   height: 8px;
   background: ${props => props.active ? '#ff7e5f' : 'rgba(255, 255, 255, 0.2)'};
