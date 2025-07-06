@@ -4,6 +4,7 @@ import { QRCodeSVG } from 'qrcode.react';
 import { FaTicketAlt, FaCalendarAlt, FaClock, FaMapMarkerAlt, FaUser, FaDownload, FaPrint, FaShareAlt } from 'react-icons/fa';
 import { FaGoogle, FaWaze, FaApple } from 'react-icons/fa';
 import { SiUber } from 'react-icons/si';
+import CryptoJS from 'crypto-js';
 
 const MyTickets = () => {
   const [tickets, setTickets] = useState([]);
@@ -139,6 +140,15 @@ const MyTickets = () => {
     );
   }
 
+  const generateToken = (id, quan) => {
+    const data = {
+      id,
+      boletos: quan
+    }
+    const encryptedId = CryptoJS.AES.encrypt(JSON.stringify(data), "QRCODE").toString();
+    return encryptedId
+  }
+
   return (
     <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-4xl mx-auto">
@@ -205,19 +215,11 @@ const MyTickets = () => {
                   
                   <div className="bg-white p-4 rounded-lg shadow-lg">
                     <QRCodeSVG 
-                      value={JSON.stringify({
-                        eventId: ticket.id,
-                        ticketId: `TKT-${ticket.transactionId.slice(-8)}`,
-                        event: ticket.eventName,
-                        type: ticket.ticketType,
-                        buyer: "Usuario Actual", // En una app real sería el nombre del usuario
-                        date: ticket.date,
-                        valid: true
-                      })}
+                      value={generateToken(ticket.id,ticket.quantity)}
                       size={180}
                       bgColor="#FFFFFF"
                       fgColor="#000000"
-                      level="H"
+                      level="M"
                       includeMargin={false}
                     />
                   </div>
@@ -241,16 +243,10 @@ const MyTickets = () => {
                         <span>Compra: {new Date(ticket.purchaseDate).toLocaleDateString()}</span>
                       </div>
                     </div>
-                    <div className="flex space-x-2">
-                      <button className="p-2 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-600">
-                        <FaDownload className="w-5 h-5" />
-                      </button>
-                      
-                    </div>
                   </div>
                   
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="space-y-4">
+                  <div className="grid grid-cols-2 gap-6">
+                    <div className="space-y-4 col-span-2 md:col-span-1">
                       <div>
                         <h3 className="text-sm font-medium text-gray-500 flex items-center">
                           <FaCalendarAlt className="mr-2 text-purple-600" />
@@ -272,7 +268,7 @@ const MyTickets = () => {
                       </div>
                     </div>
                     
-                    <div className="space-y-4">
+                    <div className="space-y-4 col-span-2 md:col-span-1">
                       <div>
                         <h3 className="text-sm font-medium text-gray-500 flex items-center">
                           <FaMapMarkerAlt className="mr-2 text-purple-600" />

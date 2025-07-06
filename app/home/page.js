@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence,  } from 'framer-motion';
 import { FiSearch, FiMenu, FiUser, FiHeart, FiBookmark, FiSettings, FiMap, FiX, FiChevronRight, FiPlus } from 'react-icons/fi';
+import { LuTicketCheck } from "react-icons/lu";
 import { VscOrganization } from "react-icons/vsc";
 import MapWrapper from '../components/home/mapWrapper';
 import { useSession } from "next-auth/react";
@@ -90,6 +91,9 @@ const HomePage = () => {
               <nav className="space-y-2">
                 <a href="#" className="flex items-center p-3 rounded-lg hover:bg-purple-50 hover:text-purple-600">
                   <FiUser className="mr-3" /> Mi Perfil
+                </a>
+                <a href="/mis-compras" className="flex items-center p-3 rounded-lg hover:bg-purple-50 hover:text-purple-600">
+                  <LuTicketCheck className="mr-3" /> Mis compras
                 </a>
                 <a href="#" className="flex items-center p-3 rounded-lg hover:bg-purple-50 hover:text-purple-600">
                   <FiHeart className="mr-3" /> Favoritos
