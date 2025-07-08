@@ -4,11 +4,8 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import GoogleBtn from '../components/GoogleBtn';
 import { signIn } from "next-auth/react";
-import { useSearchParams } from "next/navigation";
 
-
-
-const AuthScreen = () => {
+export default function AuthScreen() {
   const router = useRouter()
   const [isLogin, setIsLogin] = useState(true);
   const [formData, setFormData] = useState({
@@ -21,15 +18,15 @@ const AuthScreen = () => {
   const [warning, setWarning] = useState(false);
   const [info, setInfo] = useState("");
 
-  const searchParams = useSearchParams();
 
   useEffect(() => {
+    const searchParams = new URLSearchParams(location.search);
     const errorParam = searchParams.get("error");
     if (errorParam) {
       setWarning(true);
       setInfo(decodeURIComponent(errorParam));
     }
-  }, [searchParams]);
+  }, []);
 
 
   const handleChange = (e) => {
@@ -330,5 +327,3 @@ const AuthScreen = () => {
     </div>
   );
 };
-
-export default AuthScreen;
