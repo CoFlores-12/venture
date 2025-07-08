@@ -1,7 +1,7 @@
 import NextAuth from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import CredentialsProvider from "next-auth/providers/credentials";
-import { findUserByCredentials } from "@/src/lib/user-config";
+import { findUserByCredentials, RegisterUser } from "@/src/lib/user-config";
 
 const handler = NextAuth({
   providers: [
@@ -29,7 +29,36 @@ const handler = NextAuth({
           id: user._id,
           name: user.nombre,
           email: user.correo,
-          role: user.rol || "user",
+          role: user.rol || "default",
+        };
+      }
+    }),
+
+    CredentialsProvider({
+      id: "user-register",
+      name: "Usuario",
+      credentials: {
+        email: { label: "Correo", type: "email" },
+        password: { label: "password", type: "password" },
+        nombre: { label: "nombre", type: "text" },
+      },
+      async authorize(credentials) {
+        if (!credentials?.email || !credentials?.password || !credentials.nombre) return null;
+
+        const user = await RegisterUser(credentials.email, credentials.password, credentials.nombre);
+         if (!user) {
+          throw new Error("Error al registrar usuario.");
+        }
+
+        if (user.error) {
+          throw new Error(user.error);
+        }
+
+        return {
+          id: user._id,
+          name: user.nombre,
+          email: user.correo,
+          role: user.rol || "default",
         };
       }
     }),
