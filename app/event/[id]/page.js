@@ -7,6 +7,7 @@ import Link from 'next/link';
 import MapWrapperStatic from '@/app/components/mapWrapper';
 import ShareButton from '@/app/components/shareEvent';
 import { SiUber } from 'react-icons/si';
+import ComprarBoletosModal from '@/app/components/orderPlace';
 
 const events = [
   {
@@ -20,7 +21,7 @@ const events = [
     emoji: "🎧",
     position: [14.1020, -87.2179],
     description: "Festival anual de música electrónica con DJs internacionales en el corazón de la ciudad. Vive una experiencia única con los mejores artistas del género en un ambiente inigualable.",
-    price: "Desde L. 450",
+    price: "450",
     ticketsAvailable: 47,
     organizer: {
       name: "Tegus Music Events",
@@ -42,7 +43,7 @@ const events = [
     emoji: "🎨",
     position: [14.0892, -87.2018],
     description: "Exposición de artistas hondureños contemporáneos con obras innovadoras que exploran la identidad nacional y las problemáticas sociales actuales.",
-    price: "L. 100",
+    price: "100",
     ticketsAvailable: 120,
     organizer: {
       name: "Cultura Tegus",
@@ -254,7 +255,7 @@ const EventDetailPage = () => {
   const googleMapsUrl = `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`;
   const wazeUrl = `https://www.waze.com/ul?ll=${lat},${lng}&navigate=yes`;
   const appleMapsUrl = `https://maps.apple.com/?q=${lat},${lng}`;
-  const uberUrl = `https://m.uber.com/ul/?action=setPickup&client_id=<TU_CLIENT_ID>&pickup=my_location&dropoff[formatted_address]=${encodeURIComponent(location)}&dropoff[latitude]=${lat}&dropoff[longitude]=${lng}`;
+  const uberUrl = `https://m.uber.com/ul/?action=setPickup&client_id=<TU_CLIENT_ID>&pickup=my_location&dropoff[formatted_address]=${event.location}&dropoff[latitude]=${lat}&dropoff[longitude]=${lng}`;
   const inDriveUrl = `https://indriver.com/`;
   
 
@@ -439,9 +440,8 @@ const EventDetailPage = () => {
           {/* Botón de compra */}
           {event.price !== "Entrada libre" ? (
             <div className="sticky bottom-6 z-40 bg-white p-4 dark:bg-slate-800 dark:text-gray-300">
-              <button className="w-full bg-gradient-to-r from-purple-600 to-indigo-700 text-white py-4 rounded-xl font-bold text-lg shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200">
-                Comprar boletos - {event.price}
-              </button>
+             <ComprarBoletosModal event={event} />
+
               {event.ticketsAvailable && (
                 <p className="text-center text-sm text-gray-500 mt-2">
                   {event.ticketsAvailable} boletos disponibles

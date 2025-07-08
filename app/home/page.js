@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence,  } from 'framer-motion';
 import { FiSearch, FiMenu, FiUser, FiHeart, FiBookmark, FiSettings, FiMap, FiX, FiChevronRight, FiPlus } from 'react-icons/fi';
+import { LuTicketCheck } from "react-icons/lu";
 import { VscOrganization } from "react-icons/vsc";
 import MapWrapper from '../components/home/mapWrapper';
 import { useSession } from "next-auth/react";
@@ -46,12 +47,12 @@ const HomePage = () => {
         <div className="container mx-auto px-4 py-3 flex items-center">
           <button 
             onClick={() => setIsMenuOpen(true)}
-            className="p-2 rounded-full bg-gray-100 dark:bg-slate-900 dark:text-white text-gray-700 mr-3"
+            className="p-2 rounded-full bg-gray-100 dark:bg-slate-900 dark:text-white text-gray-700 mr-3 z-20"
           >
             <FiMenu size={20} />
           </button>
           
-          <div className="flex-1 relative flex justify-center -left-7.5">
+          <div className="flex-1 relative flex justify-center -left-7.5 z-10">
             <span className="text-black dark:text-white flex items-end" data-aos="zoom-in">
               <img src="/logo.png" height="30px" width={30} />enture
             </span>
@@ -90,6 +91,9 @@ const HomePage = () => {
               <nav className="space-y-2">
                 <a href="#" className="flex items-center p-3 rounded-lg hover:bg-purple-50 hover:text-purple-600">
                   <FiUser className="mr-3" /> Mi Perfil
+                </a>
+                <a href="/mis-compras" className="flex items-center p-3 rounded-lg hover:bg-purple-50 hover:text-purple-600">
+                  <LuTicketCheck className="mr-3" /> Mis compras
                 </a>
                 <a href="#" className="flex items-center p-3 rounded-lg hover:bg-purple-50 hover:text-purple-600">
                   <FiHeart className="mr-3" /> Favoritos

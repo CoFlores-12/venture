@@ -19,7 +19,7 @@ const EventsPage = () => {
   const [filteredEvents, setFilteredEvents] = useState(events);
 
     useEffect(() => {
-      fetch('/api/events/get')  
+      fetch('/api/events/get/all')  
       .then(res => {return res.json()})
       .then(res =>{
         setEvents(res);

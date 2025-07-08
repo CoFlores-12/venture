@@ -25,6 +25,10 @@ const purchaseSchema = new Schema({
     required: true,
     min: 0,
   },
+  typeTicket: {
+    type: String,
+    required: true,
+  },
 }, {
   timestamps: true,
 });
