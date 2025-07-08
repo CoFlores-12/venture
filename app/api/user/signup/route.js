@@ -1,18 +1,17 @@
 import { NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
-import connectDB from '@/lib/db';
-import User from '@/models/User';
+import { connectToMongoose } from '@/src/lib/db';
+import User from '@/src/models/user';
+
 
 export async function POST(req) {
   try {
-    // 1. Conectamos a la base de datos
-    await connectDB();
+    await connectToMongoose();
 
-    // 2. Extraemos datos del cuerpo
     const body = await req.json();
     const { name, email, password } = body;
 
-    // 3. Validaciones simples
+    //Validaciones simples
     if (!name || !email || !password) {
       return NextResponse.json(
         { message: 'Faltan campos obligatorios.' },
@@ -27,7 +26,7 @@ export async function POST(req) {
       );
     }
 
-    // 4. Verificar si ya existe un usuario con ese correo
+    //Verificar si ya existe un usuario con ese correo
     const existingUser = await User.findOne({ email });
 
     if (existingUser) {
@@ -37,10 +36,10 @@ export async function POST(req) {
       );
     }
 
-    // 5. Encriptar la contraseña
+    //Encriptar la contraseña
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // 6. Crear el nuevo usuario
+    //Crear el nuevo usuario
     const newUser = new User({
       name,
       email,
@@ -50,7 +49,7 @@ export async function POST(req) {
 
     await newUser.save();
 
-    // 7. Retornar respuesta exitosa
+    //Retornar respuesta exitosa
     return NextResponse.json(
       { message: 'Usuario registrado exitosamente.' },
       { status: 201 }
