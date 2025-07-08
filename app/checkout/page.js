@@ -2,8 +2,10 @@
 import React, { useState, useEffect } from 'react';
 import { PayPalButtons, PayPalScriptProvider } from '@paypal/react-paypal-js';
 import { FaCreditCard, FaPaypal, FaMoneyBillWave, FaQrcode, FaShieldAlt, FaLock, FaUserShield } from 'react-icons/fa';
+import { useAuthUser } from '@/src/lib/authUsers';
 
 const PaymentGateway = () => {
+  const { user, loading2 } = useAuthUser();
   const [selectedMethod, setSelectedMethod] = useState('card'); 
   const [cardDetails, setCardDetails] = useState({
     cardNumber: '',
@@ -15,12 +17,14 @@ const PaymentGateway = () => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [loading, setLoading] = useState(true);
   const [ticketDetails, setTicketDetails] = useState(null);
+  let totalBoletos = 0;
+  let totalPrecio = 0;
 
   useEffect(()=>{
     const searchParams = new URLSearchParams(location.search);
     const eventId = searchParams.get('eventId');
     const eventName = searchParams.get('eventName');
-     const tickets = [];
+    const tickets = [];
     searchParams.forEach((value, key) => {
       if (key.startsWith('tickets[')) {
         const match = key.match(/tickets\[(.*?)\]\[(.*?)\]/);
@@ -37,6 +41,10 @@ const PaymentGateway = () => {
         }
       }
     });
+    tickets.forEach(ticket => {
+      const cantidad = ticket.quantity || 0;
+      totalBoletos += cantidad;
+    });
 
 
     const total = tickets.reduce((sum, ticket) => sum + (ticket.price * ticket.quantity), 0);
@@ -51,10 +59,6 @@ const PaymentGateway = () => {
     setLoading(false);
   },[])
 
-  const [user] = useState({
-    name: "María Rodríguez",
-    email: "maria.rodriguez@example.com",
-  });
 
   const handleCardChange = (e) => {
     const { name, value } = e.target;
@@ -141,12 +145,12 @@ const PaymentGateway = () => {
         }
       },
       items: [{
-        name: `${ticketDetails.ticketType} - ${ticketDetails.eventName}`,
+        name: `${totalBoletos} Boletos - ${ticketDetails.eventName}`,
         unit_amount: {
           value: unitUSD,
           currency_code: "USD"
         },
-        quantity: ticketDetails.quantity.toString(),
+        quantity: 1,
         description: "Entrada para evento"
       }]
     }],
@@ -231,9 +235,9 @@ const PaymentGateway = () => {
               <div key={index} className="flex justify-between">
                 <div>
                   <p className="font-medium capitalize">{ticket.type}</p>
-                  <p className="text-gray-600">{ticket.quantity} x ${ticket.price.toFixed(2)}</p>
+                  <p className="text-gray-600">{ticket.quantity} x L.{ticket.price.toFixed(2)}</p>
                 </div>
-                <p className="font-medium">${(ticket.quantity * ticket.price).toFixed(2)}</p>
+                <p className="font-medium">L.{(ticket.quantity * ticket.price).toFixed(2)}</p>
               </div>
             ))}
           </div>
@@ -249,9 +253,8 @@ const PaymentGateway = () => {
               
               <div className="bg-purple-50 rounded-xl p-4 border border-purple-200">
                 <h3 className="font-semibold text-purple-800 mb-2">Información del comprador</h3>
-                <p className="text-gray-800">{user.name}</p>
-                <p className="text-gray-600 text-sm">{user.email}</p>
-                <p className="text-gray-600 text-sm">{user.phone}</p>
+                <p className="text-gray-800">{user?.name}</p>
+                <p className="text-gray-600 text-sm">{user?.email}</p>
               </div>
             </div>
             

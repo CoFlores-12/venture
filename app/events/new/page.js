@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation'
 import { FiCalendar, FiMapPin, FiDollarSign, FiImage, FiTag, FiInfo, FiX, FiPlus, FiTrash2 } from 'react-icons/fi'
 import dynamic from 'next/dynamic'
 import EventPlanSelector from '@/app/components/PlanEvent';
+import { LuTicketCheck } from 'react-icons/lu';
 
 // Importamos Leaflet dinámicamente para SSR
 const MapWithNoSSR = dynamic(
@@ -32,12 +33,18 @@ const EventCreateForm = () => {
     banner: null,
     bannerPreview: '',
     tickets: [
-      { id: Date.now(), type: 'General', price: '', quantity: '' }
+      { id: Date.now(), type: 'General', price: '', quantity: '', ticketsAvailable: '' }
     ]
   })
+  const [planSeleted, setPlanSelected] = useState({})
   
   const handlePlanSelect = (selectedPlan) => {
-    console.log('Plan seleccionado:', selectedPlan);
+    setPlanSelected(selectedPlan);
+    setFormData({
+      ...formData,
+      tickets: formData.tickets.slice(0, selectedPlan.tickets)
+    })
+    
   };
 
     const handleChange = (e) => {
@@ -73,14 +80,37 @@ const EventCreateForm = () => {
   }
 
   const categories = [
-    { value: 'music', label: '🎵 Música' },
-    { value: 'art', label: '🖼️ Arte' },
-    { value: 'food', label: '🍴 Comida' },
-    { value: 'sports', label: '🏃‍♂️ Deporte' },
-    { value: 'workshop', label: '📸 Taller' },
-    { value: 'culture', label: '💃 Cultura' }
-  ]
-
+    '🎵 Música',
+    '🎭 Teatro',
+    '🖼️ Arte',
+    '🍽️ Gastronomía',
+    '⚽ Deportes',
+    '📚 Literatura',
+    '🎤 Concierto',
+    '💃 Baile',
+    '🎪 Festival',
+    '🎮 Gaming',
+    '📸 Fotografía',
+    '🎬 Cine',
+    '🎨 Taller Creativo',
+    '🧘 Bienestar',
+    '👨‍💻 Tecnología',
+    '🌱 Sustentabilidad',
+    '🎭 Stand-up',
+    '🍷 Degustación',
+    '🛍️ Mercado',
+    '👶 Familiar',
+    '🎓 Educativo',
+    '✈️ Viajes',
+    '🐶 Mascotas',
+    '🎳 Bowling',
+    '♟️ Juegos de Mesa',
+    '🍻 Happy Hour',
+    '🎄 Navideño',
+    '🎆 Año Nuevo',
+    '💘 San Valentín',
+    '🎃 Halloween'
+  ];
   const handleMapClick = (latlng) => {
     setFormData(prev => ({
       ...prev,
@@ -90,13 +120,38 @@ const EventCreateForm = () => {
 
   // Manejadores para tickets
   const handleTicketChange = (id, field, value) => {
+  if (field !== 'quantity') {
     setFormData(prev => ({
       ...prev,
-      tickets: prev.tickets.map(ticket => 
+      tickets: prev.tickets.map(ticket =>
         ticket.id === id ? { ...ticket, [field]: value } : ticket
       )
-    }))
+    }));
+    return;
   }
+
+  const newQuantity = Number(value);
+
+  setFormData(prev => {
+    const otherTicketsTotal = prev.tickets.reduce((sum, ticket) =>
+      ticket.id === id ? sum : sum + Number(ticket.quantity || 0), 0
+    );
+
+    const totalWithNew = otherTicketsTotal + newQuantity;
+
+    if (totalWithNew > planSeleted.persons) {
+      alert(`No puedes vender más de ${planSeleted.persons} boletos en total.`);
+      return prev; 
+    }
+
+    return {
+      ...prev,
+      tickets: prev.tickets.map(ticket =>
+        ticket.id === id ? { ...ticket, quantity: newQuantity, ticketsAvailable: newQuantity } : ticket
+      )
+    };
+  });
+};
 
   const addTicket = () => {
     setFormData(prev => ({
@@ -151,21 +206,34 @@ const EventCreateForm = () => {
       // Preparar datos para enviar
       const eventData = {
         ...formData,
-        location: `Ubicación seleccionada (${formData.position[0]}, ${formData.position[1]})`,
+        bannerPreview: formData.bannerPreview.replace(/^data:image\/[a-z]+;base64,/, ''),
+        emoji: formData.category.charAt(0),
+        time: `${formData.startTime} - ${formData.endTime}`,
+        location: formData.location,
         tickets: formData.tickets.map(ticket => ({
-          type: ticket.type,
+          name: ticket.type,
           price: Number(ticket.price),
+          quantityAvailable: ticket.quantity ? Number(ticket.quantity) : null,
           quantity: ticket.quantity ? Number(ticket.quantity) : null
         }))
       }
+
+      fetch("/api/events",{
+        method: "POST",
+         headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(eventData)
+      })
+      .then(res=>{return res.json()})
+      .then(res=>{
+        console.log(res);
+        setIsSubmitting(false)
+        router.replace("/home")
+      })
+      .catch(err=>{
+        console.log(err);
+        setIsSubmitting(false)
+      })
       
-      console.log('Datos del evento:', eventData)
-      
-      // Simulamos un envío exitoso
-      await new Promise(resolve => setTimeout(resolve, 1500))
-      
-      // Redirigir al dashboard o página de éxito
-      router.push('/events?created=true')
     } catch (error) {
       console.error('Error al crear el evento:', error)
     } finally {
@@ -173,6 +241,7 @@ const EventCreateForm = () => {
     }
   }
 
+  
   return (
     <div className="max-w-3xl mx-auto p-4 md:p-6 ">
       <div className="flex items-center justify-between mb-6">
@@ -372,7 +441,7 @@ const EventCreateForm = () => {
             >
               <option value="">Selecciona una categoría</option>
               {categories.map(cat => (
-                <option key={cat.value} value={cat.value}>{cat.label}</option>
+                <option key={cat} value={cat}>{cat}</option>
               ))}
             </select>
             {errors.category && (
@@ -384,18 +453,23 @@ const EventCreateForm = () => {
         <EventPlanSelector onPlanSelect={handlePlanSelect} />
         
         {/* Tickets */}
-        <div>
+        { planSeleted?.id && (
+          <div>
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-lg font-semibold text-gray-900 flex items-center">
-              <FiDollarSign className="mr-2" /> Tipos de Entradas
+              <LuTicketCheck className="mr-2" /> Tipos de Entradas
             </h3>
-            <button 
-              type="button"
-              onClick={addTicket}
-              className="btn btn-sm btn-ghost text-purple-700"
-            >
-              <FiPlus className="mr-1" /> Agregar
-            </button>
+            {
+              planSeleted?.tickets > formData.tickets.length && (
+                <button 
+                  type="button"
+                  onClick={addTicket}
+                  className="btn btn-sm btn-ghost text-purple-700"
+                >
+                  <FiPlus className="mr-1" /> Agregar
+                </button>
+              )
+            }
           </div>
           
           <div className="space-y-4">
@@ -457,6 +531,7 @@ const EventCreateForm = () => {
             ))}
           </div>
         </div>
+        )}
         
         {/* Botón de envío */}
         <div className="pt-4">

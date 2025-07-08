@@ -4,7 +4,7 @@ const EventCardSkeleton = () => {
   return (
     <motion.div
       whileHover={{ y: -5 }}
-      className="w-72 bg-white dark:bg-slate-800 rounded-xl shadow-md overflow-hidden flex-shrink-0 card hover:shadow-2xl transition-shadow"
+      className="min-w-72 bg-white dark:bg-slate-800 rounded-xl shadow-md overflow-hidden flex-shrink-0 card hover:shadow-2xl transition-shadow"
     >
       {/* Banner skeleton */}
       <figure className="relative">

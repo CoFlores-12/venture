@@ -2,17 +2,17 @@ import NextAuth from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { findUserByCredentials, RegisterUser } from "@/src/lib/user-config";
+import { connectToMongoose } from "@/src/lib/db";
+import Users from "@/src/models/Users";
 
-const handler = NextAuth({
+export const authOptions = {
   providers: [
-    //User Google login
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
     }),
 
-    //User login
-     CredentialsProvider({
+    CredentialsProvider({
       id: "user-login",
       name: "Usuario",
       credentials: {
@@ -29,7 +29,7 @@ const handler = NextAuth({
           id: user._id,
           name: user.nombre,
           email: user.correo,
-          role: user.rol || "default",
+          rol: user.rol || "default",
         };
       }
     }),
@@ -46,7 +46,7 @@ const handler = NextAuth({
         if (!credentials?.email || !credentials?.password || !credentials.nombre) return null;
 
         const user = await RegisterUser(credentials.email, credentials.password, credentials.nombre);
-         if (!user) {
+        if (!user) {
           throw new Error("Error al registrar usuario.");
         }
 
@@ -68,27 +68,49 @@ const handler = NextAuth({
     maxAge: 60 * 60 * 24 * 365,
   },
   pages: {
-    signIn: '/register', // si usas una página personalizada de login
+    signIn: '/register',
+    error: "/register",
   },
   callbacks: {
+    async signIn({ account, profile, user }) {
+      if (account.provider === "google") {
+        await connectToMongoose();
+        const existingUser = await Users.findOne({ correo: profile.email });
+
+        if (!existingUser) {
+          throw new Error("Usuario no registrado");
+        }
+
+        return {
+          id: existingUser._id,
+          name: existingUser.nombre,
+          email: existingUser.correo,
+          rol: existingUser.rol || "default",
+        };
+      }
+
+      return true;
+    },
     async jwt({ token, account, user }) {
       if (account && user) {
         token.accessToken = account.access_token;
-        // Set default role for regular users
-        token.role = user.role || 'user';
+        token.rol = user.rol || 'default';
+        token.id = user.id; // asegúrate que esté
       }
       return token;
     },
     async session({ session, token }) {
       session.accessToken = token.accessToken;
-      session.user.role = token.role || 'user';
+      session.user.rol = token.rol;
+      session.user.id = token.id;
       return session;
     },
     async redirect({ url, baseUrl }) {
-
-      return `${baseUrl}/home`; // Default redirect
+      return `${baseUrl}/home`;
     },
   },
-});
+};
 
-export { handler as GET, handler as POST };
+const handler = NextAuth(authOptions);
+
+export { handler as GET, handler as POST, authOptions };

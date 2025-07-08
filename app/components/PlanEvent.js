@@ -9,6 +9,8 @@ const EventPlanSelector = ({ onPlanSelect }) => {
       name: 'Evento Básico',
       price: 'Gratis',
       description: 'Perfecto para eventos pequeños y sencillos',
+      tickets: 1,
+      persons: 50,
       features: [
         'Máximo 50 personas',
         '1 tipo de boleto',
@@ -22,8 +24,10 @@ const EventPlanSelector = ({ onPlanSelect }) => {
       name: 'Evento Premium',
       price: '$9.99',
       description: 'Ideal para eventos con múltiples opciones',
+      tickets: 3,
+      persons: 1000,
       features: [
-        'Máximo 100 personas',
+        'Máximo 1,000 personas',
         '3 tipos de boletos',
         'Soporte prioritario',
         'Panel de administración avanzado',
@@ -35,9 +39,11 @@ const EventPlanSelector = ({ onPlanSelect }) => {
       id: 'enterprise',
       name: 'Evento Empresarial',
       price: '$29.99',
+      tickets: 5,
+      persons: 10000,
       description: 'Para grandes eventos profesionales',
       features: [
-        'Máximo 1000 personas',
+        'Máximo 10,000 personas',
         '5 tipos de boletos',
         'Soporte 24/7',
         'Panel de administración completo',
@@ -102,6 +108,7 @@ const EventPlanSelector = ({ onPlanSelect }) => {
             
             <div className="px-6 py-4 bg-gray-50 dark:bg-slate-800 dark:text-gray-300">
               <button
+                type='button'
                 onClick={() => handleSelectPlan(plan.id)}
                 className={`w-full py-3 px-4 rounded-md font-medium 
                   ${selectedPlan === plan.id 

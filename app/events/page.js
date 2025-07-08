@@ -221,7 +221,7 @@ const EventsPage = () => {
             <h2 className="text-xl font-bold text-gray-800 mb-4 flex items-center dark:text-gray-300">
               <FiStar className="text-yellow-500 mr-2  " /> Eventos destacados
             </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
               { loading && (
                     [1,2,3,4].map((item)=>(
                       <EventCardSkeleton id={item} />
@@ -231,7 +231,7 @@ const EventsPage = () => {
                 .filter(event => event.featured)
                 .map(event => (
                   <motion.a 
-                    href={`/event/${event.id}`}
+                    href={`/event/${event._id}`}
                       key={event.id}
                       whileHover={{ y: -5 }}
                       className="min-w-72 bg-white dark:bg-slate-800 rounded-xl shadow-md overflow-hidden flex-shrink-0 card hover:shadow-2xl transition-shadow border-1 border-yellow-300"
@@ -281,7 +281,7 @@ const EventsPage = () => {
               .filter(event => !event.featured)
               .map(event => (
                 <motion.a 
-                    href={`/event/${event.id}`}
+                    href={`/event/${event._id}`}
                       key={event.id}
                       whileHover={{ y: -5 }}
                       className="min-w-72 bg-white dark:bg-slate-800 rounded-xl shadow-md overflow-hidden flex-shrink-0 card hover:shadow-2xl transition-shadow"
