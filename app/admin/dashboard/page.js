@@ -14,6 +14,17 @@ const AdminDashboard = () => {
     totalSales: 0,
     totalCommissions: 0
   });
+  const [showCreateAdminModal, setShowCreateAdminModal] = useState(false);
+  const [createAdminForm, setCreateAdminForm] = useState({
+    name: '',
+    email: '',
+    password: '',
+    adminCode: '',
+    role: 'admin'
+  });
+  const [createAdminLoading, setCreateAdminLoading] = useState(false);
+  const [createAdminError, setCreateAdminError] = useState('');
+  const [createAdminSuccess, setCreateAdminSuccess] = useState('');
 
   // Check if user is authenticated and is admin
   useEffect(() => {
@@ -95,6 +106,40 @@ const AdminDashboard = () => {
 
   const handleLogout = async () => {
     await logout();
+  };
+
+  const handleCreateAdminChange = (e) => {
+    setCreateAdminForm(prev => ({
+      ...prev,
+      [e.target.name]: e.target.value
+    }));
+  };
+
+  const handleCreateAdmin = async (e) => {
+    e.preventDefault();
+    setCreateAdminLoading(true);
+    setCreateAdminError('');
+    setCreateAdminSuccess('');
+    try {
+      const response = await fetch('/api/admin/users', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify(createAdminForm)
+      });
+      const data = await response.json();
+      if (data.success) {
+        setCreateAdminSuccess('Administrador creado exitosamente');
+        setCreateAdminForm({ name: '', email: '', password: '', adminCode: '', role: 'admin' });
+        setShowCreateAdminModal(false);
+      } else {
+        setCreateAdminError(data.error || 'Error al crear el admin');
+      }
+    } catch (error) {
+      setCreateAdminError('Error de conexión');
+    } finally {
+      setCreateAdminLoading(false);
+    }
   };
 
   // Show loading while checking authentication
@@ -303,10 +348,20 @@ const AdminDashboard = () => {
                   <div className="text-purple-600 dark:text-purple-400 text-xl sm:text-2xl mb-1 sm:mb-2">📊</div>
                   <p className="text-xs sm:text-sm font-medium text-gray-900 dark:text-white">Reportes</p>
                 </button>
-                <button className="p-3 sm:p-4 bg-orange-50 dark:bg-orange-900/20 rounded-lg hover:bg-orange-100 dark:hover:bg-orange-900/30 transition-colors">
-                  <div className="text-orange-600 dark:text-orange-400 text-xl sm:text-2xl mb-1 sm:mb-2">⚙️</div>
-                  <p className="text-xs sm:text-sm font-medium text-gray-900 dark:text-white">Configuración</p>
-                </button>
+                {admin?.role === 'superadmin' ? (
+                  <button 
+                    onClick={() => setShowCreateAdminModal(true)}
+                    className="p-3 sm:p-4 bg-red-50 dark:bg-red-900/20 rounded-lg hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors"
+                  >
+                    <div className="text-red-600 dark:text-red-400 text-xl sm:text-2xl mb-1 sm:mb-2">👑</div>
+                    <p className="text-xs sm:text-sm font-medium text-gray-900 dark:text-white">Crear Admin</p>
+                  </button>
+                ) : (
+                  <button className="p-3 sm:p-4 bg-orange-50 dark:bg-orange-900/20 rounded-lg hover:bg-orange-100 dark:hover:bg-orange-900/30 transition-colors">
+                    <div className="text-orange-600 dark:text-orange-400 text-xl sm:text-2xl mb-1 sm:mb-2">⚙️</div>
+                    <p className="text-xs sm:text-sm font-medium text-gray-900 dark:text-white">Configuración</p>
+                  </button>
+                )}
               </div>
             </div>
           </motion.div>
@@ -354,6 +409,110 @@ const AdminDashboard = () => {
           </div>
         </motion.div>
       </main>
+
+      {/* Create Admin Modal */}
+      {showCreateAdminModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="bg-white dark:bg-gray-800 rounded-xl shadow-xl max-w-md w-full"
+          >
+            <div className="p-6 border-b border-gray-200 dark:border-gray-700">
+              <div className="flex items-center justify-between">
+                <h2 className="text-xl font-bold text-gray-900 dark:text-white">
+                  Crear Nuevo Administrador
+                </h2>
+                <button
+                  onClick={() => setShowCreateAdminModal(false)}
+                  className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"
+                >
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+            <form onSubmit={handleCreateAdmin} className="p-6 space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Nombre</label>
+                <input 
+                  type="text" 
+                  name="name" 
+                  value={createAdminForm.name} 
+                  onChange={handleCreateAdminChange} 
+                  required 
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white" 
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Correo Electrónico</label>
+                <input 
+                  type="email" 
+                  name="email" 
+                  value={createAdminForm.email} 
+                  onChange={handleCreateAdminChange} 
+                  required 
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white" 
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Contraseña</label>
+                <input 
+                  type="password" 
+                  name="password" 
+                  value={createAdminForm.password} 
+                  onChange={handleCreateAdminChange} 
+                  required 
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white" 
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Código de Admin</label>
+                <input 
+                  type="password" 
+                  name="adminCode" 
+                  value={createAdminForm.adminCode} 
+                  onChange={handleCreateAdminChange} 
+                  required 
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white" 
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Rol</label>
+                <select 
+                  name="role" 
+                  value={createAdminForm.role} 
+                  onChange={handleCreateAdminChange} 
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                >
+                  <option value="admin">Administrador</option>
+                  <option value="editor">Editor</option>
+                </select>
+              </div>
+              {createAdminError && <div className="text-red-600 dark:text-red-400 text-sm">{createAdminError}</div>}
+              {createAdminSuccess && <div className="text-green-600 dark:text-green-400 text-sm">{createAdminSuccess}</div>}
+              <div className="flex gap-3 pt-4">
+                <button 
+                  type="submit" 
+                  disabled={createAdminLoading} 
+                  className="flex-1 bg-red-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-red-700 disabled:opacity-50"
+                >
+                  {createAdminLoading ? 'Creando...' : 'Crear Admin'}
+                </button>
+                <button 
+                  type="button" 
+                  onClick={() => setShowCreateAdminModal(false)}
+                  className="flex-1 bg-gray-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-gray-700"
+                >
+                  Cancelar
+                </button>
+              </div>
+            </form>
+          </motion.div>
+        </div>
+      )}
     </div>
   );
 };

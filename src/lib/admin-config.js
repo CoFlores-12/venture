@@ -31,22 +31,6 @@ export const ADMIN_CONFIG = {
   }
 };
 
-// In-memory admin users storage (replace with database in production)
-export let adminUsers = [
-  ADMIN_CONFIG.DEFAULT_ADMIN
-];
-
-// Helper functions
-export const addAdminUser = (adminData) => {
-  const newAdmin = {
-    id: (adminUsers.length + 1).toString(),
-    ...adminData,
-    role: 'admin'
-  };
-  adminUsers.push(newAdmin);
-  return newAdmin;
-};
-
 
 /**
  * Busca y autentica un administrador por email, password y adminCode.
@@ -57,30 +41,29 @@ export const addAdminUser = (adminData) => {
  */
 export async function findAdminByCredentials(email, password, adminCode) {
   await connectToMongoose();
-  
 
   const admin = await AdminSchema.findOne({ correo: email.toLowerCase() });
-  
-  if (!admin) return null;
-  
+  if (!admin) {
+    console.error('No admin found for email:', email);
+    return null;
+  }
+
   const isPasswordValid = await bcrypt.compare(password, admin.passwordHash);
-  if (!isPasswordValid) return null;
-  
+  if (!isPasswordValid) {
+    console.error('Invalid password for admin:', email);
+    return null;
+  }
+
   const isCodeValid = await bcrypt.compare(adminCode, admin.adminCode);
-  if (!isCodeValid) return null;
-  
+  if (!isCodeValid) {
+    console.error('Invalid admin code for admin:', email);
+    return null;
+  }
+
   return {
     _id: admin._id.toString(),
     nombre: admin.nombre,
     correo: admin.correo,
     rol: admin.rol || "admin",
   };
-}
-
-export const findAdminByEmail = (email) => {
-  return adminUsers.find(user => user.email === email);
-};
-
-export const getSafeAdminList = () => {
-  return adminUsers.map(({ password, adminCode, ...admin }) => admin);
-}; 
+} 

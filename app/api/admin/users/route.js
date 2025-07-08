@@ -1,4 +1,7 @@
 import { NextResponse } from 'next/server';
+import AdminSchema from '../../../../src/models/admin';
+import { connectToMongoose } from '../../../../src/lib/db';
+import bcrypt from 'bcryptjs';
 
 // Simulate database storage for users
 let users = [
@@ -158,55 +161,56 @@ export async function GET(request) {
 // POST - Create new user (for admin registration)
 export async function POST(request) {
   try {
+    // Check session cookie for superadmin
+    const adminSession = request.cookies.get('admin-session');
+    if (!adminSession) {
+      return NextResponse.json({ success: false, error: 'No autorizado' }, { status: 401 });
+    }
+    const sessionData = JSON.parse(adminSession.value);
+    if (!sessionData.isAdmin || sessionData.role !== 'superadmin') {
+      return NextResponse.json({ success: false, error: 'Solo el superadmin puede crear admins' }, { status: 403 });
+    }
+
     const body = await request.json();
-    const { name, email, role, rtn } = body;
+    const { name, email, password, adminCode, role } = body;
 
-    // Validate required fields
-    if (!name || !email || !role) {
+    if (!name || !email || !password || !adminCode) {
       return NextResponse.json(
-        { success: false, error: 'Nombre, email y rol son requeridos' },
+        { success: false, error: 'Nombre, email, contraseña y código de admin son requeridos' },
         { status: 400 }
       );
     }
 
-    // Check if email already exists
-    const existingUser = users.find(user => user.email === email);
-    if (existingUser) {
+    await connectToMongoose();
+    const existingAdmin = await AdminSchema.findOne({ correo: email.toLowerCase() });
+    if (existingAdmin) {
       return NextResponse.json(
-        { success: false, error: 'Ya existe un usuario con este email' },
+        { success: false, error: 'Ya existe un admin con este email' },
         { status: 400 }
       );
     }
 
-    // Create new user
-    const newUser = {
-      id: users.length + 1,
-      userId: `USR${String(users.length + 1).padStart(3, '0')}`,
-      name,
-      email,
-      role,
-      status: 'active',
-      createdAt: new Date().toISOString().split('T')[0],
-      lastLogin: null,
-      rtn: rtn || null,
-      eventsCount: 0,
-      ticketsPurchased: 0,
-      totalSpent: 0
-    };
+    const passwordHash = await bcrypt.hash(password, 10);
+    const adminCodeHash = await bcrypt.hash(adminCode, 10);
+    const newAdmin = await AdminSchema.create({
+      nombre: name,
+      correo: email.toLowerCase(),
+      passwordHash,
+      adminCode: adminCodeHash,
+      rol: role || 'admin',
+    });
 
-    users.push(newUser);
-
-    return NextResponse.json(
-      { 
-        success: true, 
-        message: 'Usuario creado exitosamente',
-        data: newUser
-      },
-      { status: 201 }
-    );
-
+    return NextResponse.json({
+      success: true,
+      admin: {
+        id: newAdmin._id.toString(),
+        name: newAdmin.nombre,
+        email: newAdmin.correo,
+        role: newAdmin.rol,
+      }
+    }, { status: 201 });
   } catch (error) {
-    console.error('Error creating user:', error);
+    console.error('Error creating admin:', error);
     return NextResponse.json(
       { success: false, error: 'Error interno del servidor' },
       { status: 500 }
