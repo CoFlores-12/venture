@@ -30,6 +30,7 @@ export const authOptions = {
           name: user.nombre,
           email: user.correo,
           rol: user.rol || "default",
+          foto: user.foto || ""
         };
       }
     }),
@@ -92,7 +93,7 @@ export const authOptions = {
           name: existingUser.nombre,
           email: existingUser.correo,
           rol: existingUser.rol || "default",
-          image: existingUser.foto || ""
+          foto: existingUser.foto || ""
         };
       }
 
@@ -104,7 +105,7 @@ export const authOptions = {
         token.accessToken = account.access_token;
         token.rol = user.rol || 'default';
         token.id = user.id; 
-        token.image =  user.image || ""
+        token.foto =  user.foto || ""
       }
       return token;
     },
@@ -112,7 +113,7 @@ export const authOptions = {
       session.accessToken = token.accessToken;
       session.user.rol = token.rol;
       session.user.id = token.id;
-      session.user.image = token.image
+      session.user.image = token.foto
       return session;
     },
     async redirect({ url, baseUrl }) {

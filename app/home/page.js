@@ -10,10 +10,13 @@ import LogoutButton from '../components/LogoutBtn';
 import LoadingModal from '../components/loadingOverlay';
 import EventCardSkeleton from '../components/EventCardSkeleton';
 import { useAuthUser } from '@/src/lib/authUsers';
+import { subscribePush } from '@/src/lib/registerPush';
 
 const HomePage = () => {
   const router = useRouter();
   const { user, loading2 } = useAuthUser();
+
+  subscribePush(user?.id);
   
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isMapExpanded, setIsMapExpanded] = useState(false);

@@ -22,6 +22,7 @@ export async function findUserByCredentials(correo, password) {
     nombre: user.nombre,
     correo: user.correo,
     rol: user.rol || "default",
+    foto: user.foto || ""
   };
 }
 
