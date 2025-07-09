@@ -80,12 +80,19 @@ export const authOptions = {
         if (!existingUser) {
           throw new Error("Usuario no registrado");
         }
+        if (!existingUser.foto || existingUser.foto === "") {
+          existingUser.foto = profile.picture;
+          await existingUser.save();
+        }
 
+        user.id = existingUser._id
+        
         return {
           id: existingUser._id,
           name: existingUser.nombre,
           email: existingUser.correo,
           rol: existingUser.rol || "default",
+          image: existingUser.foto || ""
         };
       }
 
@@ -93,9 +100,11 @@ export const authOptions = {
     },
     async jwt({ token, account, user }) {
       if (account && user) {
+        
         token.accessToken = account.access_token;
         token.rol = user.rol || 'default';
-        token.id = user.id; // asegúrate que esté
+        token.id = user.id; 
+        token.image =  user.image || ""
       }
       return token;
     },
@@ -103,6 +112,7 @@ export const authOptions = {
       session.accessToken = token.accessToken;
       session.user.rol = token.rol;
       session.user.id = token.id;
+      session.user.image = token.image
       return session;
     },
     async redirect({ url, baseUrl }) {

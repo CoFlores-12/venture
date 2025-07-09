@@ -141,8 +141,8 @@ export default function MapComponent({ events, isMapExpanded }) {
                 <p><strong>Distancia:</strong> {distanceKm !== null ? distanceKm.toFixed(2) + ' km' : 'Calculando...'}</p>
                 <p><strong>Categoría:</strong> {event.category}</p>
                 <Link
-                  href={`/event/${event.id}`}
-                  className="btn bg-purple-700 !text-white no-underlin"
+                  href={`/event/${event._id}`}
+                  className="btn bg-purple-700 !text-white no-underline"
                 >
                   Más Detalles
                 </Link>

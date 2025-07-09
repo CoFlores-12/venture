@@ -61,7 +61,7 @@ export async function POST(req) {
     if (!user) {
       return NextResponse.json({ success: false, message: "Usuario no encontrado." }, { status: 404 });
     }
-    if (!user.verificado) {
+    if (user.verificado != null && !user.verificado) {
       return NextResponse.json({ success: false, message: "Ya tienes una solicitud pendiente." }, { status: 404 });
     }
 

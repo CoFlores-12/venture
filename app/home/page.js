@@ -83,9 +83,14 @@ const HomePage = () => {
             
             <div className="p-4 relative">
               <div className="flex items-center mb-6">
-                <div className="w-12 h-12 aspect-square rounded-full bg-purple-100 flex items-center justify-center mr-3">
-                  <FiUser size={20} className="text-purple-700" />
-                </div>
+                { (!user?.image || user?.image === "") ? (
+                  <div className="w-12 h-12 aspect-square rounded-full bg-purple-100 flex items-center justify-center mr-3">
+                    <FiUser size={20} className="text-purple-700" />
+                  </div>
+                ) : (
+                  <img src={user?.image} className="w-12 h-12 aspect-square rounded-full bg-purple-100 flex items-center justify-center mr-3" />
+               
+                )}
                 <div className='max-w-[75%]'>
                   <h3 className="font-medium ">{user?.name || "Usuario prueba"}</h3>
                   <p className="text-sm text-gray-500 truncate">{user?.email || "invitado@ejemplo.com"}</p>
