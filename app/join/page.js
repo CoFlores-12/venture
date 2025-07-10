@@ -11,7 +11,8 @@ const VerifyOrganizerForm = () => {
     phone: '',
     address: '',
     documentImage: null,
-    documentPreview: ''
+    documentPreview: '',
+    organizationDesc: ''
   })
   const [errors, setErrors] = useState({})
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -49,6 +50,7 @@ const VerifyOrganizerForm = () => {
   const validate = () => {
     const newErrors = {}
     if (!formData.organizationName.trim()) newErrors.organizationName = 'Nombre de organización requerido'
+    if (!formData.organizationDesc.trim()) newErrors.organizationDesc = 'Descripción de organización requerido'
     if (!formData.documentNumber) newErrors.documentNumber = 'Número de documento requerido'
     if (!formData.phone) newErrors.phone = 'Teléfono requerido'
     if (!formData.address) newErrors.address = 'Dirección requerida'
@@ -65,11 +67,28 @@ const VerifyOrganizerForm = () => {
     setIsSubmitting(true)
     
     try {
-      // Simulamos el proceso de verificación
-      await new Promise(resolve => setTimeout(resolve, 2000))
+      const res = await fetch('/api/users/requests', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          organizationName: formData.organizationName,
+          documentType: formData.documentType,
+          documentNumber: formData.documentNumber,
+          phone: formData.phone,
+          address: formData.address,
+          organizationDesc: formData.organizationDesc,
+          documentImageBase64: formData.documentPreview.replace(/^data:image\/[a-z]+;base64,/, '')
+        }),
+      });
+
+      if (res?.ok) {
+        setVerificationStatus('success')
+      }else {
+        const data = await res.json();
+        alert(data.message)
+      }
+
       
-      // En una aplicación real, aquí enviaríamos los datos al backend
-      setVerificationStatus('success')
     } catch (error) {
       setVerificationStatus('error')
       setErrors({ general: 'Error al enviar la solicitud' })
@@ -90,10 +109,10 @@ const VerifyOrganizerForm = () => {
           información y te notificará por correo electrónico en un plazo de 24-48 horas.
         </p>
         <button
-          onClick={() => router.push('/dashboard')}
+          onClick={() => router.push('/home')}
           className="btn btn-primary bg-purple-700 hover:bg-purple-800 text-white"
         >
-          Ir al Dashboard
+          Ir al inicio
         </button>
       </div>
     )
@@ -134,6 +153,22 @@ const VerifyOrganizerForm = () => {
               onChange={handleChange}
               className={`input input-bordered w-full ${errors.organizationName ? 'input-error' : ''}`}
               placeholder="Ej: Cultura Tegus"
+            />
+          </div>
+          {errors.organizationName && <p className="mt-1 text-sm text-error">{errors.organizationName}</p>}
+        </div>
+
+        {/* Descripción de la organización */}
+        <div>
+          <label className="block text-sm font-medium mb-1">Descripción de la organización</label>
+          <div className="relative">
+            <input
+              type="text"
+              name="organizationDesc"
+              value={formData.organizationDesc}
+              onChange={handleChange}
+              className={`input input-bordered w-full ${errors.organizationDesc ? 'input-error' : ''}`}
+              placeholder="Ej: Conciertos masivos en tu ciudad"
             />
           </div>
           {errors.organizationName && <p className="mt-1 text-sm text-error">{errors.organizationName}</p>}

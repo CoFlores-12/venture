@@ -24,8 +24,13 @@ export async function GET(req, { params }) {
         { status: 404 }
       );
     }
+    const plainUser = user.toObject();
+    plainUser.organizerEvents = [];
+    plainUser.rating = 0;
+    plainUser.lastReviews = [];
+    plainUser.isLiked = false;
 
-    return NextResponse.json(user);
+    return NextResponse.json(plainUser);
   } catch (error) {
     console.error('Error al obtener usuario:', error);
     return NextResponse.json(

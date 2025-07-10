@@ -1,4 +1,3 @@
-// components/MapComponent.js
 'use client';
 
 import React, { useEffect, useState, useRef } from 'react';
@@ -9,7 +8,6 @@ import "./map.css";
 import 'leaflet-routing-machine';
 import Link from 'next/link';
 
-// Fix icon issue with Next.js + Leaflet
 if (typeof window !== 'undefined') {
   delete L.Icon.Default.prototype._getIconUrl;
   L.Icon.Default.mergeOptions({
@@ -19,63 +17,84 @@ if (typeof window !== 'undefined') {
   });
 }
 
-export default function MapComponent({ events }) {
+const MapResizeHandler = ({ isExpanded }) => {
+  const map = useMap();
+  
+  useEffect(() => {
+    
+    const timer = setTimeout(() => {
+      map.invalidateSize();
+      setTimeout(() => map.invalidateSize(), 100);
+    }, 300);
+    
+    return () => clearTimeout(timer);
+  }, [isExpanded, map]);
+
+  return null;
+};
+
+export default function MapComponent({ events, isMapExpanded }) {
   const [userLocation, setUserLocation] = useState([14.0723, -87.1921]);
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [distanceKm, setDistanceKm] = useState(null);
+  const mapRef = useRef(null);
 
-
-function Routing({ from, to, onDistance }) {
-  const map = useMap();
-  const routingControlRef = useRef(null);
-
+  // Añade efecto para debuggear cambios en isMapExpanded
   useEffect(() => {
-    if (!from || !to) return;
+    console.log('isMapExpanded changed:', isMapExpanded);
+  }, [isMapExpanded]);
 
-    if (routingControlRef.current) {
-      map.removeControl(routingControlRef.current);
-    }
+  function Routing({ from, to, onDistance }) {
+    const map = useMap();
+    const routingControlRef = useRef(null);
 
-    routingControlRef.current = L.Routing.control({
-      waypoints: [L.latLng(from[0], from[1]), L.latLng(to[0], to[1])],
-      createMarker: () => null,
-      addWaypoints: false,
-      routeWhileDragging: false,
-      draggableWaypoints: false,
-      show: false,
-      fitSelectedRoutes: true,
-      lineOptions: { styles: [{ color: '#0f766e', weight: 5 }] },
-    })
-      .on('routesfound', (e) => {
-        const distanceMeters = e.routes[0].summary.totalDistance;
-        const distanceKm = distanceMeters / 1000;
-        if (onDistance) onDistance(distanceKm);
-      })
-      .addTo(map);
+    useEffect(() => {
+      if (!from || !to) return;
 
-    return () => {
       if (routingControlRef.current) {
         map.removeControl(routingControlRef.current);
       }
-    };
-  }, [from, to, map, onDistance]);
 
-  return null; // No renderiza nada
-}
+      routingControlRef.current = L.Routing.control({
+        waypoints: [L.latLng(from[0], from[1]), L.latLng(to[0], to[1])],
+        createMarker: () => null,
+        addWaypoints: false,
+        routeWhileDragging: false,
+        draggableWaypoints: false,
+        show: false,
+        fitSelectedRoutes: true,
+        lineOptions: { styles: [{ color: '#0f766e', weight: 5 }] },
+      })
+        .on('routesfound', (e) => {
+          const distanceMeters = e.routes[0].summary.totalDistance;
+          const distanceKm = distanceMeters / 1000;
+          if (onDistance) onDistance(distanceKm);
+        })
+        .addTo(map);
+
+      return () => {
+        if (routingControlRef.current) {
+          map.removeControl(routingControlRef.current);
+        }
+      };
+    }, [from, to, map, onDistance]);
+
+    return null;
+  }
   
-const createEmojiIcon = (emoji) =>
-  L.divIcon({
-    html: `
-      <div class="pin-container">
-        <div class="pulse-circle"></div>
-        <div class="emoji">${emoji}</div>
-      </div>
-    `,
-    className: "",
-    iconSize: [40, 40],
-    iconAnchor: [20, 40],
-    popupAnchor: [0, -40],
-  });
+  const createEmojiIcon = (category) =>
+    L.divIcon({
+      html: `
+        <div class="pin-container">
+          <div class="pulse-circle"></div>
+          <div class="emoji">${[...category][0]}</div>
+        </div>
+      `,
+      className: "",
+      iconSize: [40, 40],
+      iconAnchor: [20, 40],
+      popupAnchor: [0, -40],
+    });
 
   useEffect(() => {
     if (!navigator.geolocation) return;
@@ -87,47 +106,61 @@ const createEmojiIcon = (emoji) =>
   }, []);
 
   return (
-    <MapContainer center={userLocation} zoom={13} style={{ height: '500px', width: '100%', zIndex: 10 }}>
-      <TileLayer
-        attribution='&copy; <a href="https://osm.org/copyright">OpenStreetMap</a>'
-        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-      />
-      <Marker position={userLocation}>
-        <Popup>Tu ubicación actual</Popup>
-      </Marker>
+    <div className="relative w-full" style={{ height: isMapExpanded ? '100vh' : '60vh' }}>
+      <MapContainer 
+        center={userLocation} 
+        zoom={13} 
+        style={{ 
+          height: '100%',
+          width: '100%', 
+          zIndex: 10,
+          transition: 'height 0.3s ease'
+        }}
+        whenCreated={(map) => { mapRef.current = map; }}
+      >
+        <TileLayer
+          attribution='&copy; <a href="https://osm.org/copyright">OpenStreetMap</a>'
+          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+        />
+        <Marker position={userLocation}>
+          <Popup>Tu ubicación actual</Popup>
+        </Marker>
 
-      {events?.map((event) => (
-        <Marker
+        {events?.map((event) => (
+          <Marker
             key={event.id}
             position={event.position}
             eventHandlers={{ click: () => setSelectedEvent(event) }}
-            icon={createEmojiIcon(event.emoji)}
+            icon={createEmojiIcon(event.category)}
           >
             <Popup>
               <div className="text-left">
-                <h3 className="font-semibold text-lg">{event.emoji} {event.title}</h3>
+                <h3 className="font-semibold text-lg">{event.title}</h3>
                 <p><strong>Lugar:</strong> {event.location}</p>
                 <p><strong>Fecha:</strong> {event.date}</p>
-                <p><strong>Distancia:</strong>  {distanceKm !== null ? distanceKm.toFixed(2) + ' km' : 'Calculando...'}</p>
+                <p><strong>Distancia:</strong> {distanceKm !== null ? distanceKm.toFixed(2) + ' km' : 'Calculando...'}</p>
                 <p><strong>Categoría:</strong> {event.category}</p>
                 <Link
-                  href={`/event/${event.id}`}
-                  className="btn bg-purple-700 !text-white no-underlin"
+                  href={`/event/${event._id}`}
+                  className="btn bg-purple-700 !text-white no-underline"
                 >
                   Más Detalles
                 </Link>
-
               </div>
             </Popup>
           </Marker>
-      ))}
-       {userLocation && selectedEvent?.position && (
-        <Routing
-          from={userLocation}
-          to={selectedEvent.position}
-          onDistance={setDistanceKm}
-        />
-      )}
-    </MapContainer>
+        ))}
+        
+        {userLocation && selectedEvent?.position && (
+          <Routing
+            from={userLocation}
+            to={selectedEvent.position}
+            onDistance={setDistanceKm}
+          />
+        )}
+        
+        <MapResizeHandler isExpanded={isMapExpanded} />
+      </MapContainer>
+    </div>
   );
 }

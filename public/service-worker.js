@@ -54,40 +54,46 @@ self.addEventListener("activate", (event) => {
 });
 
   
-  self.addEventListener('push', function (event) {
-    let notificationData = {};
+self.addEventListener('push', function (event) {
+  const data = event.data.json();
 
-    if (event.data) {
-        try {
-            notificationData = JSON.parse(event.data.text());
-        } catch (error) {
-            console.error('Error al parsear el payload de la notificación:', error);
-        }
-    }
+  const options = {
+    body: data.body,
+    icon: data.icon || '/logo.png',
+    image: data.image,
+    badge: data.badge,
+    data: {
+      url: data.url,
+      ...data.data
+    },
+    actions: data.actions || []
+  };
 
-    const options = {
-        body: notificationData.body || 'Tienes una nueva notificación.', 
-        icon: notificationData.icon || '/logo.png'
-    };
-
-    if (notificationData.image) {
-        options.image = notificationData.image;
-    }
-
-    const title = notificationData.title || 'Nueva notificación';
-
-    event.waitUntil(
-        self.registration.showNotification(title, options)
-    );
+  event.waitUntil(
+    self.registration.showNotification(data.title, options)
+  );
 });
 
 
+
   
-  self.addEventListener('notificationclick', function (event) {
-    // Aquí puedes manejar el clic en la notificación
-    event.notification.close();
-    event.waitUntil(
-      clients.openWindow('/home') // Abre la aplicación al hacer clic en la notificación
-    );
-  });
-  
+self.addEventListener('notificationclick', function (event) {
+  event.notification.close();
+
+  const url = event.notification.data?.url || '/home';
+  event.waitUntil(
+    clients.matchAll({ type: 'window' }).then(windowClients => {
+      // Si ya hay una pestaña abierta, enfóquela
+      for (let client of windowClients) {
+        if (client.url.includes(url) && 'focus' in client) {
+          return client.focus();
+        }
+      }
+
+      // Si no, abre nueva pestaña
+      if (clients.openWindow) {
+        return clients.openWindow(url);
+      }
+    })
+  );
+});

@@ -4,9 +4,12 @@ import React from 'react';
 import styled from 'styled-components';
 
 const Form = () => {
+  const handlesubmit = () => {
+    signIn('google')
+  }
   return (
     <StyledWrapper>
-          <button className="btn google text-black dark:bg-slate-700 dark:text-gray-300 bg-white" onClick={() => signIn('google')}>
+          <button className="btn google text-black dark:bg-slate-700 dark:text-gray-300 bg-white" onClick={handlesubmit}>
             <svg xmlSpace="preserve" style={{enableBackground: 'new 0 0 512 512'}} viewBox="0 0 512 512" y="0px" x="0px" xmlnsXlink="http://www.w3.org/1999/xlink" xmlns="http://www.w3.org/2000/svg" id="Layer_1" width={20} version="1.1">
               <path d="M113.47,309.408L95.648,375.94l-65.139,1.378C11.042,341.211,0,299.9,0,256
       	c0-42.451,10.324-82.483,28.624-117.732h0.014l57.992,10.632l25.404,57.644c-5.317,15.501-8.215,32.141-8.215,49.456

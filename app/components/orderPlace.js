@@ -100,7 +100,7 @@ const ComprarBoletosModal = ({ event }) => {
   const handleProceedToCheckout = (ticketData) => {
     // Construye la URL para el checkout con los datos de los boletos
     const params = new URLSearchParams();
-    params.append('eventId', event.id);
+    params.append('eventId', event._id);
     params.append('eventName', event.title);
     
     ticketData.forEach(ticket => {

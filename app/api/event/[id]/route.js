@@ -6,7 +6,10 @@ export async function GET(req, { params }) {
   await connectToMongoose();
 
   try {
-    const event = await Event.findById(params.id);
+    const event = await Event.findById(params.id).populate('organizer', 'nombre _id foto');
+
+    //TODO: return rating & # events of organizer
+
     if (!event) {
       return NextResponse.json({ error: "Event not found" }, { status: 404 });
     }

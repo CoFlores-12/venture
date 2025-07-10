@@ -1,12 +1,11 @@
 "use client"
 import { useRouter } from 'next/navigation';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import GoogleBtn from '../components/GoogleBtn';
 import { signIn } from "next-auth/react";
 
-
-const AuthScreen = () => {
+export default function AuthScreen() {
   const router = useRouter()
   const [isLogin, setIsLogin] = useState(true);
   const [formData, setFormData] = useState({
@@ -18,6 +17,17 @@ const AuthScreen = () => {
   const [loadingRegister, setLR] = useState(false);
   const [warning, setWarning] = useState(false);
   const [info, setInfo] = useState("");
+
+
+  useEffect(() => {
+    const searchParams = new URLSearchParams(location.search);
+    const errorParam = searchParams.get("error");
+    if (errorParam) {
+      setWarning(true);
+      setInfo(decodeURIComponent(errorParam));
+    }
+  }, []);
+
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -317,5 +327,3 @@ const AuthScreen = () => {
     </div>
   );
 };
-
-export default AuthScreen;

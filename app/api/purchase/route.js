@@ -52,7 +52,7 @@ export async function POST(req) {
       }
 }
 
-// trea todos las compras
+// trae todas las compras
 export async function GET() {
   try {
     await connectToMongoose();

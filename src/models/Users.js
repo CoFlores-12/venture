@@ -8,6 +8,7 @@ const UserSchema = new mongoose.Schema({
   creadoEn: { type: Date, default: Date.now },
   
   // Campos solo para organizadores
+  organizacion: { type: String },
   identidad: { type: String },
   identidadDoc: { type: String },
   descripcion: { type: String },

@@ -1,7 +1,7 @@
 'use client';
 import { signOut } from "next-auth/react";
 import { useState } from 'react';
-import { useRouter } from 'next/navigation'; // Importa useRouter
+import { useRouter } from 'next/navigation'; 
 
 export default function LogoutButton() {
     const [loading, setLoading] = useState(false);
@@ -11,8 +11,8 @@ export default function LogoutButton() {
     const handleSignOut = async () => {
         setLoading(true);
         try {
-            await signOut({ redirect: false }); // Desactiva redirección automática
-            router.push('/register'); // Redirige manualmente
+            await signOut({ redirect: false }); 
+            router.push('/register');
         } catch (error) {
             setError("Error al cerrar sesión");
         } finally {
