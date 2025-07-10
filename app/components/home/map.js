@@ -106,7 +106,7 @@ export default function MapComponent({ events, isMapExpanded }) {
   }, []);
 
   return (
-    <div className="relative w-full" style={{ height: isMapExpanded ? '91.5vh' : '60vh' }}>
+    <div className="relative w-full" style={{ height: isMapExpanded ? '100vh' : '60vh' }}>
       <MapContainer 
         center={userLocation} 
         zoom={13} 
