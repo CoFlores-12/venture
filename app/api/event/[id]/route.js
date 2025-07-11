@@ -1,21 +1,16 @@
-import { connectToMongoose } from '@/src/lib/db'; 
-import Event from '@/src/models/event';
 import { NextResponse } from 'next/server';
+import { connectToMongoose } from '@/src/lib/db';
+import Event from '@/src/models/event';
 
-export async function GET(req, { params }) {
-  await connectToMongoose();
-
+export async function GET(request, context) {
   try {
-    const event = await Event.findById(params.id).populate('organizer', 'nombre _id foto');
-
+    await connectToMongoose();
+    const { id } = await context.params;
+    const event = await Event.findById(id).populate('organizer', 'nombre _id foto');
     //TODO: return rating & # events of organizer
-
-    if (!event) {
-      return NextResponse.json({ error: "Event not found" }, { status: 404 });
-    }
     return NextResponse.json(event);
   } catch (error) {
-    return NextResponse.json({ error: "Error fetching event" }, { status: 500 });
+    return NextResponse.json({ error: 'Event not found' }, { status: 404 });
   }
 }
 
