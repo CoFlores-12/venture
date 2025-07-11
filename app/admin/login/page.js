@@ -1,10 +1,12 @@
 "use client"
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useAdminAuth } from '../../hooks/useAdminAuth';
 import { motion } from 'framer-motion';
 
 const AdminLogin = () => {
   const router = useRouter();
+  const { login } = useAdminAuth();
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -19,22 +21,12 @@ const AdminLogin = () => {
     setError('');
 
     try {
-      const response = await fetch('/api/admin/auth', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
-        body: JSON.stringify(formData),
-      });
-
-      const data = await response.json();
-
-      if (data.success) {
-        // Use window.location for immediate redirect
-        window.location.href = '/admin/dashboard';
+      const result = await login(formData.email, formData.password, formData.adminCode);
+      
+      if (result.success) {
+        router.push('/admin/dashboard');
       } else {
-        setError(data.error || 'Error de autenticación');
+        setError(result.error || 'Error de autenticación');
       }
     } catch (error) {
       console.error('Login error:', error);

@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { findAdminByCredentials } from '../../../lib/admin-config';
+import { findAdminByCredentials } from '../../../../src/lib/admin-config';
 
 export async function POST(request) {
   try {
@@ -14,7 +14,7 @@ export async function POST(request) {
     }
 
     // Find admin by credentials
-    const admin = findAdminByCredentials(email, password, adminCode);
+    const admin = await findAdminByCredentials(email, password, adminCode);
 
     if (!admin) {
       return NextResponse.json(
@@ -25,10 +25,10 @@ export async function POST(request) {
 
     // Create admin session (you might want to use a different session strategy)
     const adminSession = {
-      id: admin.id,
-      name: admin.name,
-      email: admin.email,
-      role: admin.role,
+      id: admin._id || admin.id,
+      name: admin.nombre || admin.name,
+      email: admin.correo || admin.email,
+      role: admin.rol || admin.role,
       isAdmin: true,
       loginTime: new Date().toISOString()
     };
@@ -39,10 +39,10 @@ export async function POST(request) {
         success: true, 
         message: 'Login exitoso',
         admin: {
-          id: admin.id,
-          name: admin.name,
-          email: admin.email,
-          role: admin.role
+          id: admin._id || admin.id,
+          name: admin.nombre || admin.name,
+          email: admin.correo || admin.email,
+          role: admin.rol || admin.role
         }
       },
       { status: 200 }

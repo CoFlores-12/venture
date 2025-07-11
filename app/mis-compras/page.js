@@ -152,6 +152,19 @@ const MyTickets = () => {
   return (
     <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-4xl mx-auto">
+        {/* Back to Profile Link */}
+        <div className="mb-6">
+          <a 
+            href="/profile" 
+            className="inline-flex items-center text-purple-700 hover:text-purple-800 font-medium"
+          >
+            <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7"></path>
+            </svg>
+            Volver al perfil
+          </a>
+        </div>
+
         <div className="text-center mb-12">
           <h1 className="text-3xl font-extrabold text-gray-900 sm:text-4xl">
             Mis Boletos
