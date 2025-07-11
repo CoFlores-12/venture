@@ -104,7 +104,7 @@ const HomePage = () => {
                     </div>
                     
                     <nav className="space-y-2">
-                      <a href="#" className="flex items-center p-3 rounded-lg hover:bg-purple-50 hover:text-purple-600">
+                      <a href="/profile" className="flex items-center p-3 rounded-lg hover:bg-purple-50 hover:text-purple-600">
                         <FiUser className="mr-3" /> Mi Perfil
                       </a>
                       <a href="/mis-compras" className="flex items-center p-3 rounded-lg hover:bg-purple-50 hover:text-purple-600">
