@@ -1,26 +1,23 @@
 import { NextResponse } from 'next/server';
-import Purchase from '@/src/models/purchase';
 import { connectToMongoose } from '@/src/lib/db';
+import Purchase from '@/src/models/purchase';
 
-// trae todas las  compras de un usario en espacifico
-export async function GET(request, { params }) {
+export async function GET(request, context) {
   try {
     await connectToMongoose();
-
-    const Id = params.userId; // recive el id del usuario
-
-    if (!Id) {
-      return NextResponse.json({ error: "Falta el ID del usuario" }, { status: 400 });
+    const { userId } = await context.params;
+    
+    if (!userId) {
+      return NextResponse.json({ error: 'Falta el ID del usuario' }, { status: 400 });
     }
 
-    const purchases = await Purchase.find({ user: Id })
+    const purchases = await Purchase.find({ user: userId })
       .populate({
         path: "event",
-        select: "title date",
+        select: "title date banner",
       })
       .sort({ createdAt: -1 })
       .lean();
-      
 
     return NextResponse.json(purchases, { status: 200 });
 

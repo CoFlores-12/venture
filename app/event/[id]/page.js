@@ -9,11 +9,16 @@ import ShareButton from '@/app/components/shareEvent';
 import { SiUber } from 'react-icons/si';
 import ComprarBoletosModal from '@/app/components/orderPlace';
 import LoadingModal from '@/app/components/loadingOverlay';
+import ReviewSection from '@/app/components/ReviewSection';
+import { useAuthUser } from '@/src/lib/authUsers';
 
 const EventDetailPage = () => {
   const { id } = useParams();
   const [event, setEvent] = useState({})
   const [loading, setLoading] = useState(true);
+  const [reviews, setReviews] = useState([]);
+  const [userPurchases, setUserPurchases] = useState([]);
+  const { user } = useAuthUser();
 
   useEffect(()=>{
     fetch("/api/event/"+id)
@@ -26,14 +31,109 @@ const EventDetailPage = () => {
     })
   }, [])
 
-  
+  // Fetch user purchases to check if they can review
+  useEffect(() => {
+    if (user?.id) {
+      fetch(`/api/purchase/${user.id}`)
+        .then(res => res.json())
+        .then(data => {
+          setUserPurchases(data);
+        })
+        .catch(error => {
+          console.error('Error fetching user purchases:', error);
+        });
+    }
+  }, [user]);
+
+  // Fetch reviews for this event
+  useEffect(() => {
+    fetch(`/api/reviews/${id}`)
+      .then(res => res.json())
+      .then(data => {
+        setReviews(data.reviews || []);
+      })
+      .catch(error => {
+        console.error('Error fetching reviews:', error);
+        // If API doesn't exist yet, use empty array
+        setReviews([]);
+      });
+  }, [id]);
+
+  // Check if user can review this event
+  const canUserReview = () => {
+    if (!user || !event.date) return false;
+    
+    // Check if user has purchased tickets for this event
+    const hasPurchased = userPurchases.some(purchase => 
+      purchase.event?._id === id
+    );
+    
+    // Check if event date has passed
+    const eventDate = new Date(event.date);
+    const today = new Date();
+    const eventHasPassed = eventDate < today;
+    
+    return hasPurchased && eventHasPassed;
+  };
+
+  // Check if user has already reviewed this event
+  const hasUserReviewed = () => {
+    if (!user || !reviews.length) return false;
+    return reviews.some(review => review.user === user.id);
+  };
+
+  // Get user's existing review
+  const getUserReview = () => {
+    if (!user || !reviews.length) return null;
+    return reviews.find(review => review.user === user.id) || null;
+  };
+
+  const handleReviewSubmit = async (reviewData) => {
+    try {
+      const method = hasUserReviewed() ? 'PUT' : 'POST';
+      const response = await fetch('/api/reviews', {
+        method: method,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          eventId: id,
+          rating: reviewData.rating,
+          comment: reviewData.comment,
+        }),
+      });
+
+      if (response.ok) {
+        // Refresh reviews after successful submission
+        const updatedReviews = await fetch(`/api/reviews/${id}`).then(res => res.json());
+        setReviews(updatedReviews.reviews || []);
+      } else {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to submit review');
+      }
+    } catch (error) {
+      console.error('Error submitting review:', error);
+      throw error;
+    }
+  };
+
+  const handleReviewUpdate = () => {
+    // Refresh reviews
+    fetch(`/api/reviews/${id}`)
+      .then(res => res.json())
+      .then(data => {
+        setReviews(data.reviews || []);
+      })
+      .catch(error => {
+        console.error('Error fetching reviews:', error);
+      });
+  };
+
   if( loading) {
     return (
       <LoadingModal />
     )
   }
-  
-  
   
   if (!event) {
     return (
@@ -55,8 +155,6 @@ const EventDetailPage = () => {
   const appleMapsUrl = `https://maps.apple.com/?q=${lat},${lng}`;
   const uberUrl = `https://m.uber.com/ul/?action=setPickup&client_id=<TU_CLIENT_ID>&pickup=my_location&dropoff[formatted_address]=${event.location}&dropoff[latitude]=${lat}&dropoff[longitude]=${lng}`;
   const inDriveUrl = `https://indriver.com/`;
-
-  
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-slate-800 dark:text-gray-300">
@@ -81,12 +179,10 @@ const EventDetailPage = () => {
             <FiHeart className="text-gray-800 text-xl dark:bg-slate-800 dark:text-gray-300  " />
           </button>
         </div>
-        
-        
       </div>
 
       {/* Contenido principal */}
-      <div className="px-4 py-6 -mt-10 relative z-10">
+      <div className="px-4 py-6">
         <div className="bg-white dark:bg-slate-900 dark:text-gray-300 rounded-2xl shadow-lg p-6">
           {/* Categoría y título */}
           <div className="flex items-center justify-between mb-3">
@@ -196,9 +292,7 @@ const EventDetailPage = () => {
               >
                 <SiUber className="text-black text-xl" />
               </a>
-              
-              
-                </div>
+            </div>
           </div>
           
           {/* Planificador del evento */}
@@ -238,6 +332,19 @@ const EventDetailPage = () => {
             ) : (
               <div className="text-gray-500">Organizador no disponible</div>
             )}
+          </div>
+
+          {/* Sección de Reseñas */}
+          <div className="mb-8">
+            <ReviewSection
+              eventId={id}
+              reviews={reviews}
+              canReview={canUserReview()}
+              hasReviewed={hasUserReviewed()}
+              userReview={getUserReview()}
+              onReviewSubmit={handleReviewSubmit}
+              onReviewUpdate={handleReviewUpdate}
+            />
           </div>
           
           {/* Botón de compra */}
