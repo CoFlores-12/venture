@@ -64,33 +64,35 @@ const ReviewDisplay = ({ reviews = [], onAddReview, canReview = false, hasReview
             Reseñas ({reviews.length})
           </h3>
           {reviews.length > 0 && (
-            <div className="flex items-center space-x-2">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-2">
               <div className="flex items-center">
                 {renderStars(Math.round(averageRating))}
               </div>
-              <span className="text-sm text-gray-600 dark:text-gray-400">
+              <span className="text-sm text-gray-600 dark:text-gray-400 mt-1 sm:mt-0">
                 {averageRating.toFixed(1)} de 5
               </span>
             </div>
           )}
         </div>
         
-        {canReview && !hasReviewed && (
-          <button
-            onClick={onAddReview}
-            className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors text-sm font-medium"
-          >
-            Escribir reseña
-          </button>
-        )}
-        {canReview && hasReviewed && (
-          <button
-            onClick={onAddReview}
-            className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors text-sm font-medium"
-          >
-            Editar reseña
-          </button>
-        )}
+        <div className="ml-4">
+          {canReview && !hasReviewed && (
+            <button
+              onClick={onAddReview}
+              className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors text-sm font-medium"
+            >
+              Escribir reseña
+            </button>
+          )}
+          {canReview && hasReviewed && (
+            <button
+              onClick={onAddReview}
+              className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors text-sm font-medium"
+            >
+              Editar reseña
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Sort options */}
