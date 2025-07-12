@@ -1,7 +1,7 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { FiArrowLeft, FiUser, FiCalendar, FiMapPin } from "react-icons/fi";
+import { FiArrowLeft, FiUser, FiCalendar, FiMapPin, FiStar } from "react-icons/fi";
 import LoadingModal from "@/app/components/loadingOverlay";
 import { useAuthUser } from "@/src/lib/authUsers";
 
@@ -9,16 +9,41 @@ const UserProfile = () => {
   const router = useRouter();
   const { user, loading2 } = useAuthUser();
   const [loading, setLoading] = useState(true);
+  const [dataLoading, setDataLoading] = useState(true);
   const [purchases, setPurchases] = useState([]);
+  const [reviews, setReviews] = useState([]);
 
   useEffect(() => {
     if (!loading2) {
       setLoading(false);
       if (user?.id) {
-        fetchUserPurchases();
+        fetchUserData();
+      } else {
+        setDataLoading(false);
       }
     }
   }, [loading2, user]);
+
+  const fetchUserData = async () => {
+    setDataLoading(true);
+    try {
+      // Fetch both purchases and reviews in parallel
+      const [purchasesResponse, reviewsResponse] = await Promise.all([
+        fetch(`/api/purchase/${user.id}`),
+        fetch(`/api/reviews/user/${user.id}`)
+      ]);
+
+      const purchasesData = await purchasesResponse.json();
+      const reviewsData = await reviewsResponse.json();
+
+      setPurchases(purchasesData.slice(0, 2)); // Get only last 2 purchases
+      setReviews(reviewsData.reviews?.slice(0, 2) || []); // Get only last 2 reviews
+    } catch (error) {
+      console.error('Error fetching user data:', error);
+    } finally {
+      setDataLoading(false);
+    }
+  };
 
   const fetchUserPurchases = async () => {
     try {
@@ -30,7 +55,42 @@ const UserProfile = () => {
     }
   };
 
-  if (loading) {
+  const fetchUserReviews = async () => {
+    try {
+      const response = await fetch(`/api/reviews/user/${user.id}`);
+      const data = await response.json();
+      setReviews(data.reviews?.slice(0, 2) || []); // Get only last 2 reviews
+    } catch (error) {
+      console.error('Error fetching reviews:', error);
+    }
+  };
+
+  const renderStars = (rating) => {
+    return (
+      <div className="flex items-center">
+        {[1, 2, 3, 4, 5].map((star) => (
+          <FiStar
+            key={star}
+            className={`w-3 h-3 ${
+              star <= rating 
+                ? 'text-yellow-400 fill-current' 
+                : 'text-gray-300'
+            }`}
+          />
+        ))}
+      </div>
+    );
+  };
+
+  const formatDate = (dateString) => {
+    return new Date(dateString).toLocaleDateString('es-ES', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
+    });
+  };
+
+  if (loading || dataLoading) {
     return <LoadingModal />;
   }
 
@@ -141,7 +201,66 @@ const UserProfile = () => {
           )}
         </div>
 
-        {/* Placeholder for reviews or other sections */}
+        {/* Recent Reviews Section */}
+        <div className="bg-gray-50 dark:bg-slate-800 rounded-xl shadow-sm border border-gray-100 dark:border-slate-800 p-6 mb-8">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Últimas reseñas</h3>
+                         {reviews.length > 0 && (
+               <a href="/mis-resenas" className="text-sm text-purple-700 font-medium">Ver todas</a>
+             )}
+          </div>
+          
+          {reviews.length === 0 ? (
+            <div className="text-center py-8">
+              <FiStar className="mx-auto text-3xl text-gray-400 mb-3" />
+              <h4 className="text-gray-700 dark:text-gray-300 font-medium mb-1">No hay reseñas recientes</h4>
+              <p className="text-gray-500 text-sm">Tus reseñas aparecerán aquí cuando las escribas.</p>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {reviews.map((review, index) => (
+                                 <div 
+                   key={index} 
+                   className="bg-white dark:bg-slate-900 rounded-xl p-4 shadow-sm border border-gray-100 dark:border-slate-700 hover:shadow-md transition-shadow cursor-pointer"
+                   onClick={() => review.event?._id && router.push(`/event/${review.event._id}`)}
+                 >
+                  <div className="flex gap-3">
+                    <div className="w-16 h-16 rounded-lg bg-purple-100 flex items-center justify-center">
+                      <FiStar className="text-2xl text-purple-700" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <h4 className="font-medium text-gray-900 dark:text-white truncate">
+                        {review.event?.title || 'Evento no disponible'}
+                      </h4>
+                      <div className="flex items-center text-sm text-gray-500 mt-1">
+                        <FiCalendar className="mr-1" />
+                        <span className="truncate">
+                          {formatDate(review.createdAt)}
+                        </span>
+                      </div>
+                                             <div className="flex items-center justify-between mt-2">
+                         <div className="flex items-center">
+                           {renderStars(review.rating)}
+                           <span className="text-sm font-medium text-gray-900 dark:text-white ml-1">
+                             {review.rating}
+                           </span>
+                         </div>
+                         <span className="text-xs text-gray-500">
+                           {formatDate(review.createdAt)}
+                         </span>
+                       </div>
+                       <p className="text-sm text-gray-600 dark:text-gray-400 mt-2 line-clamp-2">
+                         {review.comment || 'Sin comentario'}
+                       </p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Placeholder for other sections */}
         {/* <div className="bg-gray-50 dark:bg-slate-800 rounded-xl shadow-sm border border-gray-100 dark:border-slate-800 p-6 mb-8">
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Reseñas</h3>
           <p className="text-gray-500 text-sm">Aquí aparecerán tus reseñas cuando estén disponibles.</p>
