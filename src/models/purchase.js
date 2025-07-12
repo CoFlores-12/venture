@@ -11,10 +11,6 @@ const purchaseSchema = new Schema({
     ref: 'User',
     required: true,
   },
-  purchaseDate: {
-    type: Date,
-    default: Date.now,
-  },
   ticketQuantity: {
     type: Number,
     required: true,
@@ -28,6 +24,9 @@ const purchaseSchema = new Schema({
   typeTicket: {
     type: String,
     required: true,
+  },
+  token: {
+    type: String,
   },
 }, {
   timestamps: true,

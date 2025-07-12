@@ -1,15 +1,21 @@
 import { NextResponse } from 'next/server';
 import { connectToMongoose } from '@/src/lib/db';
 import Purchase from '@/src/models/purchase';
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 
+// obtiene las compras del usario en la sesoin actual
 export async function GET(request, context) {
   try {
-    await connectToMongoose();
-    const { userId } = await context.params;
-    
-    if (!userId) {
-      return NextResponse.json({ error: 'Falta el ID del usuario' }, { status: 400 });
+    const session = await getServerSession(authOptions);
+
+    if (!session || !session.user?.id) {
+      return NextResponse.json({ success: false, message: "No autorizado." }, { status: 401 });
     }
+
+    await connectToMongoose();
+    
+    const userId = session.user?.id;
 
     const purchases = await Purchase.find({ user: userId })
       .populate({

@@ -1,10 +1,21 @@
 import { NextResponse } from "next/server";
 import Like from "@/src/models/like";
 import { connectToMongoose } from '@/src/lib/db';
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 
 export async function POST(req) {
+
+    const session = await getServerSession(authOptions);
+
+    if (!session || !session.user?.id) {
+      return NextResponse.json({ success: false, message: "No autorizado." }, { status: 401 });
+    }
+
+    const userId = session.user?.id;
+
   await connectToMongoose();
-  const { userId, targetId, targetType } = await req.json(); // targetType = "user" | "event"
+  const {targetId, targetType } = await req.json(); // targetType = "user" | "event"
 
   if (!["event", "user"].includes(targetType)) {
     return NextResponse.json({ error: "Invalid target type" }, { status: 400 });

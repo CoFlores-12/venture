@@ -17,7 +17,7 @@ export async function GET(req) {
     sendNotification({}, payload);
 
     await sendEmail({
-      to: ['daniel.avila.a.v.2000@gmail.com'],
+      to: [''],
       subject: 'Prueba desde servidor',
       html: '<p>Esto es una prueba con <strong>HTML</strong>.</p>'
     });
