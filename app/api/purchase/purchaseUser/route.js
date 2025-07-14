@@ -19,28 +19,39 @@ export async function GET(request, context) {
     
     const userId = session.user?.id;
 
-    const purchases = await Purchase.aggregate([
-      { $match: { user: new mongoose.Types.ObjectId(userId) } },
+   const purchases = await Purchase.aggregate([
+      {
+        $match: { user: new mongoose.Types.ObjectId(userId) }
+      },
       {
         $lookup: {
           from: "events",
           localField: "event",
           foreignField: "_id",
-          as: "eventData"
+          as: "fullEvent"
         }
       },
-      { $unwind: "$eventData" },
       {
-        $replaceRoot: { newRoot: "$eventData" }
+        $unwind: "$fullEvent"
+      },
+      {
+        $addFields: {
+          event: {
+            eventName: "$fullEvent.title",
+            date: "$fullEvent.date",
+            time: "$fullEvent.time",
+            position: "$fullEvent.position",
+            location: "$fullEvent.location"
+          }
+        }
       },
       {
         $project: {
-          eventName: "$title",
-          date: 1,
-          time: 1,
-          position: 1,
-          location: 1
+          fullEvent: 0 
         }
+      },
+      {
+        $sort: { createdAt: -1 }
       }
     ]);
 
