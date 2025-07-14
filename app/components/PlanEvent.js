@@ -22,7 +22,7 @@ const EventPlanSelector = ({ onPlanSelect }) => {
     {
       id: 'premium',
       name: 'Evento Premium',
-      price: '$9.99',
+      price: 'L.50',
       description: 'Ideal para eventos con múltiples opciones',
       tickets: 3,
       persons: 1000,
@@ -37,8 +37,8 @@ const EventPlanSelector = ({ onPlanSelect }) => {
     },
     {
       id: 'enterprise',
-      name: 'Evento Empresarial',
-      price: '$29.99',
+      name: 'Evento Pro',
+      price: 'L.100',
       tickets: 5,
       persons: 10000,
       description: 'Para grandes eventos profesionales',

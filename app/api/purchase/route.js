@@ -65,9 +65,18 @@ export async function POST(req) {
     const encryptedToken = CryptoJS.AES.encrypt(tokenPayload, secret).toString();
 
     newPurchase.token = encryptedToken;
-    await newPurchase.save();
 
-    return NextResponse.json({ token: encryptedToken }, { status: 201 });
+    await newPurchase.save();
+    const returnPurchase = {
+      ...newPurchase.toObject(),
+      eventName: eventFind.title,
+      date: eventFind.date,
+      time: eventFind.time,
+      position: eventFind.position,
+      location: eventFind.location
+    }
+
+    return NextResponse.json({ returnPurchase }, { status: 201 });
 
 
       } catch (error) {

@@ -5,76 +5,43 @@ import { FaTicketAlt, FaCalendarAlt, FaClock, FaMapMarkerAlt, FaUser, FaDownload
 import { FaGoogle, FaWaze, FaApple } from 'react-icons/fa';
 import { SiUber } from 'react-icons/si';
 import CryptoJS from 'crypto-js';
+import { useRouter } from 'next/navigation';
 
 const MyTickets = () => {
+  const router = useRouter();
   const [tickets, setTickets] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('upcoming');
-  
-  // Simulamos datos de eventos
-  const mockEvents = [
-    {
-      id: 'evt-001',
-      eventName: "Festival de Música Nacional 2023",
-      date: "2023-11-15T19:00:00",
-      venue: "Estadio Nacional, Tegucigalpa",
-      ticketType: "VIP - Frente al Escenario",
-      price: 1200,
-      quantity: 2,
-      purchaseDate: "2023-10-10T14:30:00",
-      transactionId: "TXN-789456123",
-      paymentMethod: "paypal",
-      status: "confirmed",
-      position: [14.1020, -87.2179]
-    },
-    {
-      id: 'evt-002',
-      eventName: "Conferencia de Tecnología HN",
-      date: "2023-12-05T09:00:00",
-      venue: "Centro de Convenciones, San Pedro Sula",
-      ticketType: "Acceso General",
-      price: 500,
-      quantity: 1,
-      purchaseDate: "2023-10-08T10:15:00",
-      transactionId: "TXN-321654987",
-      paymentMethod: "card",
-      status: "confirmed",
-      position: [14.1020, -87.2179]
-    },
-    {
-      id: 'evt-003',
-      eventName: "Exposición de Arte Contemporáneo",
-      date: "2023-10-25T16:00:00",
-      venue: "Museo de Arte, Comayagüela",
-      ticketType: "Entrada Doble",
-      price: 300,
-      quantity: 2,
-      purchaseDate: "2023-10-05T16:45:00",
-      transactionId: "TXN-147258369",
-      paymentMethod: "efectivo",
-      status: "used",
-      position: [14.1020, -87.2179]
-    }
-  ];
 
-  useEffect(() => {
-    // Simular carga de datos
-    setTimeout(() => {
+useEffect(() => {
+  const loadPurchases = async () => {
+    try {
+      const res = await fetch("/api/purchase/purchaseUser/");
+      if (!res.ok) throw new Error("Error en la respuesta");
+      const data = await res.json();
+
+      // Guardar en localStorage
+      localStorage.setItem("purchase", JSON.stringify(data));
+      setTickets(data);
+    } catch (error) {
+      console.warn("No se pudo obtener desde la API, usando localStorage:", error);
+
       // Intentar cargar desde localStorage
-      let purchases = [];
-      
-      
-      
-      // Combinar con eventos de muestra si no hay compras
+      const purchases = JSON.parse(localStorage.getItem("purchase")) || [];
+
       if (purchases.length === 0) {
-        setTickets(mockEvents);
+        setTickets(mockEvents); // datos falsos o alternativos
       } else {
-        setTickets([...purchases, ...mockEvents]);
+        setTickets(purchases);
       }
-      
+    } finally {
       setLoading(false);
-    }, 1200);
-  }, []);
+    }
+  };
+
+  loadPurchases();
+}, []);
+
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);
@@ -154,15 +121,15 @@ const MyTickets = () => {
       <div className="max-w-4xl mx-auto">
         {/* Back to Profile Link */}
         <div className="mb-6">
-          <a 
-            href="/profile" 
-            className="inline-flex items-center text-purple-700 hover:text-purple-800 font-medium"
-          >
-            <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7"></path>
-            </svg>
-            Volver al perfil
-          </a>
+           <button
+      onClick={() => router.back()}
+      className="inline-flex items-center text-purple-700 hover:text-purple-800 font-medium"
+    >
+      <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
+      </svg>
+      Volver
+    </button>
         </div>
 
         <div className="text-center mb-12">
@@ -228,7 +195,7 @@ const MyTickets = () => {
                   
                   <div className="bg-white p-4 rounded-lg shadow-lg">
                     <QRCodeSVG 
-                      value={generateToken(ticket.id,ticket.quantity)}
+                      value={ticket.token}
                       size={180}
                       bgColor="#FFFFFF"
                       fgColor="#000000"
@@ -238,8 +205,8 @@ const MyTickets = () => {
                   </div>
                   
                   <div className="mt-6 text-center text-white text-sm">
-                    <p className="font-medium">{ticket.ticketType}</p>
-                    <p className="text-purple-200">x{ticket.quantity}</p>
+                    <p className="font-medium">{ticket.typeTicket}</p>
+                    <p className="text-purple-200">x{ticket.ticketQuantity}</p>
                   </div>
                 </div>
                 
@@ -253,7 +220,7 @@ const MyTickets = () => {
                           {ticket.status === 'used' ? 'Usado' : 'Confirmado'}
                         </span>
                         <span className="mx-2">•</span>
-                        <span>Compra: {new Date(ticket.purchaseDate).toLocaleDateString()}</span>
+                        <span>Compra: {new Date(ticket.createdAt).toLocaleDateString()}</span>
                       </div>
                     </div>
                   </div>
@@ -288,7 +255,7 @@ const MyTickets = () => {
                           Lugar
                         </h3>
                         <p className="mt-1 text-lg font-medium text-gray-900">
-                          {ticket.venue}
+                          {ticket.location}
                         </p>
                       </div>
                       
@@ -299,7 +266,7 @@ const MyTickets = () => {
                         </h3>
                         <div className="mt-1">
                           <div className="flex -space-x-2">
-                            {Array.from({ length: ticket.quantity }).map((_, i) => (
+                            {Array.from({ length: ticket.ticketQuantity }).map((_, i) => (
                               <div key={i} className=" h-10 w-10 rounded-full bg-purple-100 border-2 border-white flex items-center justify-center text-purple-800 font-medium">
                                 {i + 1}
                               </div>
@@ -350,19 +317,14 @@ const MyTickets = () => {
                   <div className="mt-8 pt-6 border-t border-gray-200">
                     <h3 className="text-lg font-medium text-gray-900 mb-4">Detalles de la compra</h3>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                      <div>
-                        <p className="text-sm text-gray-500">Método de pago</p>
-                        <p className="text-sm font-medium text-gray-900 capitalize">
-                          {ticket.paymentMethod === 'card' ? 'Tarjeta' : ticket.paymentMethod}
-                        </p>
-                      </div>
+                      
                       <div>
                         <p className="text-sm text-gray-500">Transacción</p>
-                        <p className="text-sm font-medium text-gray-900">{ticket.transactionId}</p>
+                        <p className="text-sm font-medium text-gray-900">{ticket._id}</p>
                       </div>
                       <div>
                         <p className="text-sm text-gray-500">Total</p>
-                        <p className="text-sm font-medium text-gray-900">L {ticket.price * ticket.quantity}</p>
+                        <p className="text-sm font-medium text-gray-900">L {ticket.totalAmount}</p>
                       </div>
                     </div>
                   </div>

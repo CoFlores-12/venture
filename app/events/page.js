@@ -38,7 +38,12 @@ const EventsPage = () => {
 
   const categories = [...new Set(events.map(event => event.category))];
   
-  const months = [...new Set(events.map(event => event.date.split(' ')[1]))];
+const months = [...new Set(
+  events
+    .filter(event => new Date(event.date) >= new Date()) // solo eventos próximos
+    .map(event => new Date(event.date).toLocaleString('es-HN', { month: 'short' }).toUpperCase())
+)];
+
   
   useEffect(() => {
     let result = [...events];
@@ -190,9 +195,9 @@ const EventsPage = () => {
             {/* Filtro por mes */}
             <div className="mb-6">
               <h3 className="font-medium text-gray-800 mb-3 flex items-center dark:text-gray-300">
-                <FiCalendar className="mr-2 text-purple-600" /> Meses
+                <FiCalendar className="mr-2 text-purple-600" /> Fecha
               </h3>
-              <div className="grid grid-cols-12 gap-2">
+              <div className="grid grid-cols-6 gap-2">
                 {months.map(month => (
                   <button
                     key={month}

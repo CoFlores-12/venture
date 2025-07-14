@@ -23,7 +23,7 @@ const OrganizerDashboard = () => {
     {
       id: 1,
       name: 'Festival de Música 2023',
-      date: '2023-11-15',
+      date: '2025-11-15',
       attendees: 450,
       revenue: 12500,
       status: 'active',
@@ -36,7 +36,7 @@ const OrganizerDashboard = () => {
     {
       id: 2,
       name: 'Conferencia Tech',
-      date: '2023-10-05',
+      date: '2025-10-05',
       attendees: 200,
       revenue: 8000,
       status: 'active',
@@ -49,7 +49,7 @@ const OrganizerDashboard = () => {
     {
       id: 3,
       name: 'Exposición de Arte',
-      date: '2023-09-20',
+      date: '2025-09-20',
       attendees: 320,
       revenue: 9500,
       status: 'completed',

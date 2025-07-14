@@ -1,9 +1,14 @@
 import { useState } from 'react';
 
 const TicketPurchaseModal = ({ event, onClose, onProceedToCheckout }) => {
-  const [tickets, setTickets] = useState({
-    normal: { quantity: 0, price: event.price },
-  });
+const [tickets, setTickets] = useState(
+  event?.tickets?.map(ticket => ({
+    ...ticket,
+    quantityOrder: 1
+  })) || []
+);
+
+  
 
   const handleQuantityChange = (type, value) => {
     const newValue = Math.max(0, parseInt(value)) || 0;
@@ -11,14 +16,14 @@ const TicketPurchaseModal = ({ event, onClose, onProceedToCheckout }) => {
       ...tickets,
       [type]: {
         ...tickets[type],
-        quantity: newValue
+        quantityOrder: newValue
       }
     });
   };
 
   const calculateTotal = () => {
     return Object.values(tickets).reduce(
-      (total, ticket) => total + (ticket.quantity * ticket.price),
+      (total, ticket) => total + (ticket.quantityOrder * ticket.price),
       0
     );
   };
@@ -27,8 +32,8 @@ const TicketPurchaseModal = ({ event, onClose, onProceedToCheckout }) => {
     const ticketData = Object.entries(tickets)
       .filter(([_, data]) => data.quantity > 0)
       .map(([type, data]) => ({
-        type,
-        quantity: data.quantity,
+        name: data.name,
+        quantity: data.quantityOrder,
         price: data.price
       }));
 
@@ -46,18 +51,18 @@ const TicketPurchaseModal = ({ event, onClose, onProceedToCheckout }) => {
           {Object.entries(tickets).map(([type, data]) => (
             <div key={type} className="flex justify-between items-center ">
               <div>
-                <h4 className="font-medium capitalize">{type} - L.{data.price}</h4>
+                <h4 className="font-medium capitalize">{data.name} - L.{data.price}</h4>
               </div>
               <div className="flex items-center">
                 <button 
-                  onClick={() => handleQuantityChange(type, data.quantity - 1)}
+                  onClick={() => handleQuantityChange(type, data.quantityOrder - 1)}
                   className="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center"
                 >
                   -
                 </button>
-                <span className="mx-4 w-8 text-center">{data.quantity}</span>
+                <span className="mx-4 w-8 text-center">{data.quantityOrder}</span>
                 <button 
-                  onClick={() => handleQuantityChange(type, data.quantity + 1)}
+                  onClick={() => handleQuantityChange(type, data.quantityOrder + 1)}
                   className="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center"
                 >
                   +
@@ -98,14 +103,13 @@ const ComprarBoletosModal = ({ event }) => {
   const [showModal, setShowModal] = useState(false);
 
   const handleProceedToCheckout = (ticketData) => {
-    // Construye la URL para el checkout con los datos de los boletos
     const params = new URLSearchParams();
     params.append('eventId', event._id);
     params.append('eventName', event.title);
     
     ticketData.forEach(ticket => {
-      params.append(`tickets[${ticket.type}][quantity]`, ticket.quantity);
-      params.append(`tickets[${ticket.type}][price]`, ticket.price);
+      params.append(`tickets[${ticket.name}][quantity]`, ticket.quantity);
+      params.append(`tickets[${ticket.name}][price]`, ticket.price);
     });
 
     window.location.href = `/checkout?${params.toString()}`;

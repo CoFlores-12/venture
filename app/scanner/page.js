@@ -16,21 +16,23 @@ export default function QRScannerPage() {
 
   const verifyToken = async (token) => {
     try {
-        const bytes = CryptoJS.AES.decrypt(token, "QRCODE");
-      const isValid = bytes.toString(CryptoJS.enc.Utf8);
-      const data = JSON.parse(isValid);
+      const res = await fetch('/api/ticketValidate',
+        {
+          method: "POST",
+          body: JSON.stringify({token})
+        }
+      )
+
+      const data = await res.json();
+
+      console.log(data);
       
-      if (isValid) {
+      
+      if (data.valid) {
         return {
           status: 'success',
           token: token,
-          data: {
-            id: data.id,
-            boletos: data.boletos,
-            message: 'Token válido',
-            user: 'usuario_ejemplo',
-            expiresAt: new Date(Date.now() + 86400000).toISOString()
-          }
+          data
         };
       } else {
         throw new Error('Token inválido');
@@ -50,7 +52,6 @@ export default function QRScannerPage() {
       videoRef.current,
       async (result) => {
         try {
-          // Verificar el token (esperar a que se resuelva la Promise)
           const verification = await verifyToken(result.data);
           setScanResult(verification);
           setIsModalOpen(true);
@@ -64,7 +65,7 @@ export default function QRScannerPage() {
       {
         preferredCamera: 'environment',
         highlightScanRegion: true,
-        highlightCodeOutline: true,
+        highlightCodeOutline: false,
         maxScansPerSecond: 5,
       }
     );
@@ -78,7 +79,6 @@ export default function QRScannerPage() {
   }
 };
 
-  // Detener el escáner
   const stopScanner = () => {
     if (qrScannerRef.current) {
       qrScannerRef.current.stop();
@@ -87,7 +87,6 @@ export default function QRScannerPage() {
     setIsScanning(false);
   };
 
-  // Limpieza al desmontar el componente
   useEffect(() => {
     return () => {
       stopScanner();
@@ -169,17 +168,17 @@ export default function QRScannerPage() {
                     </div>
                     
                     <div className="mb-4">
-                        <h3 className="font-medium text-gray-700">id escaneado:</h3>
-                        <p className="mt-1 p-2 bg-gray-100 rounded-md break-all">{scanResult.data.id}</p>
+                        <h3 className="font-medium text-gray-700">Transacción:</h3>
+                        <p className="mt-1 p-2 bg-gray-100 rounded-md break-all">{scanResult.data.purchase._id}</p>
                     </div>
 
                     <div className="mb-4">
                         <h3 className="font-medium text-gray-700">usuario:</h3>
-                        <p className="mt-1 p-2 bg-gray-100 rounded-md break-all">{scanResult.data.user}</p>
+                        <p className="mt-1 p-2 bg-gray-100 rounded-md break-all">{scanResult.data.userName}</p>
                     </div>
                     <div className="mb-4">
                         <h3 className="font-medium text-gray-700">Boletos:</h3>
-                        <p className="mt-1 p-2 bg-gray-100 rounded-md break-all">{scanResult.data.boletos}</p>
+                        <p className="mt-1 p-2 bg-gray-100 rounded-md break-all">{`${scanResult.data.purchase.typeTicket} x ${scanResult.data.purchase.ticketQuantity}`}</p>
                     </div>
                 </>
             )
@@ -187,12 +186,17 @@ export default function QRScannerPage() {
           
          
           
-          <div className="flex justify-end">
+          <div className="flex justify-end gap-2">
             <button
               onClick={closeModal}
-              className="px-4 py-2 bg-purple-800 text-white rounded-md hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2"
+              className="px-4 py-2 bg-gray-800 text-white rounded-md hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
             >
               Cerrar
+            </button>
+            <button
+              className="px-4 py-2 bg-purple-800 text-white rounded-md hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2"
+            >
+              Validar
             </button>
           </div>
         </div>

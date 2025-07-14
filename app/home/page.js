@@ -41,7 +41,7 @@ const HomePage = () => {
             <FiMenu size={20} />
           </button>
           
-          <div className="flex-1 relative flex justify-center -left-7.5 z-10">
+          <div className={`flex-1 relative flex justify-center ${user?.rol === 'organizer' ? "" : "-left-7.5"} z-10`}>
             <span className="text-black dark:text-white flex items-end" data-aos="zoom-in">
               <img src="/logo.png" height="30px" width={30} />enture
             </span>

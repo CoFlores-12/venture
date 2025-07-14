@@ -90,20 +90,35 @@ const PaymentGateway = () => {
     setPaymentStatus('processing');
     
     try {
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      let purchaseSuccess = 0;
       
-      setPaymentStatus('success');
-      
-      const purchaseData = {
-        ...ticketDetails,
-        ...user,
-        paymentMethod: selectedMethod,
-        transactionId: `txn_${Date.now()}`,
-        purchaseDate: new Date().toISOString()
-      };
-      
-      //TODO: send to API
-      localStorage.setItem('recentPurchase', JSON.stringify(purchaseData));
+      const promises = ticketDetails.tickets.map(async (ticket) => {
+        const res = await fetch("/api/purchase", {
+          method: "POST",
+          body: JSON.stringify({
+            event: ticketDetails.eventId,
+            ticketQuantity: ticket.quantity,
+            typeTicket: ticket.type
+          })
+        });
+
+        const data = await res.json(); 
+
+        purchaseSuccess++;
+        let purchaseSaved = JSON.parse(localStorage.getItem("purchase"));
+        if (!Array.isArray(purchaseSaved)) {
+          purchaseSaved = [];
+        }
+        purchaseSaved.push(data.returnPurchase);
+        localStorage.setItem('purchase', JSON.stringify(purchaseSaved));
+
+        return data;
+      });
+
+      Promise.all(promises).then(() => {
+        setPaymentStatus('success');
+      });
+
     } catch (error) {
       console.error('Error en el pago:', error);
       setPaymentStatus('failed');
@@ -272,8 +287,6 @@ const PaymentGateway = () => {
                     Tu compra ha sido procesada exitosamente. Hemos enviado los detalles a tu correo electrónico.
                   </p>
                   <div className="bg-gray-50 rounded-xl p-5 max-w-md mx-auto mb-6">
-                    <p className="font-medium mb-1">Número de transacción</p>
-                    <p className="text-sm text-gray-600 font-mono">TXN-{Date.now().toString().slice(-8)}</p>
                   </div>
                   <a 
                     href='/mis-compras'

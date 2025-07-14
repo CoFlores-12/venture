@@ -348,7 +348,7 @@ const EventDetailPage = () => {
           </div>
           
           {/* Botón de compra */}
-          {event.price !== "Entrada libre" ? (
+          {event.tickets.length !== 0 ? (
             <div className="sticky bottom-6 z-40 bg-white p-4 dark:bg-slate-800 dark:text-gray-300">
              <ComprarBoletosModal event={event} />
 

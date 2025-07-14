@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import Purchase from "@/src/models/purchase";
 import CryptoJS from "crypto-js";
 import { connectToMongoose } from "@/src/lib/db";
+import Users from "@/src/models/Users";
 const secret = process.env.QR_SECRET;
 
 export async function POST(req) {
@@ -24,6 +25,7 @@ export async function POST(req) {
     const { userId, purchaseId } = JSON.parse(decrypted);
 
     const purchase = await Purchase.findById(purchaseId);
+    const user = await Users.findById(userId);
 
     if (!purchase) {
       return NextResponse.json({ valid: false, message: "Compra no encontrada" }, { status: 404 });
@@ -37,10 +39,10 @@ export async function POST(req) {
       return NextResponse.json({ valid: false, message: "Token no coincide con el almacenado" }, { status: 403 });
     }
 
-    return NextResponse.json({ valid: true, message: "Boleto válido", purchase }, { status: 200 });
+    return NextResponse.json({ valid: true, message: "Boleto válido", purchase, userName: user.nombre }, { status: 200 });
 
   } catch (error) {
     console.error("Error al validar QR:", error);
     return NextResponse.json({ error: "Error del servidor", detail: error.message }, { status: 500 });
   }
-}
+} 
