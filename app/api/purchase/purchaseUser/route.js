@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import { connectToMongoose } from '@/src/lib/db';
 import Purchase from '@/src/models/purchase';
+import mongoose from "mongoose";
+import Event from '@/src/models/event';
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 
@@ -17,13 +19,31 @@ export async function GET(request, context) {
     
     const userId = session.user?.id;
 
-    const purchases = await Purchase.find({ user: userId })
-      .populate({
-        path: "event",
-        select: "title date banner",
-      })
-      .sort({ createdAt: -1 })
-      .lean();
+    const purchases = await Purchase.aggregate([
+      { $match: { user: new mongoose.Types.ObjectId(userId) } },
+      {
+        $lookup: {
+          from: "events",
+          localField: "event",
+          foreignField: "_id",
+          as: "eventData"
+        }
+      },
+      { $unwind: "$eventData" },
+      {
+        $replaceRoot: { newRoot: "$eventData" }
+      },
+      {
+        $project: {
+          eventName: "$title",
+          date: 1,
+          time: 1,
+          position: 1,
+          location: 1
+        }
+      }
+    ]);
+
 
     return NextResponse.json(purchases, { status: 200 });
 
