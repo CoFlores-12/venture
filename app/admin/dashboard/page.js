@@ -3,6 +3,7 @@ import { useRouter } from 'next/navigation';
 import { useAdminAuth } from '../../hooks/useAdminAuth';
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import SolicitudesOrganizadores from '@/app/components/admin/RequestPending';
 
 const AdminDashboard = () => {
   const router = useRouter();
@@ -258,59 +259,11 @@ const AdminDashboard = () => {
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.5, delay: 0.3 }}
-            className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700"
+            className=""
           >
-            <div className="p-4 sm:p-6 border-b border-gray-200 dark:border-gray-700">
-              <h3 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white">
-                Eventos Recientes
-              </h3>
-              <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-1">
-                Últimos eventos registrados
-              </p>
-            </div>
-            <div className="p-4 sm:p-6">
-              <div className="space-y-3 sm:space-y-4">
-                {recentEvents.map((event) => (
-                  <div key={event.id} className="flex flex-col sm:flex-row sm:items-center justify-between p-3 sm:p-4 bg-gray-50 dark:bg-gray-700 rounded-lg space-y-2 sm:space-y-0">
-                    <div className="flex items-center space-x-3">
-                      <div className="w-8 h-8 sm:w-10 sm:h-10 bg-blue-100 dark:bg-blue-900 rounded-lg flex items-center justify-center">
-                        <span className="text-blue-600 dark:text-blue-400 text-xs sm:text-sm font-medium">
-                          {event.name.charAt(0)}
-                        </span>
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="font-medium text-gray-900 dark:text-white text-sm sm:text-base truncate">
-                          {event.name}
-                        </p>
-                        <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 truncate">
-                          {event.organizer}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="flex items-center justify-between sm:justify-end space-x-2">
-                      <span className={`px-2 py-1 text-xs font-medium rounded-full ${
-                        event.status === 'Approved' 
-                          ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
-                          : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'
-                      }`}>
-                        {event.status}
-                      </span>
-                      <span className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">
-                        {event.date}
-                      </span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-              <div className="mt-6">
-                <button 
-                  onClick={() => router.push('/admin/events')}
-                  className="w-full px-4 py-2 text-sm font-medium text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300"
-                >
-                  Ver todos los eventos →
-                </button>
-              </div>
-            </div>
+            
+              <SolicitudesOrganizadores />
+              
           </motion.div>
 
           {/* Quick Actions */}
