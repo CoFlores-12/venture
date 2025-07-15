@@ -3,9 +3,11 @@ import React, { useState, useEffect } from 'react';
 import { PayPalButtons, PayPalScriptProvider } from '@paypal/react-paypal-js';
 import { FaCreditCard, FaPaypal, FaMoneyBillWave, FaQrcode, FaShieldAlt, FaLock, FaUserShield } from 'react-icons/fa';
 import { useAuthUser } from '@/src/lib/authUsers';
+import { useRouter } from 'next/navigation';
 
 const PaymentGateway = () => {
   const { user, loading2 } = useAuthUser();
+  const router = useRouter();
   const [selectedMethod, setSelectedMethod] = useState('card'); 
   const [cardDetails, setCardDetails] = useState({
     cardNumber: '',
@@ -216,8 +218,21 @@ const PaymentGateway = () => {
 
   return (
     <PayPalScriptProvider options={paypalOptions}>
-      
       <div className="min-h-screen bg-gradient-to-br from-purple-50 to-indigo-100 py-8 px-4">
+        {/* Back Button */}
+        <button
+          onClick={() => {
+            if (ticketDetails?.eventId) {
+              router.push(`/event/${ticketDetails.eventId}`);
+            } else {
+              router.back();
+            }
+          }}
+          className="mb-6 flex items-center text-purple-700 hover:text-purple-900 font-medium"
+        >
+          <svg className="h-5 w-5 mr-2" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7"></path></svg>
+          Volver al evento
+        </button>
         <div className="max-w-4xl mx-auto">
           {/* Encabezado */}
           <div className="text-center mb-10">
