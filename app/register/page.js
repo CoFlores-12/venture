@@ -151,7 +151,7 @@ export default function AuthScreen() {
                     </label>
                   </div>
                   
-                  <div className="text-sm">
+                  <div className="text-sm ml-4">
                     <a href="#" className="font-medium text-pink-400 hover:text-pink-300">
                       ¿Olvidaste tu contraseña?
                     </a>

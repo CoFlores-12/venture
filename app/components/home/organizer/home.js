@@ -91,51 +91,50 @@ const OrganizerDashboard = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-100 dark:bg-slate-900">
       {/* Sidebar y Contenido Principal */}
 
-      <div className="flex">
-        <div className="flex-1">
+      <div className="flex justify-center">
+        <div className="flex-1 max-w-screen-sm w-full mx-auto">
             
 
          
 
           {/* Main Content */}
-          <main className="p-6">
+          <main className="p-6 sm:p-6 px-2 w-full">
             {/* Bienvenida y Estadísticas */}
             <div className="mb-8">
               
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-6 w-full">
                 {stats.map((stat, index) => (
                   <StatsCard key={index} stat={stat} />
                 ))}
               </div>
             </div>
 
-            <header className="bg-white shadow-sm mb-3">
-                <nav className="p-4 flex flex-row justify-between">
+            <header className="bg-white shadow-sm mb-3 w-full max-w-full">
+                <nav className="p-2 flex flex-row gap-2 w-full max-w-full">
                     <button
                     onClick={() => setActiveTab('events')}
-                    className={`flex items-center justify-center w-full px-4 py-3 rounded-lg mb-2 ${activeTab === 'events' ? 'bg-purple-50 text-purple-600' : 'text-gray-600 hover:bg-gray-100'}`}
+                    className={`flex-1 min-w-0 flex items-center justify-center py-3 rounded-lg mb-2 text-sm ${activeTab === 'events' ? 'bg-purple-50 text-purple-600' : 'text-gray-600 hover:bg-gray-100'}`}
                     >
-                    <FiCalendar className="mr-3" />
+                    <FiCalendar className="mr-2" />
                     Mis Eventos
                     </button>
                     <button
                     onClick={() => setActiveTab('analytics')}
-                    className={`flex items-center  justify-center w-full px-4 py-3 rounded-lg mb-2 ${activeTab === 'analytics' ? 'bg-purple-50 text-purple-600' : 'text-gray-600 hover:bg-gray-100'}`}
+                    className={`flex-1 min-w-0 flex items-center justify-center py-3 rounded-lg mb-2 text-sm ${activeTab === 'analytics' ? 'bg-purple-50 text-purple-600' : 'text-gray-600 hover:bg-gray-100'}`}
                     >
-                    <FiBarChart2 className="mr-3" />
+                    <FiBarChart2 className="mr-2" />
                     Analíticas
                     </button>
                     <button
                     onClick={() => setActiveTab('tickets')}
-                    className={`flex items-center  justify-center w-full px-4 py-3 rounded-lg mb-2 ${activeTab === 'tickets' ? 'bg-purple-50 text-purple-600' : 'text-gray-600 hover:bg-gray-100'}`}
+                    className={`flex-1 min-w-0 flex items-center justify-center py-3 rounded-lg mb-2 text-sm ${activeTab === 'tickets' ? 'bg-purple-50 text-purple-600' : 'text-gray-600 hover:bg-gray-100'}`}
                     >
-                        <LuTicketCheck className='mr-3' />
+                        <LuTicketCheck className='mr-2' />
                     Boletos
                     </button>
-                    
                 </nav>
             </header>
 
@@ -153,7 +152,7 @@ const OrganizerDashboard = () => {
                   </a>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full">
                   {events.map((event) => (
                     <EventCard key={event.id} event={event} />
                   ))}
@@ -203,11 +202,11 @@ const OrganizerDashboard = () => {
             )}
 
             {activeTab === 'tickets' && (
-              <div className="bg-white p-6 rounded-xl shadow-sm">
+              <div className="bg-white p-6 rounded-xl shadow-sm w-full max-w-full">
                 <h2 className="text-xl font-semibold mb-6 text-gray-800">Gestión de Boletos</h2>
                 
-                <div className="overflow-x-auto">
-                  <table className="min-w-full divide-y divide-gray-200">
+                <div className="overflow-x-auto w-full max-w-full">
+                  <table className="w-full max-w-full divide-y divide-gray-200">
                     <thead className="bg-gray-50">
                       <tr>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Evento</th>

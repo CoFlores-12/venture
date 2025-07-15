@@ -1,6 +1,6 @@
 const StatsCard = ({ stat }) => {
   return (
-    <div className="bg-white p-5 rounded-xl shadow-sm">
+    <div className="bg-white p-5 rounded-xl shadow-sm w-full max-w-full">
       <div className="flex justify-between">
         <div>
           <p className="text-gray-500 text-sm">{stat.title}</p>

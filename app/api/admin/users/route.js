@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import AdminSchema from '../../../../src/models/admin';
 import { connectToMongoose } from '../../../../src/lib/db';
 import bcrypt from 'bcryptjs';
+import User from '../../../../src/models/Users';
 
 // Simulate database storage for users
 let users = [
@@ -122,33 +123,47 @@ let users = [
 // GET - Retrieve all users
 export async function GET(request) {
   try {
+    await connectToMongoose();
     const { searchParams } = new URL(request.url);
     const status = searchParams.get('status');
     const role = searchParams.get('role');
-    
-    let filteredUsers = users;
-    
-    // Filter by status if provided
+
+    // Fetch users from the database
+    let query = {};
     if (status && status !== 'all') {
-      filteredUsers = filteredUsers.filter(user => user.status === status);
+      query.status = status;
     }
-    
-    // Filter by role if provided
     if (role && role !== 'all') {
-      filteredUsers = filteredUsers.filter(user => user.role === role);
+      query.rol = role;
     }
-    
+    const dbUsers = await User.find(query).lean();
+
+    // Map DB users to expected API format
+    const mappedUsers = dbUsers.map((user, idx) => ({
+      id: user._id.toString(),
+      userId: user._id.toString(),
+      name: user.nombre,
+      email: user.correo,
+      role: user.rol || 'user',
+      status: user.status || 'active',
+      createdAt: user.creadoEn ? user.creadoEn.toISOString().slice(0, 10) : '',
+      lastLogin: user.lastLogin ? user.lastLogin.toISOString().slice(0, 10) : '',
+      rtn: user.identidad || null,
+      eventsCount: user.eventsCount || 0,
+      ticketsPurchased: user.ticketsPurchased || 0,
+      totalSpent: user.totalSpent || 0
+    }));
+
     return NextResponse.json({
       success: true,
-      data: filteredUsers,
-      total: filteredUsers.length,
-      active: users.filter(u => u.status === 'active').length,
-      suspended: users.filter(u => u.status === 'suspended').length,
-      pending: users.filter(u => u.status === 'pending').length,
-      organizers: users.filter(u => u.role === 'organizer').length,
-      regularUsers: users.filter(u => u.role === 'user').length
+      data: mappedUsers,
+      total: mappedUsers.length,
+      active: mappedUsers.filter(u => u.status === 'active').length,
+      suspended: mappedUsers.filter(u => u.status === 'suspended').length,
+      pending: mappedUsers.filter(u => u.status === 'pending').length,
+      organizers: mappedUsers.filter(u => u.role === 'organizer').length,
+      regularUsers: mappedUsers.filter(u => u.role === 'user').length
     });
-    
   } catch (error) {
     console.error('Error fetching users:', error);
     return NextResponse.json(
