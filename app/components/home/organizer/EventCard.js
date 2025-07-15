@@ -2,7 +2,7 @@ import { FiCalendar, FiUsers } from 'react-icons/fi';
 
 const EventCard = ({ event }) => {
   return (
-    <div className="bg-white rounded-xl shadow-sm overflow-hidden transition-all duration-200 hover:shadow-md">
+    <div className="bg-white rounded-xl shadow-sm overflow-hidden transition-all duration-200 hover:shadow-md w-full max-w-full">
       <div className="h-48 relative">
         <img src={event.image} alt={event.name} className="w-full h-full object-cover" />
         <span className={`absolute top-3 right-3 px-2 py-1 rounded-full text-xs font-medium ${event.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}`}>

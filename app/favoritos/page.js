@@ -32,7 +32,7 @@ export default function FavoritosPage() {
   }
 
   return (
-    <div className="flex flex-col min-h-screen bg-gray-100 dark:bg-slate-900">
+    <div className="flex flex-col min-h-screen bg-white dark:bg-slate-900">
       {/* Header compartido */}
       <header className="bg-white dark:bg-slate-900 shadow-sm sticky top-0 z-20">
         <div className="container mx-auto px-4 py-3 flex items-center">
@@ -109,7 +109,7 @@ export default function FavoritosPage() {
       </AnimatePresence>
       {/* Contenido principal */}
       <main className="flex-1">
-        <div className="min-h-screen bg-gradient-to-br from-purple-50 to-indigo-100 py-8 px-4">
+        <div className="min-h-screen bg-whitepy-8 px-4">
           {/* Back Button */}
           <button
             onClick={() => router.push('/home')}
@@ -119,21 +119,21 @@ export default function FavoritosPage() {
             Volver al inicio
           </button>
           <div className="max-w-4xl mx-auto">
-            <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-8 text-center">Favoritos</h1>
+            <h1 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-8 text-center">Favoritos</h1>
             {/* Most Liked Events Section */}
             <section className="mb-12">
               <h2 className="text-2xl font-semibold text-purple-700 mb-4">Eventos más gustados</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6" id="favoritos-eventos">
                 {loading ? (
-                  <div className="bg-white rounded-xl shadow p-6 text-center text-gray-500 col-span-2">Cargando...</div>
+                  <div className="bg-white dark:bg-slate-800 rounded-xl shadow p-6 text-center text-gray-500 col-span-2">Cargando...</div>
                 ) : mostLikedEvents.length === 0 ? (
-                  <div className="bg-white rounded-xl shadow p-6 text-center text-gray-500 col-span-2">No hay eventos favoritos aún.</div>
+                  <div className="bg-white dark:bg-slate-800 rounded-xl shadow p-6 text-center text-gray-500 col-span-2">No hay eventos favoritos aún.</div>
                 ) : (
                   mostLikedEvents.map(({ event, likeCount }) => (
-                    <div key={event._id} className="bg-white rounded-xl shadow p-6 flex flex-col gap-2">
+                    <div key={event._id} className="bg-white dark:bg-slate-800 rounded-xl shadow p-6 flex flex-col gap-2">
                       <img src={event.banner} alt={event.title} className="w-full h-40 object-cover rounded-lg mb-2" />
-                      <h3 className="font-bold text-lg text-gray-800">{event.title}</h3>
-                      <p className="text-gray-600 text-sm">{event.location} &middot; {event.date}</p>
+                      <h3 className="font-bold text-lg text-gray-800 dark:text-white">{event.title}</h3>
+                      <p className="text-gray-600 dark:text-gray-300 text-sm">{event.location} &middot; {event.date}</p>
                       <div className="flex items-center gap-2 mt-2">
                         <span className="text-purple-700 font-semibold">{likeCount} Me gusta</span>
                       </div>
@@ -147,15 +147,15 @@ export default function FavoritosPage() {
               <h2 className="text-2xl font-semibold text-purple-700 mb-4">Creadores de eventos más gustados</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6" id="favoritos-organizadores">
                 {loading ? (
-                  <div className="bg-white rounded-xl shadow p-6 text-center text-gray-500 col-span-2">Cargando...</div>
+                  <div className="bg-white dark:bg-slate-800 rounded-xl shadow p-6 text-center text-gray-500 col-span-2">Cargando...</div>
                 ) : mostLikedOrganizers.length === 0 ? (
-                  <div className="bg-white rounded-xl shadow p-6 text-center text-gray-500 col-span-2">No hay organizadores favoritos aún.</div>
+                  <div className="bg-white dark:bg-slate-800 rounded-xl shadow p-6 text-center text-gray-500 col-span-2">No hay organizadores favoritos aún.</div>
                 ) : (
                   mostLikedOrganizers.map(({ user, likeCount }) => (
-                    <div key={user._id} className="bg-white rounded-xl shadow p-6 flex flex-col gap-2 items-center">
+                    <div key={user._id} className="bg-white dark:bg-slate-800 rounded-xl shadow p-6 flex flex-col gap-2 items-center">
                       <img src={user.foto || "/logo.png"} alt={user.nombre} className="w-20 h-20 object-cover rounded-full mb-2 border-2 border-purple-200" />
-                      <h3 className="font-bold text-lg text-gray-800">{user.nombre}</h3>
-                      <p className="text-gray-600 text-sm">{user.correo}</p>
+                      <h3 className="font-bold text-lg text-gray-800 dark:text-white">{user.nombre}</h3>
+                      <p className="text-gray-600 dark:text-gray-300 text-sm">{user.correo}</p>
                       <div className="flex items-center gap-2 mt-2">
                         <span className="text-purple-700 font-semibold">{likeCount} Me gusta</span>
                       </div>
