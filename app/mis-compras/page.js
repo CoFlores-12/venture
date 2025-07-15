@@ -6,12 +6,20 @@ import { FaGoogle, FaWaze, FaApple } from 'react-icons/fa';
 import { SiUber } from 'react-icons/si';
 import CryptoJS from 'crypto-js';
 import { useRouter } from 'next/navigation';
+import { FiMenu, FiUser, FiHeart, FiX, FiPlus, FiHome, FiBarChart2 } from 'react-icons/fi';
+import { LuTicketCheck } from "react-icons/lu";
+import { VscOrganization } from "react-icons/vsc";
+import { useAuthUser } from '@/src/lib/authUsers';
+import LogoutButton from '@/app/components/LogoutBtn';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const MyTickets = () => {
   const router = useRouter();
   const [tickets, setTickets] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('upcoming');
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { user, loading: authLoading } = useAuthUser();
 
 useEffect(() => {
   const loadPurchases = async () => {
@@ -87,21 +95,101 @@ useEffect(() => {
     );
   }
 
+  if (authLoading) {
+    return null;
+  }
+
   if (tickets.length === 0) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="text-center max-w-md p-6 bg-white rounded-xl shadow-md">
-          <FaTicketAlt className="text-5xl text-purple-600 mx-auto mb-4" />
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">Aún no tienes boletos</h1>
-          <p className="text-gray-600 mb-6">
-            Parece que aún no has comprado boletos para ningún evento. Explora nuestros eventos disponibles y encuentra el tuyo.
-          </p>
-          <a 
-            href='/home'
-            className="bg-purple-700 text-white py-2 px-6 rounded-lg hover:bg-purple-800 transition"
-          >
-            Ver eventos
-          </a>
+      <div className="min-h-screen bg-gray-50">
+        {/* Header compartido */}
+        <header className="bg-white dark:bg-slate-900 shadow-sm sticky top-0 z-20 w-full">
+          <div className="container mx-auto px-4 py-3 flex items-center">
+            <button 
+              onClick={() => setIsMenuOpen(true)}
+              className="p-2 rounded-full bg-gray-100 dark:bg-slate-900 dark:text-white text-gray-700 mr-3 z-20"
+            >
+              <FiMenu size={20} />
+            </button>
+            <div className={`flex-1 relative flex justify-center z-10`}>
+              <span className="text-black dark:text-white flex items-end" data-aos="zoom-in">
+                <img src="/logo.png" height="30px" width={30} />enture
+              </span>
+            </div>
+          </div>
+        </header>
+        {/* Sidebar compartido */}
+        <AnimatePresence>
+          {isMenuOpen && (
+            <motion.div
+              initial={{ x: '-100%' }}
+              animate={{ x: 0 }}
+              exit={{ x: '-100%' }}
+              transition={{ type: 'tween' }}
+              className="fixed inset-y-0 left-0 w-64 bg-white dark:bg-slate-900 text-gray-800 dark:text-white shadow-lg z-30"
+            >
+              <div className="p-4 border-b border-gray-200 flex justify-between items-center">
+                <h2 className="text-xl font-bold ">Mi Cuenta</h2>
+                <button onClick={() => setIsMenuOpen(false)}>
+                  <FiX size={20} className="text-gray-500" />
+                </button>
+              </div>
+              <div className="p-4 relative">
+                <div className="flex items-center mb-6">
+                  { (!user?.image || user?.image === "") ? (
+                    <div className="w-12 h-12 aspect-square rounded-full bg-purple-100 flex items-center justify-center mr-3">
+                      <FiUser size={20} className="text-purple-700" />
+                    </div>
+                  ) : (
+                    <img src={user?.image} className="w-12 h-12 aspect-square rounded-full bg-purple-100 flex items-center justify-center mr-3" />
+                  )}
+                  <div className='max-w-[75%]'>
+                    <h3 className="font-medium ">{user?.name || "Usuario prueba"}</h3>
+                    <p className="text-sm text-gray-500 truncate">{user?.email || "invitado@ejemplo.com"}</p>
+                  </div>
+                </div>
+                <nav className="space-y-2">
+                  <a href="/profile" className="flex items-center p-3 rounded-lg hover:bg-purple-50 hover:text-purple-600">
+                    <FiUser className="mr-3" /> Mi Perfil
+                  </a>
+                  <a href="/mis-compras" className="flex items-center p-3 rounded-lg hover:bg-purple-50 hover:text-purple-600">
+                    <LuTicketCheck className="mr-3" /> Mis compras
+                  </a>
+                  <a href="/favoritos" className="flex items-center p-3 rounded-lg hover:bg-purple-50 hover:text-purple-600">
+                    <FiHeart className="mr-3" /> Favoritos
+                  </a>
+                  {user?.rol === "organizer" && (
+                    <a href="/events/new" className="flex items-center p-3 rounded-lg  hover:bg-purple-50 hover:text-purple-600">
+                      <FiPlus className="mr-3" /> Crear Evento
+                    </a>
+                  )}
+                  {user?.rol != "organizer" && (
+                    <a href="/join" className="flex items-center p-3 rounded-lg  hover:bg-purple-50 hover:text-purple-600">
+                      <VscOrganization  className="mr-3" /> Convertirse en organizador
+                    </a>
+                  )}
+                </nav>
+                <div className="">
+                  <LogoutButton />
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+        <div className="min-h-screen flex items-center justify-center">
+          <div className="text-center max-w-md p-6 bg-white rounded-xl shadow-md">
+            <FaTicketAlt className="text-5xl text-purple-600 mx-auto mb-4" />
+            <h1 className="text-2xl font-bold text-gray-900 mb-2">Aún no tienes boletos</h1>
+            <p className="text-gray-600 mb-6">
+              Parece que aún no has comprado boletos para ningún evento. Explora nuestros eventos disponibles y encuentra el tuyo.
+            </p>
+            <a 
+              href='/home'
+              className="bg-purple-700 text-white py-2 px-6 rounded-lg hover:bg-purple-800 transition"
+            >
+              Ver eventos
+            </a>
+          </div>
         </div>
       </div>
     );
@@ -117,19 +205,93 @@ useEffect(() => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gray-50">
+      {/* Header compartido */}
+      <header className="bg-white dark:bg-slate-900 shadow-sm sticky top-0 z-20 w-full">
+        <div className="container mx-auto px-4 py-3 flex items-center">
+          <button 
+            onClick={() => setIsMenuOpen(true)}
+            className="p-2 rounded-full bg-gray-100 dark:bg-slate-900 dark:text-white text-gray-700 mr-3 z-20"
+          >
+            <FiMenu size={20} />
+          </button>
+          <div className={`flex-1 relative flex justify-center z-10`}>
+            <span className="text-black dark:text-white flex items-end" data-aos="zoom-in">
+              <img src="/logo.png" height="30px" width={30} />enture
+            </span>
+          </div>
+        </div>
+      </header>
+      {/* Sidebar compartido */}
+      <AnimatePresence>
+        {isMenuOpen && (
+          <motion.div
+            initial={{ x: '-100%' }}
+            animate={{ x: 0 }}
+            exit={{ x: '-100%' }}
+            transition={{ type: 'tween' }}
+            className="fixed inset-y-0 left-0 w-64 bg-white dark:bg-slate-900 text-gray-800 dark:text-white shadow-lg z-30"
+          >
+            <div className="p-4 border-b border-gray-200 flex justify-between items-center">
+              <h2 className="text-xl font-bold ">Mi Cuenta</h2>
+              <button onClick={() => setIsMenuOpen(false)}>
+                <FiX size={20} className="text-gray-500" />
+              </button>
+            </div>
+            <div className="p-4 relative">
+              <div className="flex items-center mb-6">
+                { (!user?.image || user?.image === "") ? (
+                  <div className="w-12 h-12 aspect-square rounded-full bg-purple-100 flex items-center justify-center mr-3">
+                    <FiUser size={20} className="text-purple-700" />
+                  </div>
+                ) : (
+                  <img src={user?.image} className="w-12 h-12 aspect-square rounded-full bg-purple-100 flex items-center justify-center mr-3" />
+                )}
+                <div className='max-w-[75%]'>
+                  <h3 className="font-medium ">{user?.name || "Usuario prueba"}</h3>
+                  <p className="text-sm text-gray-500 truncate">{user?.email || "invitado@ejemplo.com"}</p>
+                </div>
+              </div>
+              <nav className="space-y-2">
+                <a href="/profile" className="flex items-center p-3 rounded-lg hover:bg-purple-50 hover:text-purple-600">
+                  <FiUser className="mr-3" /> Mi Perfil
+                </a>
+                <a href="/mis-compras" className="flex items-center p-3 rounded-lg hover:bg-purple-50 hover:text-purple-600">
+                  <LuTicketCheck className="mr-3" /> Mis compras
+                </a>
+                <a href="/favoritos" className="flex items-center p-3 rounded-lg hover:bg-purple-50 hover:text-purple-600">
+                  <FiHeart className="mr-3" /> Favoritos
+                </a>
+                {user?.rol === "organizer" && (
+                  <a href="/events/new" className="flex items-center p-3 rounded-lg  hover:bg-purple-50 hover:text-purple-600">
+                    <FiPlus className="mr-3" /> Crear Evento
+                  </a>
+                )}
+                {user?.rol != "organizer" && (
+                  <a href="/join" className="flex items-center p-3 rounded-lg  hover:bg-purple-50 hover:text-purple-600">
+                    <VscOrganization  className="mr-3" /> Convertirse en organizador
+                  </a>
+                )}
+              </nav>
+              <div className="">
+                <LogoutButton />
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
       <div className="max-w-4xl mx-auto">
         {/* Back to Profile Link */}
-        <div className="mb-6">
-           <button
-      onClick={() => router.back()}
-      className="inline-flex items-center text-purple-700 hover:text-purple-800 font-medium"
-    >
-      <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
-      </svg>
-      Volver
-    </button>
+        <div className="mb-6 mt-8">
+          <button
+            onClick={() => router.back()}
+            className="inline-flex items-center text-purple-700 hover:text-purple-800 font-medium"
+          >
+            <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
+            </svg>
+            Volver
+          </button>
         </div>
 
         <div className="text-center mb-12">

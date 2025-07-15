@@ -110,7 +110,7 @@ const HomePage = () => {
                       <a href="/mis-compras" className="flex items-center p-3 rounded-lg hover:bg-purple-50 hover:text-purple-600">
                         <LuTicketCheck className="mr-3" /> Mis compras
                       </a>
-                      <a href="#" className="flex items-center p-3 rounded-lg hover:bg-purple-50 hover:text-purple-600">
+                      <a href="/favoritos" className="flex items-center p-3 rounded-lg hover:bg-purple-50 hover:text-purple-600">
                         <FiHeart className="mr-3" /> Favoritos
                       </a>
                       
