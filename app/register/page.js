@@ -100,8 +100,8 @@ export default function AuthScreen() {
             >
               <h2 className="text-3xl font-bold text-center text-black dark:text-white mb-8">Iniciar Sesión</h2>
               {warning && (
-                <div class="p-4 mb-4 text-sm text-yellow-800 rounded-lg bg-yellow-50 dark:bg-gray-800 dark:text-yellow-300" role="alert">
-                  <span class="font-medium"></span> {info}
+                <div className="p-4 mb-4 text-sm text-yellow-800 rounded-lg bg-yellow-50 dark:bg-gray-800 dark:text-yellow-300" role="alert">
+                  <span className="font-medium"></span> {info}
                 </div>
               )}
               
@@ -218,8 +218,8 @@ export default function AuthScreen() {
               <h2 className="text-3xl font-bold text-center text-black dark:text-white mb-8">Crear Cuenta</h2>
 
               {warning && (
-                <div class="p-4 mb-4 text-sm text-yellow-800 rounded-lg bg-yellow-50 dark:bg-gray-800 dark:text-yellow-300" role="alert">
-                  <span class="font-medium"></span> {info}
+                <div className="p-4 mb-4 text-sm text-yellow-800 rounded-lg bg-yellow-50 dark:bg-gray-800 dark:text-yellow-300" role="alert">
+                  <span className="font-medium"></span> {info}
                 </div>
               )}
               
