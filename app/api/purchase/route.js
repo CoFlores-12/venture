@@ -48,6 +48,7 @@ export async function POST(req) {
     const totalAmount = selectedTicket.price * ticketQuantity;
 
     selectedTicket.quantityAvailable -= ticketQuantity;
+    await eventFind.save();
 
     const newPurchase = await Purchase.create({
       user,

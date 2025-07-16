@@ -4,20 +4,72 @@ import { useParams } from 'next/navigation'
 import { useRouter } from 'next/navigation';
 import { FiArrowLeft, FiStar, FiCalendar, FiMapPin, FiMessageSquare, FiHeart } from 'react-icons/fi';
 import LoadingModal from '@/app/components/loadingOverlay';
+import { useAuthUser } from '@/src/lib/authUsers';
 
 const OrganizerProfile = () => {
   const { id } = useParams();
-    const [organizer, setOrganizer] = useState({})
-    const [loading, setLoading] = useState(true);
+  const router = useRouter();
+  const { user } = useAuthUser();
+  const [organizer, setOrganizer] = useState({})
+  const [loading, setLoading] = useState(true);
+  const [isLiked, setIsLiked] = useState(false);
+  const [likeLoading, setLikeLoading] = useState(false);
   
-    useEffect(()=>{
-      fetch("/api/users/"+id)
+  useEffect(()=>{
+    fetch("/api/users/"+id)
       .then(res=>{return res.json()})
       .then(res=>{
         setOrganizer(res);
         setLoading(false)
       })
-    }, [])
+  }, [])
+
+  // Check if user has liked this organizer
+  useEffect(() => {
+    if (user?.id) {
+      fetch(`/api/likes/likeUser?type=user`)
+        .then(res => res.json())
+        .then(likedUsers => {
+          const hasLiked = likedUsers.some(likedUser => likedUser._id === id);
+          setIsLiked(hasLiked);
+        })
+        .catch(error => {
+          console.error('Error checking like status:', error);
+        });
+    }
+  }, [user, id]);
+
+  // Handle like/unlike toggle
+  const handleLikeToggle = async () => {
+    if (!user?.id) {
+      alert('Debes iniciar sesión para seguir organizadores');
+      return;
+    }
+
+    setLikeLoading(true);
+    try {
+      const response = await fetch('/api/likes', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          targetId: id,
+          targetType: 'user'
+        }),
+      });
+
+      if (response.ok) {
+        setIsLiked(!isLiked);
+      } else {
+        console.error('Error toggling like');
+      }
+    } catch (error) {
+      console.error('Error toggling like:', error);
+    } finally {
+      setLikeLoading(false);
+    }
+  };
 
   if (!organizer) {
     return (
@@ -73,8 +125,16 @@ const OrganizerProfile = () => {
           <div className="flex-1 pt-1">
             <div className="flex items-center justify-between">
               <h2 className="text-xl font-bold text-gray-900">{organizer.nombre}</h2>
-              <button className="p-2 rounded-full bg-gray-100 text-gray-600 hover:bg-gray-200">
-                <FiHeart className="text-lg" />
+              <button 
+                onClick={handleLikeToggle}
+                disabled={likeLoading}
+                className={`p-2 rounded-full transition-colors ${
+                  isLiked 
+                    ? 'bg-red-100 text-red-500 hover:bg-red-200' 
+                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                } ${likeLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
+              >
+                <FiHeart className={`text-lg ${isLiked ? 'fill-current' : ''}`} />
               </button>
             </div>
             
@@ -96,9 +156,17 @@ const OrganizerProfile = () => {
             <FiMessageSquare />
             Contactar
           </a>
-          <button className="flex-1 py-2.5 px-4 rounded-xl bg-white border border-gray-300 font-medium flex items-center justify-center gap-2 shadow-sm hover:bg-gray-50 transition-colors">
-            <FiHeart />
-            Seguir
+          <button 
+            onClick={handleLikeToggle}
+            disabled={likeLoading}
+            className={`flex-1 py-2.5 px-4 rounded-xl font-medium flex items-center justify-center gap-2 shadow-sm transition-colors ${
+              isLiked 
+                ? 'bg-red-50 border border-red-200 text-red-600 hover:bg-red-100' 
+                : 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-50'
+            } ${likeLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
+          >
+            <FiHeart className={`${isLiked ? 'fill-current' : ''}`} />
+            {isLiked ? 'Siguiendo' : 'Seguir'}
           </button>
         </div>
       </div>

@@ -21,7 +21,7 @@ const MyTickets = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { user, loading: authLoading } = useAuthUser();
 
-useEffect(() => {
+  useEffect(() => {
   const loadPurchases = async () => {
     try {
       const res = await fetch("/api/purchase/purchaseUser/");
@@ -36,7 +36,7 @@ useEffect(() => {
 
       // Intentar cargar desde localStorage
       const purchases = JSON.parse(localStorage.getItem("purchase")) || [];
-
+      
       if (purchases.length === 0) {
         setTickets(mockEvents); // datos falsos o alternativos
       } else {
@@ -48,7 +48,7 @@ useEffect(() => {
   };
 
   loadPurchases();
-}, []);
+  }, []);
 
 
   const formatDate = (dateString) => {
@@ -177,18 +177,18 @@ useEffect(() => {
           )}
         </AnimatePresence>
         <div className="min-h-screen flex items-center justify-center">
-          <div className="text-center max-w-md p-6 bg-white rounded-xl shadow-md">
-            <FaTicketAlt className="text-5xl text-purple-600 mx-auto mb-4" />
-            <h1 className="text-2xl font-bold text-gray-900 mb-2">Aún no tienes boletos</h1>
-            <p className="text-gray-600 mb-6">
-              Parece que aún no has comprado boletos para ningún evento. Explora nuestros eventos disponibles y encuentra el tuyo.
-            </p>
-            <a 
-              href='/home'
-              className="bg-purple-700 text-white py-2 px-6 rounded-lg hover:bg-purple-800 transition"
-            >
-              Ver eventos
-            </a>
+        <div className="text-center max-w-md p-6 bg-white rounded-xl shadow-md">
+          <FaTicketAlt className="text-5xl text-purple-600 mx-auto mb-4" />
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">Aún no tienes boletos</h1>
+          <p className="text-gray-600 mb-6">
+            Parece que aún no has comprado boletos para ningún evento. Explora nuestros eventos disponibles y encuentra el tuyo.
+          </p>
+          <a 
+            href='/home'
+            className="bg-purple-700 text-white py-2 px-6 rounded-lg hover:bg-purple-800 transition"
+          >
+            Ver eventos
+          </a>
           </div>
         </div>
       </div>

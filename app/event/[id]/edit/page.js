@@ -1,157 +1,132 @@
 "use client";
-import { useState, useRef, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
-import { FiCalendar, FiMapPin, FiDollarSign, FiImage, FiTag, FiInfo, FiX, FiPlus, FiTrash2 } from 'react-icons/fi'
-import dynamic from 'next/dynamic'
+import { useState, useEffect } from 'react';
+import { useRouter, useParams } from 'next/navigation';
+import dynamic from 'next/dynamic';
+import { FiCalendar, FiMapPin, FiTag, FiX, FiPlus, FiTrash2, FiImage } from 'react-icons/fi';
 import EventPlanSelector from '@/app/components/PlanEvent';
 import { LuTicketCheck } from 'react-icons/lu';
 
-// Importamos Leaflet dinámicamente para SSR
 const MapWithNoSSR = dynamic(
-  () => import('../../components/Leafletmap'), 
-  { 
+  () => import('../../../components/Leafletmap'),
+  {
     ssr: false,
     loading: () => <div className="h-64 bg-gray-100 rounded-lg flex items-center justify-center">Cargando mapa...</div>
   }
-)
+);
 
+const categories = [
+  '🎵 Música',
+  '🎭 Teatro',
+  '🖼️ Arte',
+  '🍽️ Gastronomía',
+  '⚽ Deportes',
+  '📚 Literatura',
+  '🎤 Concierto',
+  '💃 Baile',
+  '🎪 Festival',
+  '🎮 Gaming',
+  '📸 Fotografía',
+  '🎬 Cine',
+  '🎨 Taller Creativo',
+  '🧘 Bienestar',
+  '👨‍💻 Tecnología',
+  '🌱 Sustentabilidad',
+  '🎭 Stand-up',
+  '🍷 Degustación',
+  '🛍️ Mercado',
+  '👶 Familiar',
+  '🎓 Educativo',
+  '✈️ Viajes',
+  '🐶 Mascotas',
+  '🎳 Bowling',
+  '♟️ Juegos de Mesa',
+  '🍻 Happy Hour',
+  '🎄 Navideño',
+  '🎆 Año Nuevo',
+  '💘 San Valentín',
+  '🎃 Halloween'
+];
 
-const EventCreateForm = () => {
-  const router = useRouter()
+const EventEditForm = () => {
+  const router = useRouter();
+  const { id } = useParams();
+  const [errors, setErrors] = useState({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [formData, setFormData] = useState(null);
+  const [planSeleted, setPlanSelected] = useState({});
 
-  const [errors, setErrors] = useState({})
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [mapReady, setMapReady] = useState(false)
-  const [formData, setFormData] = useState({
-    title: '',
-    description: '',
-    position: [14.1020, -87.2179], // Default Tegucigalpa
-    date: '',
-    startTime: '',
-    endTime: '',
-    category: '',
-    banner: null,
-    bannerPreview: '',
-    tickets: [
-      { id: Date.now(), type: 'General', price: '', quantity: '', ticketsAvailable: '' }
-    ]
-  })
-  const [planSeleted, setPlanSelected] = useState({})
-  
+  useEffect(() => {
+    fetch(`/api/event/${id}`)
+      .then(res => res.json())
+      .then(event => {
+        setFormData({
+          ...event,
+          banner: null, // For new upload
+          bannerPreview: event.banner,
+          tickets: event.tickets.map(ticket => ({
+            ...ticket,
+            id: ticket._id || Date.now() + Math.random()
+          })),
+        });
+        setPlanSelected({ id: event.plan });
+      });
+  }, [id]);
+
   const handlePlanSelect = (selectedPlan) => {
     setPlanSelected(selectedPlan);
-    setFormData({
-      ...formData,
+    setFormData(prev => ({
+      ...prev,
       plan: selectedPlan.id,
-      tickets: formData.tickets.slice(0, selectedPlan.tickets)
-    });
+      tickets: prev.tickets.slice(0, selectedPlan.tickets)
+    }));
   };
 
-    const handleChange = (e) => {
-    const { name, value } = e.target
+  const handleChange = (e) => {
+    const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
       [name]: value
-    }))
-  }
-
+    }));
+  };
 
   const handleImageChange = (e) => {
-    const file = e.target.files[0]
+    const file = e.target.files[0];
     if (file) {
-      const reader = new FileReader()
+      const reader = new FileReader();
       reader.onloadend = () => {
         setFormData(prev => ({
           ...prev,
           banner: file,
           bannerPreview: reader.result
-        }))
-      }
-      reader.readAsDataURL(file)
+        }));
+      };
+      reader.readAsDataURL(file);
     }
-  }
+  };
 
   const removeImage = () => {
     setFormData(prev => ({
       ...prev,
       banner: null,
       bannerPreview: ''
-    }))
-  }
+    }));
+  };
 
-  const categories = [
-    '🎵 Música',
-    '🎭 Teatro',
-    '🖼️ Arte',
-    '🍽️ Gastronomía',
-    '⚽ Deportes',
-    '📚 Literatura',
-    '🎤 Concierto',
-    '💃 Baile',
-    '🎪 Festival',
-    '🎮 Gaming',
-    '📸 Fotografía',
-    '🎬 Cine',
-    '🎨 Taller Creativo',
-    '🧘 Bienestar',
-    '👨‍💻 Tecnología',
-    '🌱 Sustentabilidad',
-    '🎭 Stand-up',
-    '🍷 Degustación',
-    '🛍️ Mercado',
-    '👶 Familiar',
-    '🎓 Educativo',
-    '✈️ Viajes',
-    '🐶 Mascotas',
-    '🎳 Bowling',
-    '♟️ Juegos de Mesa',
-    '🍻 Happy Hour',
-    '🎄 Navideño',
-    '🎆 Año Nuevo',
-    '💘 San Valentín',
-    '🎃 Halloween'
-  ];
   const handleMapClick = (latlng) => {
     setFormData(prev => ({
       ...prev,
       position: [latlng.lat, latlng.lng]
-    }))
-  }
+    }));
+  };
 
-  // Manejadores para tickets
   const handleTicketChange = (id, field, value) => {
-  if (field !== 'quantity') {
     setFormData(prev => ({
       ...prev,
       tickets: prev.tickets.map(ticket =>
         ticket.id === id ? { ...ticket, [field]: value } : ticket
       )
     }));
-    return;
-  }
-
-  const newQuantity = Number(value);
-
-  setFormData(prev => {
-    const otherTicketsTotal = prev.tickets.reduce((sum, ticket) =>
-      ticket.id === id ? sum : sum + Number(ticket.quantity || 0), 0
-    );
-
-    const totalWithNew = otherTicketsTotal + newQuantity;
-
-    if (totalWithNew > planSeleted.persons) {
-      alert(`No puedes vender más de ${planSeleted.persons} boletos en total.`);
-      return prev; 
-    }
-
-    return {
-      ...prev,
-      tickets: prev.tickets.map(ticket =>
-        ticket.id === id ? { ...ticket, quantity: newQuantity, ticketsAvailable: newQuantity } : ticket
-      )
-    };
-  });
-};
+  };
 
   const addTicket = () => {
     setFormData(prev => ({
@@ -160,54 +135,47 @@ const EventCreateForm = () => {
         ...prev.tickets,
         { id: Date.now(), type: '', price: '', quantity: '' }
       ]
-    }))
-  }
+    }));
+  };
 
   const removeTicket = (id) => {
     if (formData.tickets.length > 1) {
       setFormData(prev => ({
         ...prev,
         tickets: prev.tickets.filter(ticket => ticket.id !== id)
-      }))
+      }));
     }
-  }
+  };
 
-  // Validación
   const validate = () => {
-    const newErrors = {}
-    
-    if (!formData.title.trim()) newErrors.title = 'El título es requerido'
-    if (!formData.description.trim()) newErrors.description = 'La descripción es requerida'
-    if (!formData.date) newErrors.date = 'La fecha es requerida'
-    if (!formData.startTime) newErrors.startTime = 'La hora de inicio es requerida'
-    if (!formData.endTime) newErrors.endTime = 'La hora de fin es requerida'
-    if (!formData.category) newErrors.category = 'La categoría es requerida'
-    
-    // Validar tickets
+    const newErrors = {};
+    if (!formData.title?.trim()) newErrors.title = 'El título es requerido';
+    if (!formData.description?.trim()) newErrors.description = 'La descripción es requerida';
+    if (!formData.date) newErrors.date = 'La fecha es requerida';
+    if (!formData.startTime) newErrors.startTime = 'La hora de inicio es requerida';
+    if (!formData.endTime) newErrors.endTime = 'La hora de fin es requerida';
+    if (!formData.category) newErrors.category = 'La categoría es requerida';
     formData.tickets.forEach((ticket, index) => {
-      if (!ticket.type.trim()) newErrors[`ticketType${index}`] = 'Tipo de ticket requerido'
-      if (!ticket.price) newErrors[`ticketPrice${index}`] = 'Precio requerido'
-      if (isNaN(ticket.price)) newErrors[`ticketPrice${index}`] = 'Precio debe ser número'
-      if (ticket.quantity && isNaN(ticket.quantity)) newErrors[`ticketQuantity${index}`] = 'Cantidad debe ser número'
-    })
-    
-    setErrors(newErrors)
-    return Object.keys(newErrors).length === 0
-  }
+      if (!ticket.type?.trim()) newErrors[`ticketType${index}`] = 'Tipo de ticket requerido';
+      if (!ticket.price) newErrors[`ticketPrice${index}`] = 'Precio requerido';
+      if (isNaN(ticket.price)) newErrors[`ticketPrice${index}`] = 'Precio debe ser número';
+      if (ticket.quantity && isNaN(ticket.quantity)) newErrors[`ticketQuantity${index}`] = 'Cantidad debe ser número';
+    });
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
 
   const handleSubmit = async (e) => {
-    e.preventDefault()
-    
-    if (!validate()) return
-    
-    setIsSubmitting(true)
-    
+    e.preventDefault();
+    if (!validate()) return;
+    setIsSubmitting(true);
     try {
-      // Preparar datos para enviar
       const eventData = {
         ...formData,
-        bannerPreview: formData.bannerPreview.replace(/^data:image\/[a-z]+;base64,/, ''),
-        emoji: formData.category.charAt(0),
+        bannerPreview: formData.bannerPreview?.startsWith('data:image')
+          ? formData.bannerPreview.replace(/^data:image\/[a-z]+;base64,/, '')
+          : undefined,
+        emoji: formData.category?.charAt(0),
         time: `${formData.startTime} - ${formData.endTime}`,
         location: formData.location,
         tickets: formData.tickets.map(ticket => ({
@@ -216,36 +184,26 @@ const EventCreateForm = () => {
           quantityAvailable: ticket.quantity ? Number(ticket.quantity) : null,
           quantity: ticket.quantity ? Number(ticket.quantity) : null
         }))
-      }
-
-      fetch("/api/events",{
-        method: "POST",
-         headers: { "Content-Type": "application/json" },
+      };
+      await fetch(`/api/event/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(eventData)
-      })
-      .then(res=>{return res.json()})
-      .then(res=>{
-        console.log(res);
-        setIsSubmitting(false)
-        router.replace("/home")
-      })
-      .catch(err=>{
-        console.log(err);
-        setIsSubmitting(false)
-      })
-      
+      });
+      setIsSubmitting(false);
+      router.replace(`/event/${id}`);
     } catch (error) {
-      console.error('Error al crear el evento:', error)
-    } finally {
-      setIsSubmitting(false)
+      setIsSubmitting(false);
+      alert('Error al actualizar el evento');
     }
-  }
+  };
 
-  
+  if (!formData) return <div className="p-8 text-center">Cargando...</div>;
+
   return (
     <div className="max-w-3xl mx-auto p-4 md:p-6 ">
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-purple-700">Crear nuevo evento</h1>
+        <h1 className="text-2xl font-bold text-purple-700">Editar evento</h1>
         <button 
           onClick={() => router.back()}
           className="btn btn-ghost btn-circle"
@@ -253,7 +211,6 @@ const EventCreateForm = () => {
           <FiX className="text-xl" />
         </button>
       </div>
-      
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Banner del evento */}
         <div>
@@ -268,7 +225,7 @@ const EventCreateForm = () => {
               <button
                 type="button"
                 onClick={removeImage}
-                className="absolute top-2 right-2 btn btn-circle btn-sm btn-error"
+                className="absolute top-2 right-2 btn btn-circle btn-sm btn-error group-hover:opacity-100 transition-opacity"
               >
                 <FiX />
               </button>
@@ -288,7 +245,6 @@ const EventCreateForm = () => {
             </label>
           )}
         </div>
-        
         {/* Título y descripción */}
         <div className="grid grid-cols-1 gap-6">
           <div>
@@ -301,7 +257,7 @@ const EventCreateForm = () => {
                 id="title"
                 name="title"
                 value={formData.title || ""}
-                onChange={(e) => handleChange(e)}
+                onChange={handleChange}
                 className={`input input-bordered w-full ${errors.title ? 'input-error' : ''}`}
                 placeholder="Ej: Festival de Música Electrónica"
               />
@@ -310,7 +266,6 @@ const EventCreateForm = () => {
               )}
             </div>
           </div>
-          
           <div>
             <label htmlFor="description" className="block text-sm font-medium mb-2">
               Descripción
@@ -320,7 +275,7 @@ const EventCreateForm = () => {
                 id="description"
                 name="description"
                 value={formData.description || ""}
-                onChange={(e) => handleChange(e)}
+                onChange={handleChange}
                 rows={4}
                 className={`textarea textarea-bordered w-full ${errors.description ? 'textarea-error' : ''}`}
                 placeholder="Describe tu evento en detalle..."
@@ -331,14 +286,13 @@ const EventCreateForm = () => {
             </div>
           </div>
         </div>
-        
         {/* Mapa para selección de ubicación */}
         <div>
           <div>
             <label className="block text-sm font-medium mb-2 flex items-center">
               <FiMapPin className="mr-2" /> Ubicación del evento
             </label>
-            <label htmlFor="description" className="block text-sm font-medium mb-2">
+            <label htmlFor="location" className="block text-sm font-medium mb-2">
               Nombre del lugar
             </label>
             <div className="relative">
@@ -347,7 +301,7 @@ const EventCreateForm = () => {
                 id="location"
                 name="location"
                 value={formData.location || ""}
-                onChange={(e) => handleChange(e)}
+                onChange={handleChange}
                 className={`input input-bordered w-full ${errors.location ? 'input-error' : ''}`}
                 placeholder="Ej: Parque Central"
               />
@@ -356,7 +310,6 @@ const EventCreateForm = () => {
               )}
             </div>
           </div>
-          
           <div className="h-64 rounded-lg overflow-hidden shadow-md border border-gray-200">
             <MapWithNoSSR 
               position={formData.position} 
@@ -367,7 +320,6 @@ const EventCreateForm = () => {
             Coordenadas seleccionadas: {formData.position[0].toFixed(4)}, {formData.position[1].toFixed(4)}
           </p>
         </div>
-        
         {/* Fecha y horario */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
@@ -380,7 +332,7 @@ const EventCreateForm = () => {
                 id="date"
                 name="date"
                 value={formData.date || ""}
-                onChange={(e) => handleChange(e)}
+                onChange={handleChange}
                 className={`input input-bordered w-full ${errors.date ? 'input-error' : ''}`}
               />
               {errors.date && (
@@ -388,7 +340,6 @@ const EventCreateForm = () => {
               )}
             </div>
           </div>
-          
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label htmlFor="startTime" className="block text-sm font-medium mb-2">
@@ -399,14 +350,13 @@ const EventCreateForm = () => {
                 id="startTime"
                 name="startTime"
                 value={formData.startTime || ""}
-                onChange={(e) => handleChange(e)}
+                onChange={handleChange}
                 className={`input input-bordered w-full ${errors.startTime ? 'input-error' : ''}`}
               />
               {errors.startTime && (
                 <p className="mt-1 text-sm text-error">{errors.startTime}</p>
               )}
             </div>
-            
             <div>
               <label htmlFor="endTime" className="block text-sm font-medium mb-2">
                 Hora fin
@@ -416,7 +366,7 @@ const EventCreateForm = () => {
                 id="endTime"
                 name="endTime"
                 value={formData.endTime || ""}
-                onChange={(e) => handleChange(e)}
+                onChange={handleChange}
                 className={`input input-bordered w-full ${errors.endTime ? 'input-error' : ''}`}
               />
               {errors.endTime && (
@@ -425,7 +375,6 @@ const EventCreateForm = () => {
             </div>
           </div>
         </div>
-        
         {/* Categoría */}
         <div>
           <label htmlFor="category" className="block text-sm font-medium mb-2 flex items-center">
@@ -436,7 +385,7 @@ const EventCreateForm = () => {
               id="category"
               name="category"
               value={formData.category || ""}
-              onChange={(e) => handleChange(e)}
+              onChange={handleChange}
               className={`select select-bordered w-full ${errors.category ? 'select-error' : ''}`}
             >
               <option value="">Selecciona una categoría</option>
@@ -449,9 +398,7 @@ const EventCreateForm = () => {
             )}
           </div>
         </div>
-
         <EventPlanSelector onPlanSelect={handlePlanSelect} />
-        
         {/* Tickets */}
         { planSeleted?.id && (
           <div>
@@ -471,7 +418,6 @@ const EventCreateForm = () => {
               )
             }
           </div>
-          
           <div className="space-y-4">
             {formData.tickets.map((ticket, index) => (
               <div key={ticket.id} className="grid grid-cols-12 gap-3 items-end">
@@ -480,7 +426,7 @@ const EventCreateForm = () => {
                   <input
                     type="text"
                     value={ticket.type || ""}
-                    onChange={(e) => handleTicketChange(ticket.id, 'type', e.target.value)}
+                    onChange={e => handleTicketChange(ticket.id, 'type', e.target.value)}
                     className={`input input-bordered w-full ${errors[`ticketType${index}`] ? 'input-error' : ''}`}
                     placeholder="Ej: General, VIP"
                   />
@@ -488,13 +434,12 @@ const EventCreateForm = () => {
                     <p className="mt-1 text-sm text-error">{errors[`ticketType${index}`]}</p>
                   )}
                 </div>
-                
                 <div className="col-span-3">
                   <label className="block text-sm font-medium mb-2">Precio (L.)</label>
                   <input
                     type="text"
                     value={ticket.price || ""}
-                    onChange={(e) => handleTicketChange(ticket.id, 'price', e.target.value)}
+                    onChange={e => handleTicketChange(ticket.id, 'price', e.target.value)}
                     className={`input input-bordered w-full ${errors[`ticketPrice${index}`] ? 'input-error' : ''}`}
                     placeholder="450"
                   />
@@ -502,13 +447,12 @@ const EventCreateForm = () => {
                     <p className="mt-1 text-sm text-error">{errors[`ticketPrice${index}`]}</p>
                   )}
                 </div>
-                
                 <div className="col-span-3">
                   <label className="block text-sm font-medium mb-2">Cantidad (opcional)</label>
                   <input
                     type="text"
                     value={ticket.quantity || ""}
-                    onChange={(e) => handleTicketChange(ticket.id, 'quantity', e.target.value)}
+                    onChange={e => handleTicketChange(ticket.id, 'quantity', e.target.value)}
                     className={`input input-bordered w-full ${errors[`ticketQuantity${index}`] ? 'input-error' : ''}`}
                     placeholder="Ilimitado si vacío"
                   />
@@ -516,7 +460,6 @@ const EventCreateForm = () => {
                     <p className="mt-1 text-sm text-error">{errors[`ticketQuantity${index}`]}</p>
                   )}
                 </div>
-                
                 <div className="col-span-1">
                   <button
                     type="button"
@@ -532,7 +475,6 @@ const EventCreateForm = () => {
           </div>
         </div>
         )}
-        
         {/* Botón de envío */}
         <div className="pt-4">
           <button
@@ -540,12 +482,12 @@ const EventCreateForm = () => {
             className={`btn btn-primary w-full bg-purple-700 hover:bg-purple-800 text-white ${isSubmitting ? 'loading' : ''}`}
             disabled={isSubmitting}
           >
-            {isSubmitting ? 'Creando evento...' : 'Publicar evento'}
+            {isSubmitting ? 'Guardando cambios...' : 'Guardar cambios'}
           </button>
         </div>
       </form>
     </div>
-  )
-}
+  );
+};
 
-export default EventCreateForm
+export default EventEditForm; 

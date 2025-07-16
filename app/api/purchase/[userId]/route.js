@@ -4,7 +4,7 @@ import Purchase from '@/src/models/purchase';
 
 export async function GET(request, context) {
   const { userId } = await context.params;
-  await connectToMongoose();
+    await connectToMongoose();
 
   try {
     // Find purchases for the user and populate event details
@@ -13,4 +13,4 @@ export async function GET(request, context) {
   } catch (error) {
     return NextResponse.json({ error: 'Failed to fetch purchases' }, { status: 500 });
   }
-} 
+}

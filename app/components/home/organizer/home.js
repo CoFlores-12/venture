@@ -1,5 +1,6 @@
 "use client"
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useAuthUser } from '@/src/lib/authUsers';
 import { 
   FiCalendar, 
   FiUsers, 
@@ -18,75 +19,66 @@ import { LuTicketCheck } from 'react-icons/lu';
 const OrganizerDashboard = () => {
   const [activeTab, setActiveTab] = useState('events');
 
-  // Datos de ejemplo
-  const events = [
-    {
-      id: 1,
-      name: 'Festival de Música 2023',
-      date: '2025-11-15',
-      attendees: 450,
-      revenue: 12500,
-      status: 'active',
-      image: 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1200&h=400&q=80',
-      ticketTypes: [
-        { name: 'General', price: 25, sold: 300 },
-        { name: 'VIP', price: 75, sold: 150 }
-      ]
-    },
-    {
-      id: 2,
-      name: 'Conferencia Tech',
-      date: '2025-10-05',
-      attendees: 200,
-      revenue: 8000,
-      status: 'active',
-      image: 'https://images.unsplash.com/photo-1514933651103-005eec06c04b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=200&q=80',
-      ticketTypes: [
-        { name: 'Estudiante', price: 20, sold: 120 },
-        { name: 'Profesional', price: 50, sold: 80 }
-      ]
-    },
-    {
-      id: 3,
-      name: 'Exposición de Arte',
-      date: '2025-09-20',
-      attendees: 320,
-      revenue: 9500,
-      status: 'completed',
-      image: 'https://images.unsplash.com/photo-1547891654-e66ed7ebb968?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1200&h=400&q=80',
-      ticketTypes: [
-        { name: 'Entrada General', price: 30, sold: 320 }
-      ]
-    }
-  ];
+  const { user, loading: userLoading } = useAuthUser();
+  const [events, setEvents] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!user) return;
+    setLoading(true);
+    fetch(`/api/events?organizer=${user.id}`)
+      .then(res => res.json())
+      .then(data => {
+        setEvents(data.filter(event => event.organizer === user.id));
+        setLoading(false);
+      })
+      .catch(() => setLoading(false));
+  }, [user]);
+
+  // Find the earliest upcoming event
+  const upcomingEvents = events.filter(e => new Date(e.date) > new Date());
+  const nextEvent = upcomingEvents.length > 0 ? upcomingEvents.reduce((earliest, event) => new Date(event.date) < new Date(earliest.date) ? event : earliest) : null;
 
   const stats = [
     { 
       title: 'Eventos Activos', 
-      value: events.filter(e => e.status === 'active').length, 
+      value: events.filter(e => new Date(e.date) > new Date()).length, 
       icon: <FiCalendar className="text-2xl" />,
-      change: '+2',
+      change: '',
       trend: 'up'
     },
     { 
       title: 'Total Asistentes', 
-      value: events.reduce((sum, event) => sum + event.attendees, 0), 
+      value: events.reduce(
+        (sum, event) =>
+          sum +
+          (event.tickets
+            ? event.tickets.reduce(
+                (tSum, t) =>
+                  tSum + ((t.quantity || 0) - (t.quantityAvailable || 0)),
+                0
+              )
+            : 0),
+        0
+      ),
       icon: <FiUsers className="text-2xl" />,
-      change: '+120',
+      change: '',
       trend: 'up'
     },
     { 
       title: 'Ingresos Totales', 
-      value: `L.${events.reduce((sum, event) => sum + event.revenue, 0).toLocaleString()}`, 
+      value: `L.${events.reduce((sum, event) => 
+        sum + (event.tickets ? event.tickets.reduce((tSum, t) => tSum + (((t.quantity || 0) - (t.quantityAvailable || 0)) * (t.price || 0)), 0) : 0)
+      , 0).toLocaleString()}`,
       icon: <FiDollarSign className="text-2xl" />,
-      change: '+L.5,200',
+      change: '',
       trend: 'up'
     },
     { 
       title: 'Próximo Evento', 
-      value: '15 Nov', 
+      value: nextEvent ? nextEvent.date : '', 
       icon: <FiCalendar className="text-2xl" />,
-      subtitle: 'Festival de Música'
+      subtitle: nextEvent ? nextEvent.title : ''
     }
   ];
 
@@ -151,12 +143,17 @@ const OrganizerDashboard = () => {
                     Nuevo Evento
                   </a>
                 </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full">
+                {loading ? (
+                  <div className="text-center py-8 text-gray-500">Cargando eventos...</div>
+                ) : events.length === 0 ? (
+                  <div className="text-center py-8 text-gray-500">No tienes eventos aún.</div>
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full">
                   {events.map((event) => (
-                    <EventCard key={event.id} event={event} />
+                      <EventCard key={event._id || event.id} event={event} />
                   ))}
                 </div>
+                )}
               </div>
             )}
 
@@ -193,7 +190,7 @@ const OrganizerDashboard = () => {
                             <p className="text-sm text-gray-500">{event.attendees} asistentes</p>
                           </div>
                         </div>
-                        <span className="text-purple-600 font-medium">L.{event.revenue.toLocaleString()}</span>
+                        <span className="text-purple-600 font-medium">L.{(event.revenue || 0).toLocaleString()}</span>
                       </div>
                     ))}
                   </div>
@@ -218,8 +215,8 @@ const OrganizerDashboard = () => {
                     </thead>
                     <tbody className="bg-white divide-y divide-gray-200">
                       {events.flatMap(event => 
-                        event.ticketTypes.map((ticket, index) => (
-                          <tr key={`${event.id}-${index}`}>
+                        (event.tickets || []).map((ticket, index) => (
+                          <tr key={`${event._id || event.id}-${index}`}>
                             <td className="px-6 py-4 whitespace-nowrap">
                               <div className="flex items-center">
                                 <div className="flex-shrink-0 h-10 w-10">
@@ -232,10 +229,9 @@ const OrganizerDashboard = () => {
                               </div>
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{ticket.name}</td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">L.{ticket.price}0</td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{ticket.sold}</td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{Math.round(ticket.sold * 1.5)}</td>
-                            
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">L.{ticket.price}</td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{ticket.sold || ticket.quantity || 0}</td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{ticket.quantityAvailable || ticket.quantity || 0}</td>
                           </tr>
                         ))
                       )}
