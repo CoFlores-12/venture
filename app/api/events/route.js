@@ -43,6 +43,10 @@ export async function POST(req) {
       return NextResponse.json({ error: "Falta imagen del banner" }, { status: 400 });
     }
 
+    if (!plan || !location) {
+      return NextResponse.json({ error: "Faltan campos obligatorios: plan y/o location" }, { status: 400 });
+    }
+
     const formData = new URLSearchParams();
     formData.append("key", process.env.IMGBB_API_KEY);
     formData.append("image", bannerPreview);
@@ -56,8 +60,8 @@ export async function POST(req) {
 
     let featured = false;
 
-    if (plan.trim() == "enterprise" || plan.trim() == "premium") {
-      featured = true
+    if ((plan || '').trim() === "enterprise" || (plan || '').trim() === "premium") {
+      featured = true;
     }
 
   try {
