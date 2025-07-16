@@ -18,18 +18,67 @@ const EventDetailPage = () => {
   const [loading, setLoading] = useState(true);
   const [reviews, setReviews] = useState([]);
   const [userPurchases, setUserPurchases] = useState([]);
+  const [isLiked, setIsLiked] = useState(false);
+  const [likeLoading, setLikeLoading] = useState(false);
   const { user } = useAuthUser();
 
   useEffect(()=>{
     fetch("/api/event/"+id)
-    .then(res=>{return res.json()})
-    .then(res=>{
-      const lowestPrice = Math.min(...res.tickets.map(t => t.price));
-      res.price= lowestPrice
-      setEvent(res);
-      setLoading(false)
-    })
+      .then(res=>{return res.json()})
+      .then(res=>{
+        const lowestPrice = Math.min(...res.tickets.map(t => t.price));
+        res.price= lowestPrice
+        setEvent(res);
+        setLoading(false)
+      })
   }, [])
+
+  // Check if user has liked this event
+  useEffect(() => {
+    if (user?.id) {
+      fetch(`/api/likes/likeUser?type=event`)
+        .then(res => res.json())
+        .then(likedEvents => {
+          const hasLiked = likedEvents.some(likedEvent => likedEvent._id === id);
+          setIsLiked(hasLiked);
+        })
+        .catch(error => {
+          console.error('Error checking like status:', error);
+        });
+    }
+  }, [user, id]);
+
+  // Handle like/unlike toggle
+  const handleLikeToggle = async () => {
+    if (!user?.id) {
+      alert('Debes iniciar sesión para dar like');
+      return;
+    }
+
+    setLikeLoading(true);
+    try {
+      const response = await fetch('/api/likes', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          targetId: id,
+          targetType: 'event'
+        }),
+      });
+
+      if (response.ok) {
+        setIsLiked(!isLiked);
+      } else {
+        console.error('Error toggling like');
+      }
+    } catch (error) {
+      console.error('Error toggling like:', error);
+    } finally {
+      setLikeLoading(false);
+    }
+  };
 
   // Fetch user purchases to check if they can review
   useEffect(() => {
@@ -175,8 +224,14 @@ const EventDetailPage = () => {
         
         <div className="absolute top-4 right-4 flex space-x-2">
          <ShareButton event={event}/>
-          <button className="bg-white  bg-opacity-90 rounded-full p-2 shadow-md dark:bg-slate-800 dark:text-gray-300">
-            <FiHeart className="text-gray-800 text-xl dark:bg-slate-800 dark:text-gray-300  " />
+          <button 
+            onClick={handleLikeToggle}
+            disabled={likeLoading}
+            className={`bg-white bg-opacity-90 rounded-full p-2 shadow-md dark:bg-slate-800 dark:text-gray-300 transition-colors ${
+              isLiked ? 'text-red-500' : 'text-gray-800 dark:text-gray-300'
+            } ${likeLoading ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-100'}`}
+          >
+            <FiHeart className={`text-xl ${isLiked ? 'fill-current' : ''}`} />
           </button>
         </div>
       </div>
