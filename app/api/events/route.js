@@ -4,6 +4,9 @@ import { NextResponse } from 'next/server';
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import axios from "axios";
+import Like from '@/src/models/like'; // <--- NUEVA IMPORTACIÓN: Para buscar likes a organizadores
+import User from '@/src/models/user';
+import { dispatchNotificationEvent } from '@/src/lib/eventDispatcher';
 
 
 
@@ -77,6 +80,43 @@ export async function POST(req) {
       banner: bannerUrl,
       organizer: session.user?.id
     });
+
+    const organizerUser = await User.findById(session.user?.id); 
+    
+    if (organizerUser) {
+        // Encontrar todos los "likes" donde el targetType es 'user' y el targetId es el ID del organizador
+        const favoriteLikes = await Like.find({ 
+            targetType: 'user', 
+            targetId: organizerUser._id 
+        }).lean();
+
+        if (favoriteLikes.length > 0) {
+            //Obtener los IDs de los usuarios que dieron like
+            const favoriteUserIds = favoriteLikes.map(like => like.user);
+
+            //Obtener los detalles de esos usuarios (principalmente su correo)
+            const favoriteUsers = await User.find({ _id: { $in: favoriteUserIds } }).select('nombre correo').lean();
+
+            //Delegar una notificación para cada usuario favorito
+            for (const favUser of favoriteUsers) {
+                if (favUser.correo) {
+                    dispatchNotificationEvent('favorite_user_event', {
+                        newEvent: newEvent.toObject(), // El evento recién creado
+                        favoriteUser: organizerUser.toObject(), // El organizador que publicó el evento
+                        recipient: favUser.toObject(), // El usuario que es favorito y recibirá el correo
+                    });
+                } else {
+                    console.warn(`Advertencia: Usuario favorito ${favUser.nombre} no tiene correo para notificación.`);
+                }
+            }
+            console.log(`✅ Notificaciones delegadas para ${favoriteUsers.length} usuarios favoritos.`);
+        } else {
+            console.log('No hay usuarios que hayan marcado a este organizador como favorito.');
+        }
+    } else {
+        console.warn('Advertencia: No se pudo encontrar el organizador para notificar a sus favoritos.');
+    }
+
     return NextResponse.json({ status: 201 });
   } catch (error) {
     console.error(error);

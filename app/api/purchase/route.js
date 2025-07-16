@@ -1,11 +1,14 @@
 import { NextResponse } from 'next/server';
 import Purchase from '@/src/models/purchase';
 import Event from '@/src/models/event';
-import user from '@/src/models/Users';
+import User from '@/src/models/Users';
 import { connectToMongoose } from '@/src/lib/db';
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import CryptoJS from "crypto-js";
+import { userAgent } from 'next/server';
+import { dispatchNotificationEvent } from '@/src/lib/eventDispatcher'; 
+
 
 const secret = process.env.QR_SECRET;
 
@@ -48,6 +51,7 @@ export async function POST(req) {
     const totalAmount = selectedTicket.price * ticketQuantity;
 
     selectedTicket.quantityAvailable -= ticketQuantity;
+    await eventFind.save();
 
     const newPurchase = await Purchase.create({
       user,
@@ -67,6 +71,18 @@ export async function POST(req) {
     newPurchase.token = encryptedToken;
 
     await newPurchase.save();
+    
+    //envío de correos
+    const purchaser = await User.findById(user); 
+    if (purchaser && purchaser.correo) {
+    dispatchNotificationEvent('purchase_confirmed', {
+      purchase: newPurchase.toObject(),
+      event: eventFind.toObject(),
+      user: purchaser.toObject(),
+      });
+    }
+    //
+
     const returnPurchase = {
       ...newPurchase.toObject(),
       eventName: eventFind.title,

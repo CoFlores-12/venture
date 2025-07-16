@@ -2,10 +2,12 @@ import { NextResponse } from 'next/server';
 import { connectToMongoose } from '@/src/lib/db';
 import Review from '@/src/models/review';
 import Event from '@/src/models/event';
+import User from '@/src/models/user';
 import Purchase from '@/src/models/purchase';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import mongoose from 'mongoose';
+import { dispatchNotificationEvent } from '@/src/lib/eventDispatcher';
 
 export async function POST(request) {
   try {
@@ -119,6 +121,21 @@ export async function POST(request) {
     console.log('Review object created:', review);
     await review.save();
     console.log('Review saved successfully');
+
+    const reviewerUser = await User.findById(userId);
+
+    // Asegurarse de que el evento tiene un organizador y que el organizador tiene un correo
+    if (event.organizer && event.organizer.correo && reviewerUser) {
+      console.log('Delegating review notification...');
+      dispatchNotificationEvent('review_received', { 
+        review: review.toObject(),
+        event: event.toObject(), 
+        organizer: event.organizer.toObject(), 
+        reviewer: reviewerUser.toObject(), // Datos del usuario que dejó la reseña
+      });
+    } else {
+      console.warn('Advertencia: No se pudo encontrar el organizador o su correo, o el usuario que dejó la reseña para enviar la notificación.');
+    }
 
     return NextResponse.json({
       message: 'Review submitted successfully',
