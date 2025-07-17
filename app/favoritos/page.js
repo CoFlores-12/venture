@@ -109,7 +109,7 @@ export default function FavoritosPage() {
       </AnimatePresence>
       {/* Contenido principal */}
       <main className="flex-1">
-        <div className="min-h-screen bg-whitepy-8 px-4">
+        <div className="min-h-screen bg-whitepy-8 px-4 pb-8">
           {/* Back Button */}
           <button
             onClick={() => router.push('/home')}

@@ -15,6 +15,9 @@ const AdminDashboard = () => {
     totalSales: 0,
     totalCommissions: 0
   });
+  const [statsLoading, setStatsLoading] = useState(true);
+  const [activities, setActivities] = useState([]);
+  const [activitiesLoading, setActivitiesLoading] = useState(true);
   const [showCreateAdminModal, setShowCreateAdminModal] = useState(false);
   const [createAdminForm, setCreateAdminForm] = useState({
     name: '',
@@ -36,19 +39,49 @@ const AdminDashboard = () => {
     }
   }, [admin, loading, router]);
 
-  // Simulate loading data
+  // Fetch real data from database
   useEffect(() => {
-    // TODO: Replace with actual API calls
-    setTimeout(() => {
-      setStats({
-        totalEvents: 156,
-        pendingEvents: 23,
-        totalUsers: 2847,
-        totalSales: 45678,
-        totalCommissions: 3421
-      });
-    }, 1000);
-  }, []);
+    const fetchData = async () => {
+      try {
+        // Fetch stats
+        const statsResponse = await fetch('/api/admin/stats', {
+          credentials: 'include'
+        });
+        const statsData = await statsResponse.json();
+        
+        if (statsData.success) {
+          setStats(statsData.stats);
+        } else {
+          console.error('Error fetching stats:', statsData.error);
+        }
+
+        // Fetch activities only if admin ID is available
+        if (admin.id) {
+          const activitiesResponse = await fetch(`/api/admin/activities?adminId=${admin.id}`, {
+            credentials: 'include'
+          });
+          const activitiesData = await activitiesResponse.json();
+          
+          if (activitiesData.success) {
+            setActivities(activitiesData.activities);
+          } else {
+            console.error('Error fetching activities:', activitiesData.error);
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      } finally {
+        setStatsLoading(false);
+        setActivitiesLoading(false);
+      }
+    };
+
+    if (admin) {
+      fetchData();
+    }
+  }, [admin]);
+
+
 
   const metricCards = [
     {
@@ -57,8 +90,8 @@ const AdminDashboard = () => {
       icon: "🎪",
       color: "from-blue-500 to-blue-600",
       bgColor: "bg-blue-500",
-      change: "+12%",
-      changeType: "positive"
+      change: `${stats.changes?.events >= 0 ? '+' : ''}${stats.changes?.events || 0}%`,
+      changeType: stats.changes?.events >= 0 ? "positive" : "negative"
     },
     {
       title: "Pending Events",
@@ -66,7 +99,7 @@ const AdminDashboard = () => {
       icon: "⏳",
       color: "from-yellow-500 to-yellow-600",
       bgColor: "bg-yellow-500",
-      change: "+5%",
+      change: `${stats.changes?.events >= 0 ? '+' : ''}${stats.changes?.events || 0}%`,
       changeType: "neutral"
     },
     {
@@ -75,8 +108,8 @@ const AdminDashboard = () => {
       icon: "👥",
       color: "from-green-500 to-green-600",
       bgColor: "bg-green-500",
-      change: "+8%",
-      changeType: "positive"
+      change: `${stats.changes?.users >= 0 ? '+' : ''}${stats.changes?.users || 0}%`,
+      changeType: stats.changes?.users >= 0 ? "positive" : "negative"
     },
     {
       title: "Total Sales",
@@ -84,8 +117,8 @@ const AdminDashboard = () => {
       icon: "💰",
       color: "from-purple-500 to-purple-600",
       bgColor: "bg-purple-500",
-      change: "+15%",
-      changeType: "positive"
+      change: `${stats.changes?.sales >= 0 ? '+' : ''}${stats.changes?.sales || 0}%`,
+      changeType: stats.changes?.sales >= 0 ? "positive" : "negative"
     },
     {
       title: "Total Commissions",
@@ -93,8 +126,8 @@ const AdminDashboard = () => {
       icon: "💸",
       color: "from-red-500 to-red-600",
       bgColor: "bg-red-500",
-      change: "+22%",
-      changeType: "positive"
+      change: `${stats.changes?.commissions >= 0 ? '+' : ''}${stats.changes?.commissions || 0}%`,
+      changeType: stats.changes?.commissions >= 0 ? "positive" : "negative"
     }
   ];
 
@@ -116,6 +149,76 @@ const AdminDashboard = () => {
     }));
   };
 
+  // Helper function to format time ago
+  const getTimeAgo = (timestamp) => {
+    const now = new Date();
+    const activityTime = new Date(timestamp);
+    const diffInSeconds = Math.floor((now - activityTime) / 1000);
+    
+    if (diffInSeconds < 60) {
+      return 'Hace un momento';
+    } else if (diffInSeconds < 3600) {
+      const minutes = Math.floor(diffInSeconds / 60);
+      return `Hace ${minutes} ${minutes === 1 ? 'minuto' : 'minutos'}`;
+    } else if (diffInSeconds < 86400) {
+      const hours = Math.floor(diffInSeconds / 3600);
+      return `Hace ${hours} ${hours === 1 ? 'hora' : 'horas'}`;
+    } else {
+      const days = Math.floor(diffInSeconds / 86400);
+      return `Hace ${days} ${days === 1 ? 'día' : 'días'}`;
+    }
+  };
+
+  // Helper function to refresh activities
+  const refreshActivities = async () => {
+    if (!admin?.id) return;
+    
+    try {
+      const activitiesResponse = await fetch(`/api/admin/activities?adminId=${admin.id}`, {
+        credentials: 'include'
+      });
+      const activitiesData = await activitiesResponse.json();
+      if (activitiesData.success) {
+        setActivities(activitiesData.activities);
+      }
+    } catch (error) {
+      console.error('Error refreshing activities:', error);
+    }
+  };
+
+  // Helper function to log admin activities
+  const logActivity = async (action, details, type = 'info') => {
+    if (!admin?.id) {
+      console.warn('Cannot log activity: admin ID not available');
+      return;
+    }
+    
+    try {
+      const response = await fetch('/api/admin/activities', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({
+          adminId: admin.id,
+          action,
+          details,
+          type
+        })
+      });
+      
+      const result = await response.json();
+      
+      if (result.success) {
+        // Refresh activities after logging
+        await refreshActivities();
+      } else {
+        console.error('Failed to log activity:', result.error);
+      }
+    } catch (error) {
+      console.error('Error logging activity:', error);
+    }
+  };
+
   const handleCreateAdmin = async (e) => {
     e.preventDefault();
     setCreateAdminLoading(true);
@@ -133,6 +236,13 @@ const AdminDashboard = () => {
         setCreateAdminSuccess('Administrador creado exitosamente');
         setCreateAdminForm({ name: '', email: '', password: '', adminCode: '', role: 'admin' });
         setShowCreateAdminModal(false);
+        
+        // Log the activity
+        await logActivity(
+          'Administrador creado',
+          `Nuevo administrador: ${createAdminForm.name} (${createAdminForm.email})`,
+          'success'
+        );
       } else {
         setCreateAdminError(data.error || 'Error al crear el admin');
       }
@@ -216,40 +326,64 @@ const AdminDashboard = () => {
 
         {/* Metrics Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 sm:gap-6 mb-6 sm:mb-8">
-          {metricCards.map((metric, index) => (
-            <motion.div
-              key={metric.title}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: index * 0.1 }}
-              className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-4 sm:p-6 hover:shadow-md transition-shadow"
-            >
-              <div className="flex items-center justify-between">
-                <div className="flex-1 min-w-0">
-                  <p className="text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-400 truncate">
-                    {metric.title}
-                  </p>
-                  <p className="text-lg sm:text-2xl font-bold text-gray-900 dark:text-white mt-1 truncate">
-                    {metric.value}
-                  </p>
+          {statsLoading ? (
+            // Loading skeleton
+            Array.from({ length: 5 }).map((_, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: index * 0.1 }}
+                className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-4 sm:p-6"
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex-1 min-w-0">
+                    <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded animate-pulse mb-2"></div>
+                    <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded animate-pulse"></div>
+                  </div>
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg bg-gray-200 dark:bg-gray-700 animate-pulse ml-3"></div>
                 </div>
-                <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-lg bg-gradient-to-r ${metric.color} flex items-center justify-center ml-3`}>
-                  <span className="text-lg sm:text-xl">{metric.icon}</span>
+                <div className="mt-3 sm:mt-4">
+                  <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded animate-pulse w-16"></div>
                 </div>
-              </div>
-              <div className="mt-3 sm:mt-4 flex items-center">
-                <span className={`text-xs sm:text-sm font-medium ${
-                  metric.changeType === 'positive' ? 'text-green-600' : 
-                  metric.changeType === 'negative' ? 'text-red-600' : 'text-yellow-600'
-                }`}>
-                  {metric.change}
-                </span>
-                <span className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 ml-1 hidden sm:inline">
-                  desde el mes pasado
-                </span>
-              </div>
-            </motion.div>
-          ))}
+              </motion.div>
+            ))
+          ) : (
+            metricCards.map((metric, index) => (
+              <motion.div
+                key={metric.title}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: index * 0.1 }}
+                className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-4 sm:p-6 hover:shadow-md transition-shadow"
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-400 truncate">
+                      {metric.title}
+                    </p>
+                    <p className="text-lg sm:text-2xl font-bold text-gray-900 dark:text-white mt-1 truncate">
+                      {metric.value}
+                    </p>
+                  </div>
+                  <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-lg bg-gradient-to-r ${metric.color} flex items-center justify-center ml-3`}>
+                    <span className="text-lg sm:text-xl">{metric.icon}</span>
+                  </div>
+                </div>
+                <div className="mt-3 sm:mt-4 flex items-center">
+                  <span className={`text-xs sm:text-sm font-medium ${
+                    metric.changeType === 'positive' ? 'text-green-600' : 
+                    metric.changeType === 'negative' ? 'text-red-600' : 'text-yellow-600'
+                  }`}>
+                    {metric.change}
+                  </span>
+                  <span className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 ml-1 hidden sm:inline">
+                    desde el mes pasado
+                  </span>
+                </div>
+              </motion.div>
+            ))
+          )}
         </div>
 
         {/* Charts and Tables Section */}
@@ -262,7 +396,19 @@ const AdminDashboard = () => {
             className=""
           >
             
-              <SolicitudesOrganizadores />
+              {admin?.id ? (
+                <SolicitudesOrganizadores 
+                  onActivityLog={logActivity} 
+                  adminId={admin.id} 
+                  key={`solicitudes-${admin.id}`}
+                />
+              ) : (
+                <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+                  <div className="flex justify-center items-center h-32">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-700"></div>
+                  </div>
+                </div>
+              )}
               
           </motion.div>
 
@@ -316,6 +462,22 @@ const AdminDashboard = () => {
                   </button>
                 )}
               </div>
+              
+              {/* Test Activities Button - Remove in production */}
+              {admin?.rol === 'superadmin' && (
+                <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+                  <button
+                    onClick={async () => {
+                      await logActivity('Evento aprobado', 'Concierto de Verano fue aprobado', 'success');
+                      await logActivity('Usuario bloqueado', 'Usuario spam@example.com fue bloqueado', 'warning');
+                      await logActivity('Reporte generado', 'Reporte de ventas mensual generado', 'info');
+                    }}
+                    className="w-full p-2 text-xs bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 rounded hover:bg-gray-200 dark:hover:bg-gray-600"
+                  >
+                    Agregar Actividades de Prueba
+                  </button>
+                </div>
+              )}
             </div>
           </motion.div>
         </div>
@@ -332,33 +494,56 @@ const AdminDashboard = () => {
               Actividad Reciente
             </h3>
             <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-              Últimas actividades en la plataforma
+              Últimas actividades del administrador
             </p>
           </div>
           <div className="p-6">
-            <div className="space-y-4">
-              {[
-                { action: "Nuevo evento aprobado", user: "Music Corp", time: "Hace 2 horas", type: "success" },
-                { action: "Usuario registrado", user: "john@example.com", time: "Hace 3 horas", type: "info" },
-                { action: "Venta realizada", user: "Concierto de Verano", time: "Hace 4 horas", type: "success" },
-                { action: "Evento rechazado", user: "Feria Cultural", time: "Hace 5 horas", type: "warning" },
-              ].map((activity, index) => (
-                <div key={index} className="flex items-center space-x-3 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
-                  <div className={`w-2 h-2 rounded-full ${
-                    activity.type === 'success' ? 'bg-green-500' :
-                    activity.type === 'warning' ? 'bg-yellow-500' : 'bg-blue-500'
-                  }`}></div>
-                  <div className="flex-1">
-                    <p className="text-sm font-medium text-gray-900 dark:text-white">
-                      {activity.action}
-                    </p>
-                    <p className="text-xs text-gray-500 dark:text-gray-400">
-                      {activity.user} • {activity.time}
-                    </p>
+            {activitiesLoading ? (
+              <div className="space-y-4">
+                {Array.from({ length: 3 }).map((_, index) => (
+                  <div key={index} className="flex items-center space-x-3 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                    <div className="w-2 h-2 rounded-full bg-gray-300 dark:bg-gray-600 animate-pulse"></div>
+                    <div className="flex-1">
+                      <div className="h-4 bg-gray-200 dark:bg-gray-600 rounded animate-pulse mb-1"></div>
+                      <div className="h-3 bg-gray-200 dark:bg-gray-600 rounded animate-pulse w-32"></div>
+                    </div>
                   </div>
+                ))}
+              </div>
+            ) : activities.length === 0 ? (
+              <div className="text-center py-8">
+                <div className="text-gray-400 dark:text-gray-500 mb-2">
+                  <svg className="w-12 h-12 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                  </svg>
                 </div>
-              ))}
-            </div>
+                <p className="text-gray-500 dark:text-gray-400">No hay actividades recientes</p>
+                <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">Las actividades aparecerán aquí cuando realices acciones</p>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {activities.map((activity, index) => {
+                  const timeAgo = getTimeAgo(activity.timestamp);
+                  return (
+                    <div key={index} className="flex items-center space-x-3 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                      <div className={`w-2 h-2 rounded-full ${
+                        activity.type === 'success' ? 'bg-green-500' :
+                        activity.type === 'warning' ? 'bg-yellow-500' :
+                        activity.type === 'error' ? 'bg-red-500' : 'bg-blue-500'
+                      }`}></div>
+                      <div className="flex-1">
+                        <p className="text-sm font-medium text-gray-900 dark:text-white">
+                          {activity.action}
+                        </p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400">
+                          {activity.details} • {timeAgo}
+                        </p>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
           </div>
         </motion.div>
       </main>

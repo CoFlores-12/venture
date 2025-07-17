@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
-const SolicitudesOrganizadores = () => {
+const SolicitudesOrganizadores = ({ onActivityLog, adminId }) => {
   const [solicitudes, setSolicitudes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -9,25 +9,26 @@ const SolicitudesOrganizadores = () => {
   const [showModal, setShowModal] = useState(false);
   const [actionMessage, setActionMessage] = useState('');
 
-  useEffect(() => {
-    const fetchSolicitudes = async () => {
-      try {
-        const response = await axios.get('/api/users/requests');
-        setSolicitudes(response.data);
-        setLoading(false);
-      } catch (err) {
-        setError('Error al cargar las solicitudes');
-        setLoading(false);
-        console.error(err);
-      }
-    };
+  const fetchSolicitudes = async () => {
+    try {
+      const response = await axios.get('/api/users/requests');
+      setSolicitudes(response.data);
+      setLoading(false);
+    } catch (err) {
+      setError('Error al cargar las solicitudes');
+      setLoading(false);
+      console.error(err);
+    }
+  };
 
+  useEffect(() => {
     fetchSolicitudes();
   }, []);
 
  const handleAction = async (action) => {
     try {
       const currentUserId = solicitudes[currentIndex]._id;
+      const currentUser = solicitudes[currentIndex];
       
       const res = await fetch('/api/users/validate', {
         method: 'PUT',
@@ -39,6 +40,22 @@ const SolicitudesOrganizadores = () => {
       });
       
       if (!res.ok) throw new Error('Error al procesar la acción');
+
+      // Log the activity
+      if (onActivityLog && adminId) {
+        const actionText = action === 'approve' ? 'aceptada' : 'rechazada';
+        const activityType = action === 'approve' ? 'success' : 'warning';
+        
+        try {
+          await onActivityLog(
+            `Solicitud de organizador ${actionText}`,
+            `Usuario ${currentUser.nombre} (${currentUser.correo}) - ${currentUser.organizacion}`,
+            activityType
+          );
+        } catch (activityError) {
+          console.error('Error logging activity:', activityError);
+        }
+      }
 
       setActionMessage(
         `Solicitud ${action === 'approve' ? 'aceptada' : 'rechazada'} correctamente`
@@ -126,11 +143,24 @@ const SolicitudesOrganizadores = () => {
               </div>
               <div className="flex flex-col md:flex-row gap-6 mb-8">
                 <div className="md:w-1/3 flex flex-col items-center">
-                  <img 
-                    src={solicitudes[currentIndex].foto || 'https://via.placeholder.com/150'} 
-                    alt={`Foto de ${solicitudes[currentIndex].nombre}`} 
-                    className="w-32 h-32 rounded-full object-cover border-4 border-purple-100 mb-4"
-                  />
+                  {solicitudes[currentIndex].foto ? (
+                    <img 
+                      src={solicitudes[currentIndex].foto} 
+                      alt={`Foto de ${solicitudes[currentIndex].nombre}`} 
+                      className="w-32 h-32 rounded-full object-cover border-4 border-purple-100 mb-4"
+                      onError={(e) => {
+                        e.target.style.display = 'none';
+                        e.target.nextSibling.style.display = 'flex';
+                      }}
+                    />
+                  ) : null}
+                  <div 
+                    className={`w-32 h-32 rounded-full border-4 border-purple-100 mb-4 bg-gray-200 flex items-center justify-center ${solicitudes[currentIndex].foto ? 'hidden' : 'flex'}`}
+                  >
+                    <svg className="w-16 h-16 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
+                    </svg>
+                  </div>
                   <h4 className="text-xl font-bold text-gray-800">{solicitudes[currentIndex].nombre}</h4>
                   <p className="text-purple-700">{solicitudes[currentIndex].correo}</p>
                 </div>

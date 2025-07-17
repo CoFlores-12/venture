@@ -9,9 +9,16 @@ import axios from "axios";
 
 
 //se obtienen todos los eventos 
-export async function GET() {
+export async function GET(req) {
   await connectToMongoose();
-  const events = await Event.find({});
+  const { searchParams } = new URL(req.url);
+  const organizer = searchParams.get('organizer');
+  let events;
+  if (organizer) {
+    events = await Event.find({ organizer });
+  } else {
+    events = await Event.find({});
+  }
   return NextResponse.json(events);
 }
 //se agrega un evento
