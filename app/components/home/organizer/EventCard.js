@@ -48,13 +48,13 @@ const EventCard = ({ event }) => {
         <div className="mt-4 pt-4 border-t flex space-x-2">
           <Link href={`/event/${event._id}/edit`} className="flex-1">
             <button className="w-full py-2 border rounded-lg text-sm font-medium hover:bg-gray-50">
-              Gestionar
-            </button>
+            Gestionar
+          </button>
           </Link>
           <Link href={`/event/${event._id}`} className="flex-1">
             <button className="w-full py-2 bg-purple-600 text-white rounded-lg text-sm font-medium hover:bg-purple-700">
-              Ver detalles
-            </button>
+            Ver detalles
+          </button>
           </Link>
         </div>
       </div>

@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { connectToMongoose } from '@/src/lib/db';
+import { connectToMongoose } from '@/src/lib/db'; 
 import Event from '@/src/models/event';
 import axios from 'axios';
 

@@ -7,10 +7,11 @@ import { motion } from 'framer-motion';
 const EventPetitions = () => {
   const router = useRouter();
   const { admin, loading: authLoading } = useAdminAuth();
-  const [petitions, setPetitions] = useState([]);
+  const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [selectedPetition, setSelectedPetition] = useState(null);
+  const [selectedEvent, setSelectedEvent] = useState(null);
   const [showModal, setShowModal] = useState(false);
+  const [actionMessage, setActionMessage] = useState('');
 
   // Check if user is authenticated and is admin
   useEffect(() => {
@@ -21,102 +22,62 @@ const EventPetitions = () => {
     }
   }, [admin, authLoading, router]);
 
-  // Load petitions data from API
+  // Load events data from API
   useEffect(() => {
     if (admin) {
-      const fetchPetitions = async () => {
+      const fetchEvents = async () => {
         try {
           const response = await fetch('/api/admin/events');
           const result = await response.json();
           
           if (result.success) {
-            setPetitions(result.data);
+            setEvents(result.events);
           } else {
-            console.error('Error fetching petitions:', result.error);
+            console.error('Error fetching events:', result.error);
           }
         } catch (error) {
-          console.error('Error fetching petitions:', error);
+          console.error('Error fetching events:', error);
         } finally {
           setLoading(false);
         }
       };
 
-      fetchPetitions();
+      fetchEvents();
     }
   }, [admin]);
 
-  const handleViewPetition = (petition) => {
-    setSelectedPetition(petition);
+  const handleViewEvent = (event) => {
+    setSelectedEvent(event);
     setShowModal(true);
   };
 
-  const handleApprove = async (petitionId) => {
+  const handleTakeDown = async (eventId) => {
     try {
-      const response = await fetch(`/api/admin/events/${petitionId}`, {
-        method: 'PATCH',
+      const response = await fetch(`/api/admin/events/${eventId}`, {
+        method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ status: 'approved' }),
       });
 
       const result = await response.json();
       
       if (result.success) {
-        setPetitions(prev => prev.map(p => 
-          p.id === petitionId ? { ...p, status: 'approved' } : p
-        ));
+        setEvents(prev => prev.filter(e => e._id !== eventId));
         setShowModal(false);
+        setActionMessage('Evento retirado exitosamente');
+        
+        // Clear message after 3 seconds
+        setTimeout(() => setActionMessage(''), 3000);
       } else {
-        console.error('Error approving petition:', result.error);
+        console.error('Error taking down event:', result.error);
       }
     } catch (error) {
-      console.error('Error approving petition:', error);
+      console.error('Error taking down event:', error);
     }
   };
 
-  const handleReject = async (petitionId) => {
-    try {
-      const response = await fetch(`/api/admin/events/${petitionId}`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ status: 'rejected' }),
-      });
 
-      const result = await response.json();
-      
-      if (result.success) {
-        setPetitions(prev => prev.map(p => 
-          p.id === petitionId ? { ...p, status: 'rejected' } : p
-        ));
-        setShowModal(false);
-      } else {
-        console.error('Error rejecting petition:', result.error);
-      }
-    } catch (error) {
-      console.error('Error rejecting petition:', error);
-    }
-  };
-
-  const getStatusColor = (status) => {
-    switch (status) {
-      case 'pending': return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200';
-      case 'approved': return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200';
-      case 'rejected': return 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200';
-      default: return 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200';
-    }
-  };
-
-  const getStatusText = (status) => {
-    switch (status) {
-      case 'pending': return 'Pendiente';
-      case 'approved': return 'Aprobado';
-      case 'rejected': return 'Rechazado';
-      default: return 'Desconocido';
-    }
-  };
 
   // Show loading while checking authentication
   if (authLoading) {
@@ -148,13 +109,13 @@ const EventPetitions = () => {
               </button>
               <div>
                 <h1 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">Gestión de Eventos</h1>
-                <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">Revisar y aprobar solicitudes de eventos</p>
+                <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">Revisar y gestionar eventos publicados</p>
               </div>
             </div>
             
             <div className="flex items-center space-x-2">
               <span className="text-sm text-gray-500 dark:text-gray-400">
-                {petitions.filter(p => p.status === 'pending').length} pendientes
+                {events.length} eventos totales
               </span>
             </div>
           </div>
@@ -169,45 +130,46 @@ const EventPetitions = () => {
           </div>
         ) : (
           <div className="space-y-4">
-            {petitions.map((petition) => (
+            {events.map((event) => (
               <motion.div
-                key={petition.id}
+                key={event._id}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-4 sm:p-6 hover:shadow-md transition-shadow cursor-pointer"
-                onClick={() => handleViewPetition(petition)}
+                onClick={() => handleViewEvent(event)}
               >
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between space-y-3 sm:space-y-0">
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center space-x-3 mb-2">
                       <div className="w-10 h-10 bg-blue-100 dark:bg-blue-900 rounded-lg flex items-center justify-center">
                         <span className="text-blue-600 dark:text-blue-400 text-sm font-medium">
-                          {petition.eventName.charAt(0)}
+                          {event.title.charAt(0)}
                         </span>
                       </div>
                       <div className="flex-1 min-w-0">
                         <h3 className="text-lg font-semibold text-gray-900 dark:text-white truncate">
-                          {petition.eventName}
+                          {event.title}
                         </h3>
                         <p className="text-sm text-gray-500 dark:text-gray-400">
-                          Solicitado por: {petition.userName} (ID: {petition.userId})
+                          Organizado por: {event.organizerName} ({event.organizerEmail})
                         </p>
                       </div>
                     </div>
                     
                     <div className="flex flex-wrap items-center space-x-4 text-sm text-gray-600 dark:text-gray-400">
-                      <span>📅 {petition.dates.length} fecha{petition.dates.length > 1 ? 's' : ''}</span>
-                      <span>📍 {petition.location}</span>
-                      <span>💰 {petition.tickets.length} tipo{petition.tickets.length > 1 ? 's' : ''} de entrada</span>
+                      <span>📅 {event.date}</span>
+                      <span>🕒 {event.time}</span>
+                      <span>📍 {event.location}</span>
+                      <span>💰 {event.tickets.length} tipo{event.tickets.length > 1 ? 's' : ''} de entrada</span>
                     </div>
                   </div>
                   
                   <div className="flex items-center space-x-3">
-                    <span className={`px-3 py-1 text-xs font-medium rounded-full ${getStatusColor(petition.status)}`}>
-                      {getStatusText(petition.status)}
+                    <span className="px-3 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
+                      Activo
                     </span>
                     <span className="text-xs text-gray-500 dark:text-gray-400">
-                      {new Date(petition.createdAt).toLocaleDateString('es-ES')}
+                      {new Date(event.createdAt).toLocaleDateString('es-ES')}
                     </span>
                     <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
@@ -221,7 +183,7 @@ const EventPetitions = () => {
       </main>
 
       {/* Event Detail Modal */}
-      {showModal && selectedPetition && (
+      {showModal && selectedEvent && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
@@ -246,31 +208,38 @@ const EventPetitions = () => {
             </div>
 
             <div className="p-6 space-y-6">
+              {/* Event Banner */}
+              {selectedEvent.banner && (
+                <div className="w-full h-48 rounded-lg overflow-hidden">
+                  <img 
+                    src={selectedEvent.banner} 
+                    alt={selectedEvent.title}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+              )}
+
               {/* Event Basic Info */}
               <div>
                 <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-                  {selectedPetition.eventName}
+                  {selectedEvent.title}
                 </h3>
                 <p className="text-gray-600 dark:text-gray-400 mb-4">
-                  {selectedPetition.description}
+                  {selectedEvent.description}
                 </p>
               </div>
 
-              {/* User Information */}
+              {/* Organizer Information */}
               <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
-                <h4 className="font-semibold text-gray-900 dark:text-white mb-3">Información del Solicitante</h4>
+                <h4 className="font-semibold text-gray-900 dark:text-white mb-3">Información del Organizador</h4>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
                   <div>
-                    <span className="text-gray-500 dark:text-gray-400">ID de Usuario:</span>
-                    <p className="font-medium text-gray-900 dark:text-white">{selectedPetition.userId}</p>
-                  </div>
-                  <div>
                     <span className="text-gray-500 dark:text-gray-400">Nombre:</span>
-                    <p className="font-medium text-gray-900 dark:text-white">{selectedPetition.userName}</p>
+                    <p className="font-medium text-gray-900 dark:text-white">{selectedEvent.organizerName}</p>
                   </div>
                   <div>
-                    <span className="text-gray-500 dark:text-gray-400">RTN:</span>
-                    <p className="font-medium text-gray-900 dark:text-white">{selectedPetition.rtn}</p>
+                    <span className="text-gray-500 dark:text-gray-400">Email:</span>
+                    <p className="font-medium text-gray-900 dark:text-white">{selectedEvent.organizerEmail}</p>
                   </div>
                 </div>
               </div>
@@ -279,94 +248,57 @@ const EventPetitions = () => {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
                   <h4 className="font-semibold text-gray-900 dark:text-white mb-3">Ubicación</h4>
-                  <p className="text-gray-600 dark:text-gray-400">{selectedPetition.location}</p>
+                  <p className="text-gray-600 dark:text-gray-400">{selectedEvent.location}</p>
                 </div>
                 <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
-                  <h4 className="font-semibold text-gray-900 dark:text-white mb-3">Horario</h4>
-                  <p className="text-gray-600 dark:text-gray-400">{selectedPetition.schedule}</p>
+                  <h4 className="font-semibold text-gray-900 dark:text-white mb-3">Fecha y Hora</h4>
+                  <p className="text-gray-600 dark:text-gray-400">
+                    {selectedEvent.date} a las {selectedEvent.time}
+                  </p>
                 </div>
               </div>
 
-              {/* Dates */}
+              {/* Category */}
               <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
-                <h4 className="font-semibold text-gray-900 dark:text-white mb-3">Fechas del Evento</h4>
-                <div className="flex flex-wrap gap-2">
-                  {selectedPetition.dates.map((date, index) => (
-                    <span
-                      key={index}
-                      className="px-3 py-1 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 rounded-full text-sm"
-                    >
-                      {new Date(date).toLocaleDateString('es-ES', {
-                        weekday: 'long',
-                        year: 'numeric',
-                        month: 'long',
-                        day: 'numeric'
-                      })}
-                    </span>
-                  ))}
-                </div>
+                <h4 className="font-semibold text-gray-900 dark:text-white mb-3">Categoría</h4>
+                <span className="px-3 py-1 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 rounded-full text-sm">
+                  {selectedEvent.category}
+                </span>
               </div>
 
               {/* Tickets */}
               <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
                 <h4 className="font-semibold text-gray-900 dark:text-white mb-3">Tipos de Entrada</h4>
                 <div className="space-y-2">
-                  {selectedPetition.tickets.map((ticket, index) => (
+                  {selectedEvent.tickets.map((ticket, index) => (
                     <div key={index} className="flex justify-between items-center p-3 bg-white dark:bg-gray-600 rounded-lg">
-                      <span className="font-medium text-gray-900 dark:text-white">{ticket.label}</span>
+                      <span className="font-medium text-gray-900 dark:text-white">{ticket.name}</span>
                       <span className="text-green-600 dark:text-green-400 font-semibold">
-                        L. {ticket.value.toLocaleString()}
+                        L. {ticket.price.toLocaleString()}
                       </span>
                     </div>
                   ))}
                 </div>
               </div>
 
-              {/* Action Buttons */}
-              {selectedPetition.status === 'pending' && (
-                <div className="flex flex-col sm:flex-row gap-3 pt-4 border-t border-gray-200 dark:border-gray-700">
-                  <button
-                    onClick={() => handleApprove(selectedPetition.id)}
-                    className="flex-1 bg-green-600 text-white py-3 px-4 rounded-lg font-medium hover:bg-green-700 transition-colors"
-                  >
-                    ✅ Aprobar Evento
-                  </button>
-                  <button
-                    onClick={() => handleReject(selectedPetition.id)}
-                    className="flex-1 bg-red-600 text-white py-3 px-4 rounded-lg font-medium hover:bg-red-700 transition-colors"
-                  >
-                    ❌ Rechazar Evento
-                  </button>
-                </div>
-              )}
-
-              {selectedPetition.status === 'approved' && (
-                <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
-                  <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4">
-                    <div className="flex items-center">
-                      <svg className="w-5 h-5 text-green-600 dark:text-green-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                      </svg>
-                      <span className="text-green-800 dark:text-green-200 font-medium">Evento Aprobado</span>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {selectedPetition.status === 'rejected' && (
-                <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
-                  <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4">
-                    <div className="flex items-center">
-                      <svg className="w-5 h-5 text-red-600 dark:text-red-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                      </svg>
-                      <span className="text-red-800 dark:text-red-200 font-medium">Evento Rechazado</span>
-                    </div>
-                  </div>
-                </div>
-              )}
+              {/* Take Down Button */}
+              <div className="flex flex-col sm:flex-row gap-3 pt-4 border-t border-gray-200 dark:border-gray-700">
+                <button
+                  onClick={() => handleTakeDown(selectedEvent._id)}
+                  className="flex-1 bg-red-600 text-white py-3 px-4 rounded-lg font-medium hover:bg-red-700 transition-colors"
+                >
+                  🚫 Retirar Evento
+                </button>
+              </div>
             </div>
           </motion.div>
+        </div>
+      )}
+
+      {/* Action Message */}
+      {actionMessage && (
+        <div className="fixed bottom-4 right-4 bg-red-700 text-white px-6 py-3 rounded-lg shadow-lg animate-fade-in">
+          {actionMessage}
         </div>
       )}
     </div>

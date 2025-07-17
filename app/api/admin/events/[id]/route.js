@@ -1,4 +1,6 @@
 import { NextResponse } from 'next/server';
+import { connectToMongoose } from '@/src/lib/db';
+import Event from '@/src/models/event';
 
 // Simulate database storage for event petitions (same as main route)
 let eventPetitions = [
@@ -150,33 +152,31 @@ export async function PATCH(request, { params }) {
   }
 }
 
-// DELETE - Delete event petition
 export async function DELETE(request, { params }) {
   try {
+    await connectToMongoose();
     const { id } = params;
-    const petitionId = parseInt(id);
 
-    const petitionIndex = eventPetitions.findIndex(p => p.id === petitionId);
-
-    if (petitionIndex === -1) {
+    // Find and delete the event
+    const deletedEvent = await Event.findByIdAndDelete(id);
+    
+    if (!deletedEvent) {
       return NextResponse.json(
-        { success: false, error: 'Solicitud de evento no encontrada' },
+        { success: false, error: 'Event not found' },
         { status: 404 }
       );
     }
 
-    const deletedPetition = eventPetitions.splice(petitionIndex, 1)[0];
-
     return NextResponse.json({
       success: true,
-      message: 'Solicitud de evento eliminada exitosamente',
-      data: deletedPetition
+      message: 'Event taken down successfully',
+      event: deletedEvent
     });
 
   } catch (error) {
-    console.error('Error deleting event petition:', error);
+    console.error('Error taking down event:', error);
     return NextResponse.json(
-      { success: false, error: 'Error interno del servidor' },
+      { success: false, error: 'Error taking down event' },
       { status: 500 }
     );
   }

@@ -116,6 +116,7 @@ export default function AuthScreen() {
                     name="email"
                     value={formData.email}
                     onChange={handleChange}
+                    autoComplete="email"
                     className="w-full px-4 py-3 rounded-lg bg-white dark:bg-slate-700 dark:border-slate-900 bg-opacity-20 border border-white border-opacity-30 text-black dark:text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent"
                     placeholder="tu@email.com"
                     required
@@ -132,6 +133,7 @@ export default function AuthScreen() {
                     name="password"
                     value={formData.password}
                     onChange={handleChange}
+                    autoComplete="current-password"
                     className="w-full px-4 py-3 rounded-lg bg-white dark:bg-slate-700 dark:border-slate-900 bg-opacity-20 border border-white border-opacity-30 text-black dark:text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent"
                     placeholder="••••••••"
                     required
@@ -234,6 +236,7 @@ export default function AuthScreen() {
                     name="name"
                     value={formData.name}
                     onChange={handleChange}
+                    autoComplete="name"
                     className="w-full px-4 py-3 rounded-lg bg-white dark:bg-slate-700 dark:border-slate-900 bg-opacity-20 border border-white border-opacity-30 text-black dark:text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent"
                     placeholder="Tu nombre"
                     required
@@ -250,6 +253,7 @@ export default function AuthScreen() {
                     name="email"
                     value={formData.email}
                     onChange={handleChange}
+                    autoComplete="email"
                     className="w-full px-4 py-3 rounded-lg bg-white dark:bg-slate-700 dark:border-slate-900 bg-opacity-20 border border-white border-opacity-30 text-black dark:text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent"
                     placeholder="tu@email.com"
                     required
@@ -266,6 +270,7 @@ export default function AuthScreen() {
                     name="password"
                     value={formData.password}
                     onChange={handleChange}
+                    autoComplete="new-password"
                     className="w-full px-4 py-3 rounded-lg bg-white dark:bg-slate-700 dark:border-slate-900 bg-opacity-20 border border-white border-opacity-30 text-black dark:text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent"
                     placeholder="••••••••"
                     required
@@ -282,6 +287,7 @@ export default function AuthScreen() {
                     name="confirmPassword"
                     value={formData.confirmPassword}
                     onChange={handleChange}
+                    autoComplete="new-password"
                     className="w-full px-4 py-3 rounded-lg bg-white dark:bg-slate-700 dark:border-slate-900 bg-opacity-20 border border-white border-opacity-30 text-black dark:text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent"
                     placeholder="••••••••"
                     required

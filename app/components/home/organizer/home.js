@@ -15,6 +15,7 @@ import {
 import EventCard from './EventCard';
 import StatsCard from './StatsCard';
 import { LuTicketCheck } from 'react-icons/lu';
+import dayjs from 'dayjs';
 
 const OrganizerDashboard = () => {
   const [activeTab, setActiveTab] = useState('events');
@@ -35,15 +36,23 @@ const OrganizerDashboard = () => {
       .catch(() => setLoading(false));
   }, [user]);
 
-  // Find the earliest upcoming event
-  const upcomingEvents = events.filter(e => new Date(e.date) > new Date());
-  const nextEvent = upcomingEvents.length > 0 ? upcomingEvents.reduce((earliest, event) => new Date(event.date) < new Date(earliest.date) ? event : earliest) : null;
+  // Use dayjs for robust date comparison
+  const now = dayjs();
+  const activeEvents = events.filter(e => {
+    // If e.date is missing, skip
+    if (!e.date) return false;
+    // Parse as local date (assume e.date is YYYY-MM-DD or ISO string)
+    const eventEndOfDay = dayjs(e.date).endOf('day');
+    return eventEndOfDay.isAfter(now);
+  });
+  const upcomingEvents = activeEvents;
+  const nextEvent = upcomingEvents.length > 0 ? upcomingEvents.reduce((earliest, event) => dayjs(event.date).isBefore(dayjs(earliest.date)) ? event : earliest) : null;
 
   const stats = [
     { 
       title: 'Eventos Activos', 
-      value: events.filter(e => new Date(e.date) > new Date()).length, 
-      icon: <FiCalendar className="text-2xl" />,
+      value: activeEvents.length, 
+      icon: <FiCalendar className="text-2xl" />, 
       change: '',
       trend: 'up'
     },
@@ -99,49 +108,61 @@ const OrganizerDashboard = () => {
               
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-6 w-full">
                 {stats.map((stat, index) => (
-                  <StatsCard key={index} stat={stat} />
+                  <div className="flex justify-center">
+                    <div className="w-full max-w-xs">
+                      <StatsCard key={index} stat={stat} />
+                    </div>
+                  </div>
                 ))}
               </div>
             </div>
 
-            <header className="bg-white shadow-sm mb-3 w-full max-w-full">
-                <nav className="p-2 flex flex-row gap-2 w-full max-w-full">
-                    <button
-                    onClick={() => setActiveTab('events')}
-                    className={`flex-1 min-w-0 flex items-center justify-center py-3 rounded-lg mb-2 text-sm ${activeTab === 'events' ? 'bg-purple-50 text-purple-600' : 'text-gray-600 hover:bg-gray-100'}`}
-                    >
-                    <FiCalendar className="mr-2" />
-                    Mis Eventos
-                    </button>
-                    <button
-                    onClick={() => setActiveTab('analytics')}
-                    className={`flex-1 min-w-0 flex items-center justify-center py-3 rounded-lg mb-2 text-sm ${activeTab === 'analytics' ? 'bg-purple-50 text-purple-600' : 'text-gray-600 hover:bg-gray-100'}`}
-                    >
-                    <FiBarChart2 className="mr-2" />
-                    Analíticas
-                    </button>
-                    <button
-                    onClick={() => setActiveTab('tickets')}
-                    className={`flex-1 min-w-0 flex items-center justify-center py-3 rounded-lg mb-2 text-sm ${activeTab === 'tickets' ? 'bg-purple-50 text-purple-600' : 'text-gray-600 hover:bg-gray-100'}`}
-                    >
-                        <LuTicketCheck className='mr-2' />
-                    Boletos
-                    </button>
-                </nav>
-            </header>
+            <div className="flex justify-center mb-3">
+              <div className="w-full max-w-xs">
+                <header className="bg-white shadow-sm w-full rounded-xl">
+                    <nav className="p-2 flex flex-row gap-2 w-full">
+                        <button
+                        onClick={() => setActiveTab('events')}
+                        className={`flex-1 min-w-0 flex items-center justify-center py-3 rounded-lg mb-2 text-sm ${activeTab === 'events' ? 'bg-purple-50 text-purple-600' : 'text-gray-600 hover:bg-gray-100'}`}
+                        >
+                        <FiCalendar className="mr-2" />
+                        Mis Eventos
+                        </button>
+                        <button
+                        onClick={() => setActiveTab('analytics')}
+                        className={`flex-1 min-w-0 flex items-center justify-center py-3 rounded-lg mb-2 text-sm ${activeTab === 'analytics' ? 'bg-purple-50 text-purple-600' : 'text-gray-600 hover:bg-gray-100'}`}
+                        >
+                        <FiBarChart2 className="mr-2" />
+                        Analíticas
+                        </button>
+                        <button
+                        onClick={() => setActiveTab('tickets')}
+                        className={`flex-1 min-w-0 flex items-center justify-center py-3 rounded-lg mb-2 text-sm ${activeTab === 'tickets' ? 'bg-purple-50 text-purple-600' : 'text-gray-600 hover:bg-gray-100'}`}
+                        >
+                            <LuTicketCheck className='mr-2' />
+                        Boletos
+                        </button>
+                    </nav>
+                </header>
+              </div>
+            </div>
 
             {/* Contenido según pestaña */}
             {activeTab === 'events' && (
               <div>
-                <div className="flex justify-between items-center mb-6">
-                  <h2 className="text-xl font-semibold text-gray-800">Tus Eventos</h2>
-                  <a
-                    href='/events/new'
-                    className="flex items-center bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors"
-                  >
-                    <FiPlus className="mr-2" />
-                    Nuevo Evento
-                  </a>
+                <div className="flex justify-center mb-6">
+                  <div className="w-full max-w-xs">
+                    <div className="flex justify-between items-center">
+                      <h2 className="text-xl font-semibold text-gray-800">Tus Eventos</h2>
+                      <a
+                        href='/events/new'
+                        className="flex items-center bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors"
+                      >
+                        <FiPlus className="mr-2" />
+                        Nuevo Evento
+                      </a>
+                    </div>
+                  </div>
                 </div>
                 {loading ? (
                   <div className="text-center py-8 text-gray-500">Cargando eventos...</div>
@@ -149,10 +170,14 @@ const OrganizerDashboard = () => {
                   <div className="text-center py-8 text-gray-500">No tienes eventos aún.</div>
                 ) : (
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full">
-                  {events.map((event) => (
-                      <EventCard key={event._id || event.id} event={event} />
-                  ))}
-                </div>
+                    {events.map((event) => (
+                      <div className="flex justify-center">
+                        <div className="w-full max-w-xs">
+                          <EventCard key={event._id || event.id} event={event} />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                 )}
               </div>
             )}
