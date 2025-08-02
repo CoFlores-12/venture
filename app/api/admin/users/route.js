@@ -4,6 +4,7 @@ import { connectToMongoose } from '../../../../src/lib/db';
 import bcrypt from 'bcryptjs';
 import User from '../../../../src/models/Users';
 import Purchase from '../../../../src/models/purchase';
+import Event from '../../../../src/models/event';
 
 
 
@@ -38,7 +39,18 @@ export async function GET(request) {
       }
     ]);
 
-    // Create a map for quick lookup
+    // Calculate number of events created by each organizer
+    const eventAggregation = await Event.aggregate([
+      { $match: { organizer: { $in: userIds } } },
+      {
+        $group: {
+          _id: '$organizer',
+          eventsCount: { $sum: 1 }
+        }
+      }
+    ]);
+
+    // Create maps for quick lookup
     const purchaseMap = new Map();
     purchaseAggregation.forEach(item => {
       purchaseMap.set(item._id.toString(), {
@@ -47,10 +59,16 @@ export async function GET(request) {
       });
     });
 
-    // Map DB users to expected API format with real purchase data
+    const eventMap = new Map();
+    eventAggregation.forEach(item => {
+      eventMap.set(item._id.toString(), item.eventsCount);
+    });
+
+    // Map DB users to expected API format with real purchase and event data
     const mappedUsers = dbUsers.map((user, idx) => {
       const userId = user._id.toString();
       const purchaseData = purchaseMap.get(userId) || { totalSpent: 0, ticketsPurchased: 0 };
+      const eventsCount = eventMap.get(userId) || 0;
       
       return {
         id: userId,
@@ -62,7 +80,7 @@ export async function GET(request) {
         createdAt: user.creadoEn ? user.creadoEn.toISOString().slice(0, 10) : '',
         lastLogin: user.lastLogin ? user.lastLogin.toISOString().slice(0, 10) : '',
         rtn: user.identidad || null,
-        eventsCount: user.eventsCount || 0,
+        eventsCount: eventsCount,
         ticketsPurchased: purchaseData.ticketsPurchased,
         totalSpent: purchaseData.totalSpent
       };
