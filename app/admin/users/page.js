@@ -322,7 +322,6 @@ const UserManagement = () => {
                         </p>
                       </div>
                     </div>
-                    
                     <div className="flex flex-wrap items-center space-x-4 text-sm text-gray-600 dark:text-gray-400">
                       <span>🆔 {user.userId}</span>
                       <span>📅 Registrado: {new Date(user.createdAt).toLocaleDateString('es-ES')}</span>
