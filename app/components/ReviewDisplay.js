@@ -131,21 +131,32 @@ const ReviewDisplay = ({ reviews = [], onAddReview, canReview = false, hasReview
               className="bg-white dark:bg-slate-900 rounded-xl p-4 shadow-sm border border-gray-100 dark:border-slate-800"
             >
               <div className="flex items-start justify-between mb-3">
-                <div className="flex items-center space-x-3">
-                  <div className="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center">
+                <div className="flex items-center space-x-3 flex-1 min-w-0">
+                  <div className="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center flex-shrink-0">
                     <FiUser className="text-purple-700" />
                   </div>
-                  <div>
-                    <h4 className="font-medium text-gray-900 dark:text-white">
-                      {review.user?.name || 'Usuario'}
-                    </h4>
+                  <div className="min-w-0 flex-1">
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-2 mb-1">
+                      <h4 className="font-medium text-gray-900 dark:text-white truncate">
+                        {review.userName || 'Usuario'}
+                      </h4>
+                      {review.verifiedPurchase && (
+                        <span className="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium bg-green-50 text-green-700 border border-green-200 dark:bg-green-900/20 dark:text-green-400 dark:border-green-800 mt-1 sm:mt-0 self-start">
+                          <svg className="w-2.5 h-2.5 mr-1 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                          </svg>
+                          <span className="hidden sm:inline">Compra Verificada</span>
+                          <span className="sm:hidden">Verificada</span>
+                        </span>
+                      )}
+                    </div>
                     <div className="flex items-center space-x-2 text-sm text-gray-500">
-                      <FiCalendar className="w-3 h-3" />
-                      <span>{formatDate(review.createdAt)}</span>
+                      <FiCalendar className="w-3 h-3 flex-shrink-0" />
+                      <span className="truncate">{formatDate(review.createdAt)}</span>
                     </div>
                   </div>
                 </div>
-                <div className="flex items-center space-x-1">
+                <div className="flex items-center space-x-1 flex-shrink-0 ml-3">
                   {renderStars(review.rating)}
                   <span className="text-sm font-medium text-gray-900 dark:text-white ml-1">
                     {review.rating}

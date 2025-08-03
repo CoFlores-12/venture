@@ -23,8 +23,8 @@ export async function POST(request) {
       );
     }
 
-    const { eventId, rating, comment } = await request.json();
-    console.log('Review POST: Received data:', { eventId, rating, comment });
+    const { eventId, rating, comment, verifiedPurchase } = await request.json();
+    console.log('Review POST: Received data:', { eventId, rating, comment, verifiedPurchase });
     
     // DEBUG: Log IDs and types
     console.log('Review POST: userId', session.user.id, typeof session.user.id);
@@ -102,7 +102,8 @@ export async function POST(request) {
       rating,
       comment,
       userName: session.user.name,
-      userEmail: session.user.email
+      userEmail: session.user.email,
+      verifiedPurchase: verifiedPurchase || false
     });
 
     console.log('Review model schema paths:', Object.keys(Review.schema.paths));
@@ -113,7 +114,8 @@ export async function POST(request) {
       rating,
       comment,
       userName: session.user.name,
-      userEmail: session.user.email
+      userEmail: session.user.email,
+      verifiedPurchase: verifiedPurchase || false
     });
 
     console.log('Review object created:', review);
@@ -160,7 +162,7 @@ export async function PUT(request) {
       );
     }
 
-    const { eventId, rating, comment } = await request.json();
+    const { eventId, rating, comment, verifiedPurchase } = await request.json();
     
     if (!eventId || !rating || !comment) {
       return NextResponse.json(
@@ -204,7 +206,8 @@ export async function PUT(request) {
         rating,
         comment,
         userName: session.user.name,
-        userEmail: session.user.email
+        userEmail: session.user.email,
+        verifiedPurchase: verifiedPurchase || false
       },
       {
         new: true, // Return the updated document

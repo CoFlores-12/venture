@@ -9,6 +9,7 @@ const ReviewSection = ({
   canReview = false, 
   hasReviewed = false,
   userReview = null,
+  hasVerifiedPurchase = false,
   onReviewSubmit,
   onReviewUpdate 
 }) => {
@@ -49,6 +50,7 @@ const ReviewSection = ({
           onCancel={handleCancelReview}
           existingReview={userReview}
           isEditing={hasReviewed}
+          hasVerifiedPurchase={hasVerifiedPurchase}
         />
       ) : (
         <ReviewDisplay
