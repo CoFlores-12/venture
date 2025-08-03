@@ -66,7 +66,7 @@ const UserHome = ({isMapExpanded, setIsMapExpanded}) => {
                   <div className="overflow-x-auto pb-4 scrollbar-hide">
                     <div className="flex space-x-4">
                       {[1,2,3,4,5].map((item) => (
-                        <EventCardSkeleton id={item} />
+                        <EventCardSkeleton key={item} id={item} />
                       ))}
                     </div>
                   </div>
@@ -80,7 +80,7 @@ const UserHome = ({isMapExpanded, setIsMapExpanded}) => {
                       .map(event => (
                         <motion.a 
                           href={`/event/${event._id}`}
-                          key={event.id}
+                          key={event._id || event.id}
                           whileHover={{ y: -5 }}
                           className="w-72 bg-white dark:bg-slate-800 rounded-xl shadow-md overflow-hidden flex-shrink-0 card hover:shadow-2xl transition-shadow"
                         >

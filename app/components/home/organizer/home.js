@@ -108,9 +108,9 @@ const OrganizerDashboard = () => {
               
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-6 w-full">
                 {stats.map((stat, index) => (
-                  <div className="flex justify-center">
+                  <div key={index} className="flex justify-center">
                     <div className="w-full max-w-xs">
-                      <StatsCard key={index} stat={stat} />
+                      <StatsCard stat={stat} />
                     </div>
                   </div>
                 ))}
@@ -171,9 +171,9 @@ const OrganizerDashboard = () => {
                 ) : (
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full">
                     {events.map((event) => (
-                      <div className="flex justify-center">
+                      <div key={event._id || event.id} className="flex justify-center">
                         <div className="w-full max-w-xs">
-                          <EventCard key={event._id || event.id} event={event} />
+                          <EventCard event={event} />
                         </div>
                       </div>
                     ))}
