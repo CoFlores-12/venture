@@ -44,7 +44,7 @@ const [tickets, setTickets] = useState(
 
   return (
     <div className="fixed inset-0 bg-[#897f7f30] bg-opacity-50 flex items-center justify-center p-4 z-50">
-      <div className="bg-white rounded-xl p-6 w-full max-w-md">
+      <div className="bg-white text-purple-600 rounded-xl p-6 w-full max-w-md">
         <h2 className="text-2xl font-bold mb-4">Selecciona tus boletos</h2>
         
         <div className="space-y-4 mb-6">
