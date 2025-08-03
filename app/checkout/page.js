@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { PayPalButtons, PayPalScriptProvider } from '@paypal/react-paypal-js';
 import { FaCreditCard, FaPaypal, FaMoneyBillWave, FaQrcode, FaShieldAlt, FaLock, FaUserShield } from 'react-icons/fa';
+import { FiArrowLeft } from 'react-icons/fi';
 import { useAuthUser } from '@/src/lib/authUsers';
 import { useRouter } from 'next/navigation';
 
@@ -228,10 +229,9 @@ const PaymentGateway = () => {
               router.back();
             }
           }}
-          className="mb-6 flex items-center text-purple-700 hover:text-purple-900 font-medium"
+          className="bg-white dark:bg-slate-800 dark:text-gray-300 bg-opacity-90 rounded-full p-2 shadow-md inline-block mb-8 mt-2 ml-4"
         >
-          <svg className="h-5 w-5 mr-2" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7"></path></svg>
-          Volver al evento
+          <FiArrowLeft className="text-gray-800 dark:bg-slate-800 dark:text-gray-300 text-xl" />
         </button>
         <div className="max-w-4xl mx-auto">
           {/* Encabezado */}
