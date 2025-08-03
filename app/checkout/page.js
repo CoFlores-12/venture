@@ -325,7 +325,7 @@ const PaymentGateway = () => {
                         }`}
                       >
                         <FaCreditCard className="text-2xl text-purple-700 mb-2" />
-                        <span className="text-sm font-medium">Tarjeta</span>
+                        <span className="text-sm font-medium text-purple-600">Tarjeta</span>
                       </button>
                       
                       <button 
@@ -337,7 +337,7 @@ const PaymentGateway = () => {
                         }`}
                       >
                         <FaPaypal className="text-2xl text-blue-600 mb-2" />
-                        <span className="text-sm font-medium">PayPal</span>
+                        <span className="text-sm font-medium text-purple-600">PayPal</span>
                       </button>
                       
                       
@@ -350,7 +350,7 @@ const PaymentGateway = () => {
                         }`}
                       >
                         <FaMoneyBillWave className="text-2xl text-green-600 mb-2" />
-                        <span className="text-sm font-medium">Efectivo</span>
+                        <span className="text-sm font-medium text-purple-600">Efectivo</span>
                       </button>
                     </div>
                   </div>
@@ -372,7 +372,7 @@ const PaymentGateway = () => {
                                 name="name"
                                 value={cardDetails.name}
                                 onChange={handleCardChange}
-                                className="w-full p-3.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-600 focus:border-transparent"
+                                className="w-full p-3.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-600 focus:border-transparent text-purple-700"
                                 placeholder="Ej: María Rodríguez"
                                 required
                               />
@@ -387,7 +387,7 @@ const PaymentGateway = () => {
                                 name="cardNumber"
                                 value={cardDetails.cardNumber}
                                 onChange={handleCardChange}
-                                className="w-full p-3.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-600 focus:border-transparent"
+                                className="w-full p-3.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-600 focus:border-transparent text-purple-700"
                                 placeholder="0000 0000 0000 0000"
                                 required
                               />
@@ -414,7 +414,7 @@ const PaymentGateway = () => {
                                   name="expiry"
                                   value={cardDetails.expiry}
                                   onChange={handleCardChange}
-                                  className="w-full p-3.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-600 focus:border-transparent"
+                                  className="w-full p-3.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-600 focus:border-transparent text-purple-700"
                                   placeholder="MM/AA"
                                   required
                                 />
@@ -429,7 +429,7 @@ const PaymentGateway = () => {
                                   name="cvc"
                                   value={cardDetails.cvc}
                                   onChange={handleCardChange}
-                                  className="w-full p-3.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-600 focus:border-transparent"
+                                  className="w-full p-3.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-600 focus:border-transparent text-purple-700"
                                   placeholder="123"
                                   required
                                 />
