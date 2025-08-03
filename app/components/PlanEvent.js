@@ -63,10 +63,10 @@ const EventPlanSelector = ({ onPlanSelect }) => {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
       <div className="text-center mb-12">
-        <h2 className="text-3xl font-extrabold text-gray-900 sm:text-4xl">
+        <h2 className="text-3xl font-extrabold text-white sm:text-4xl">
           Elige el plan perfecto para tu evento
         </h2>
-        <p className="mt-4 text-xl text-gray-600">
+        <p className="mt-4 text-xl text-white opacity-75">
           Selecciona la opción que mejor se adapte a tus necesidades
         </p>
       </div>
@@ -92,14 +92,14 @@ const EventPlanSelector = ({ onPlanSelect }) => {
                 <span className={`text-3xl font-bold ${plan.id === 'basic' ? 'text-gray-900 dark:bg-slate-800 dark:text-gray-300' : 'text-purple-800'}`}>
                   {plan.price}
                 </span>
-              <p className="mt-2 text-gray-600">{plan.description}</p>
+              <p className="mt-2 text-white opacity-80">{plan.description}</p>
               
               <div className="mt-8">
                 <ul className="space-y-4">
                   {plan.features.map((feature, index) => (
                     <li key={index} className="flex items-start">
                       
-                      <span className="ml-3 text-gray-700">{feature}</span>
+                      <span className="ml-3 text-white">{feature}</span>
                     </li>
                   ))}
                 </ul>
