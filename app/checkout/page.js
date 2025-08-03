@@ -245,7 +245,7 @@ const PaymentGateway = () => {
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* Resumen de la compra */}
-            <div className="lg:col-span-1 bg-white rounded-2xl shadow-lg p-6 h-fit border border-purple-100">
+            <div className="lg:col-span-1 bg-white rounded-2xl shadow-lg p-6 h-fit border border-purple-100 text-purple-600">
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-xl font-bold text-gray-900">Resumen de compra</h2>
                 <div className="flex items-center text-sm text-purple-700">
