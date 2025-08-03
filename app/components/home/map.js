@@ -128,7 +128,7 @@ export default function MapComponent({ events, isMapExpanded }) {
 
         {events?.map((event) => (
           <Marker
-            key={event.id}
+            key={event._id || event.id}
             position={event.position}
             eventHandlers={{ click: () => setSelectedEvent(event) }}
             icon={createEmojiIcon(event.category)}
