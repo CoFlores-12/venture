@@ -110,19 +110,16 @@ const EventDetailPage = () => {
 
   // Check if user can review this event
   const canUserReview = () => {
-    if (!user || !event.date) return false;
-    
-    // Check if user has purchased tickets for this event
-    const hasPurchased = userPurchases.some(purchase => 
+    // Anyone can review if they are logged in
+    return !!user;
+  };
+
+  // Check if user has purchased tickets for this event (for verified purchase label)
+  const hasUserPurchased = () => {
+    if (!user) return false;
+    return userPurchases.some(purchase => 
       purchase.event?._id === id
     );
-    
-    // Check if event date has passed
-    const eventDate = new Date(event.date);
-    const today = new Date();
-    const eventHasPassed = eventDate < today;
-    
-    return hasPurchased && eventHasPassed;
   };
 
   // Check if user has already reviewed this event
@@ -149,6 +146,7 @@ const EventDetailPage = () => {
           eventId: id,
           rating: reviewData.rating,
           comment: reviewData.comment,
+          verifiedPurchase: hasUserPurchased(), // Add verified purchase status
         }),
       });
 
@@ -397,6 +395,7 @@ const EventDetailPage = () => {
               canReview={canUserReview()}
               hasReviewed={hasUserReviewed()}
               userReview={getUserReview()}
+              hasVerifiedPurchase={hasUserPurchased()}
               onReviewSubmit={handleReviewSubmit}
               onReviewUpdate={handleReviewUpdate}
             />

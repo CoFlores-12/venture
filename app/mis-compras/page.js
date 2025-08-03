@@ -6,12 +6,13 @@ import { FaGoogle, FaWaze, FaApple } from 'react-icons/fa';
 import { SiUber } from 'react-icons/si';
 import CryptoJS from 'crypto-js';
 import { useRouter } from 'next/navigation';
-import { FiMenu, FiUser, FiHeart, FiX, FiPlus, FiHome, FiBarChart2 } from 'react-icons/fi';
+import { FiMenu, FiUser, FiHeart, FiX, FiPlus, FiHome, FiBarChart2, FiArrowLeft } from 'react-icons/fi';
 import { LuTicketCheck } from "react-icons/lu";
 import { VscOrganization } from "react-icons/vsc";
 import { useAuthUser } from '@/src/lib/authUsers';
 import LogoutButton from '@/app/components/LogoutBtn';
 import { motion, AnimatePresence } from 'framer-motion';
+import Link from 'next/link';
 
 const MyTickets = () => {
   const router = useRouter();
@@ -282,15 +283,12 @@ const MyTickets = () => {
       </AnimatePresence>
       <div className="max-w-4xl mx-auto">
         {/* Back to Profile Link */}
-        <div className="mb-6 mt-8">
+        <div className="mb-4 mt-4 ml-4">
           <button
             onClick={() => router.back()}
-            className="inline-flex items-center text-purple-700 hover:text-purple-800 font-medium"
+            className="bg-white dark:bg-slate-800 dark:text-gray-300 bg-opacity-90 rounded-full p-2 shadow-md inline-block"
           >
-            <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
-            </svg>
-            Volver
+            <FiArrowLeft className="text-gray-800 dark:bg-slate-800 dark:text-gray-300 text-xl" />
           </button>
         </div>
 
@@ -478,11 +476,11 @@ const MyTickets = () => {
                   
                   <div className="mt-8 pt-6 border-t border-gray-200">
                     <h3 className="text-lg font-medium text-gray-900 mb-4">Detalles de la compra</h3>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       
                       <div>
                         <p className="text-sm text-gray-500">Transacción</p>
-                        <p className="text-sm font-medium text-gray-900">{ticket._id}</p>
+                        <p className="text-sm font-medium text-gray-900 break-all">{ticket._id}</p>
                       </div>
                       <div>
                         <p className="text-sm text-gray-500">Total</p>
