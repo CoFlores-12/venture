@@ -6,6 +6,14 @@ import User from '../../../../src/models/Users';
 import Purchase from '../../../../src/models/purchase';
 import Event from '../../../../src/models/event';
 
+// Helper function to format date in local timezone
+function formatDateLocal(date) {
+  const localDate = new Date(date);
+  const year = localDate.getFullYear();
+  const month = String(localDate.getMonth() + 1).padStart(2, '0');
+  const day = String(localDate.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
 
 
 // GET - Retrieve all users
@@ -77,8 +85,8 @@ export async function GET(request) {
         email: user.correo,
         role: user.rol || 'user',
         status: user.status || 'active',
-        createdAt: user.creadoEn ? user.creadoEn.toISOString().slice(0, 10) : '',
-        lastLogin: user.lastLogin ? user.lastLogin.toISOString().slice(0, 10) : '',
+        createdAt: user.creadoEn,
+        lastLogin: user.lastLogin,
         rtn: user.identidad || null,
         eventsCount: eventsCount,
         ticketsPurchased: purchaseData.ticketsPurchased,

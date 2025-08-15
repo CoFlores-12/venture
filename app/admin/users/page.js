@@ -13,16 +13,6 @@ const UserManagement = () => {
   const [showModal, setShowModal] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState('all');
-  const [createAdminForm, setCreateAdminForm] = useState({
-    name: '',
-    email: '',
-    password: '',
-    adminCode: '',
-    role: 'admin'
-  });
-  const [createAdminLoading, setCreateAdminLoading] = useState(false);
-  const [createAdminError, setCreateAdminError] = useState('');
-  const [createAdminSuccess, setCreateAdminSuccess] = useState('');
 
   // Check if user is authenticated and is admin
   useEffect(() => {
@@ -90,45 +80,6 @@ const UserManagement = () => {
     }
   };
 
-  const handleCreateAdminChange = (e) => {
-    setCreateAdminForm(prev => ({
-      ...prev,
-      [e.target.name]: e.target.value
-    }));
-  };
-
-  const handleCreateAdmin = async (e) => {
-    e.preventDefault();
-    setCreateAdminLoading(true);
-    setCreateAdminError('');
-    setCreateAdminSuccess('');
-    try {
-      const response = await fetch('/api/admin/users', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify(createAdminForm)
-      });
-      const data = await response.json();
-      if (data.success) {
-        setCreateAdminSuccess('Administrador creado exitosamente');
-        setCreateAdminForm({ name: '', email: '', password: '', adminCode: '', role: 'admin' });
-        // Refresh user list
-        if (admin) {
-          const response = await fetch('/api/admin/users');
-          const result = await response.json();
-          if (result.success) setUsers(result.data);
-        }
-      } else {
-        setCreateAdminError(data.error || 'Error al crear el admin');
-      }
-    } catch (error) {
-      setCreateAdminError('Error de conexión');
-    } finally {
-      setCreateAdminLoading(false);
-    }
-  };
-
   const getStatusColor = (status) => {
     switch (status) {
       case 'active': return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200';
@@ -163,6 +114,31 @@ const UserManagement = () => {
       case 'user': return 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200';
       default: return 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200';
     }
+  };
+
+  // Helper function to format date preserving local timezone
+  const formatLocalDate = (dateString, options = {}) => {
+    if (!dateString) return 'Nunca';
+    
+    const date = new Date(dateString);
+    const defaultOptions = {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+      ...options
+    };
+    
+    return date.toLocaleDateString('es-ES', defaultOptions);
+  };
+
+  // Short date format for list view
+  const formatShortDate = (dateString) => {
+    return formatLocalDate(dateString, { 
+      year: 'numeric', 
+      month: '2-digit', 
+      day: '2-digit' 
+    });
   };
 
   // Filter users based on search term and status
@@ -219,44 +195,6 @@ const UserManagement = () => {
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
-        {/* Create Admin Form - Only for superadmin */}
-        {admin?.role === 'superadmin' && (
-          <div className="mb-8 bg-white dark:bg-gray-800 rounded-xl shadow-md p-6">
-            <h2 className="text-lg font-bold mb-4 text-gray-900 dark:text-white">Crear Nuevo Administrador</h2>
-            <form onSubmit={handleCreateAdmin} className="space-y-4">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Nombre</label>
-                  <input type="text" name="name" value={createAdminForm.name} onChange={handleCreateAdminChange} required className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white" />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Correo Electrónico</label>
-                  <input type="email" name="email" value={createAdminForm.email} onChange={handleCreateAdminChange} required className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white" />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Contraseña</label>
-                  <input type="password" name="password" value={createAdminForm.password} onChange={handleCreateAdminChange} required className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white" />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Código de Admin</label>
-                  <input type="password" name="adminCode" value={createAdminForm.adminCode} onChange={handleCreateAdminChange} required className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white" />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Rol</label>
-                  <select name="role" value={createAdminForm.role} onChange={handleCreateAdminChange} className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
-                    <option value="admin">Administrador</option>
-                    <option value="editor">Editor</option>
-                  </select>
-                </div>
-              </div>
-              {createAdminError && <div className="text-red-600 dark:text-red-400 text-sm">{createAdminError}</div>}
-              {createAdminSuccess && <div className="text-green-600 dark:text-green-400 text-sm">{createAdminSuccess}</div>}
-              <button type="submit" disabled={createAdminLoading} className="bg-red-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-red-700 disabled:opacity-50">
-                {createAdminLoading ? 'Creando...' : 'Crear Administrador'}
-              </button>
-            </form>
-          </div>
-        )}
         {/* Filters and Search */}
         <div className="mb-6 space-y-4 sm:space-y-0 sm:flex sm:items-center sm:justify-between">
           <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-4">
@@ -324,7 +262,7 @@ const UserManagement = () => {
                     </div>
                     <div className="flex flex-wrap items-center space-x-4 text-sm text-gray-600 dark:text-gray-400">
                       <span>🆔 {user.userId}</span>
-                      <span>📅 Registrado: {new Date(user.createdAt).toLocaleDateString('es-ES')}</span>
+                      <span>📅 Registrado: {formatShortDate(user.createdAt)}</span>
                       <span>📊 {user.eventsCount || 0} eventos</span>
                       <span>💰 {user.totalSpent || 0} L. gastados</span>
                     </div>
@@ -424,17 +362,13 @@ const UserManagement = () => {
                   <div>
                     <span className="text-gray-500 dark:text-gray-400">Fecha de Registro:</span>
                     <p className="font-medium text-gray-900 dark:text-white">
-                      {new Date(selectedUser.createdAt).toLocaleDateString('es-ES', {
-                        year: 'numeric',
-                        month: 'long',
-                        day: 'numeric'
-                      })}
+                      {formatLocalDate(selectedUser.createdAt)}
                     </p>
                   </div>
                   <div>
                     <span className="text-gray-500 dark:text-gray-400">Último Acceso:</span>
                     <p className="font-medium text-gray-900 dark:text-white">
-                      {selectedUser.lastLogin ? new Date(selectedUser.lastLogin).toLocaleDateString('es-ES') : 'Nunca'}
+                      {formatLocalDate(selectedUser.lastLogin)}
                     </p>
                   </div>
                 </div>

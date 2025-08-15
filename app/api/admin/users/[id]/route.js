@@ -1,128 +1,25 @@
 import { NextResponse } from 'next/server';
+import User from '../../../../../src/models/Users';
+import { connectToMongoose } from '../../../../../src/lib/db';
+import Purchase from '../../../../../src/models/purchase';
+import Event from '../../../../../src/models/event';
 
-// Simulate database storage for users (same as main route)
-let users = [
-  {
-    id: 1,
-    userId: "USR001",
-    name: "María González",
-    email: "maria.gonzalez@email.com",
-    role: "organizer",
-    status: "active",
-    createdAt: "2024-01-10",
-    lastLogin: "2024-01-15",
-    rtn: "0801-1990-12345",
-    eventsCount: 3,
-    ticketsPurchased: 12,
-    totalSpent: 8500
-  },
-  {
-    id: 2,
-    userId: "USR002",
-    name: "Carlos Mendoza",
-    email: "carlos.mendoza@email.com",
-    role: "organizer",
-    status: "active",
-    createdAt: "2024-01-08",
-    lastLogin: "2024-01-14",
-    rtn: "0801-1985-67890",
-    eventsCount: 2,
-    ticketsPurchased: 8,
-    totalSpent: 3200
-  },
-  {
-    id: 3,
-    userId: "USR003",
-    name: "Ana Rodríguez",
-    email: "ana.rodriguez@email.com",
-    role: "user",
-    status: "active",
-    createdAt: "2024-01-05",
-    lastLogin: "2024-01-13",
-    rtn: "0801-1992-11223",
-    eventsCount: 0,
-    ticketsPurchased: 15,
-    totalSpent: 12500
-  },
-  {
-    id: 4,
-    userId: "USR004",
-    name: "Luis Herrera",
-    email: "luis.herrera@email.com",
-    role: "user",
-    status: "suspended",
-    createdAt: "2024-01-03",
-    lastLogin: "2024-01-10",
-    rtn: "0801-1988-44556",
-    eventsCount: 0,
-    ticketsPurchased: 5,
-    totalSpent: 2800
-  },
-  {
-    id: 5,
-    userId: "USR005",
-    name: "Sofia Martínez",
-    email: "sofia.martinez@email.com",
-    role: "user",
-    status: "active",
-    createdAt: "2024-01-12",
-    lastLogin: "2024-01-15",
-    rtn: null,
-    eventsCount: 0,
-    ticketsPurchased: 3,
-    totalSpent: 1200
-  },
-  {
-    id: 6,
-    userId: "USR006",
-    name: "Roberto Jiménez",
-    email: "roberto.jimenez@email.com",
-    role: "organizer",
-    status: "pending",
-    createdAt: "2024-01-15",
-    lastLogin: null,
-    rtn: "0801-1995-77889",
-    eventsCount: 0,
-    ticketsPurchased: 0,
-    totalSpent: 0
-  },
-  {
-    id: 7,
-    userId: "USR007",
-    name: "Carmen López",
-    email: "carmen.lopez@email.com",
-    role: "user",
-    status: "active",
-    createdAt: "2024-01-07",
-    lastLogin: "2024-01-14",
-    rtn: "0801-1991-33445",
-    eventsCount: 0,
-    ticketsPurchased: 20,
-    totalSpent: 18000
-  },
-  {
-    id: 8,
-    userId: "USR008",
-    name: "Diego Ramírez",
-    email: "diego.ramirez@email.com",
-    role: "user",
-    status: "active",
-    createdAt: "2024-01-09",
-    lastLogin: "2024-01-15",
-    rtn: null,
-    eventsCount: 0,
-    ticketsPurchased: 7,
-    totalSpent: 4200
-  }
-];
+// Helper function to format date in local timezone
+function formatDateLocal(date) {
+  const localDate = new Date(date);
+  const year = localDate.getFullYear();
+  const month = String(localDate.getMonth() + 1).padStart(2, '0');
+  const day = String(localDate.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
 
 // GET - Retrieve specific user
 export async function GET(request, { params }) {
   try {
-    const { id } = params;
-    const userId = parseInt(id);
+    await connectToMongoose();
+    const { id } = await params;
 
-    const user = users.find(u => u.id === userId);
+    const user = await User.findById(id).lean();
 
     if (!user) {
       return NextResponse.json(
@@ -131,9 +28,47 @@ export async function GET(request, { params }) {
       );
     }
 
+    // Calculate total spent and ticket count for this user
+    const purchaseStats = await Purchase.aggregate([
+      { $match: { user: user._id } },
+      {
+        $group: {
+          _id: null,
+          totalSpent: { $sum: '$totalAmount' },
+          ticketsPurchased: { $sum: '$ticketQuantity' }
+        }
+      }
+    ]);
+
+    // Calculate number of events created if user is organizer
+    const eventStats = await Event.aggregate([
+      { $match: { organizer: user._id } },
+      {
+        $group: {
+          _id: null,
+          eventsCount: { $sum: 1 }
+        }
+      }
+    ]);
+
+    const userWithStats = {
+      id: user._id.toString(),
+      userId: user._id.toString().slice(-6).toUpperCase(),
+      name: user.nombre,
+      email: user.correo,
+      role: user.rol || 'user',
+      status: user.status || 'active',
+      createdAt: user.creadoEn ? formatDateLocal(user.creadoEn) : formatDateLocal(new Date()),
+      lastLogin: user.lastLogin ? formatDateLocal(user.lastLogin) : null,
+      rtn: user.identidad || null,
+      eventsCount: eventStats[0]?.eventsCount || 0,
+      ticketsPurchased: purchaseStats[0]?.ticketsPurchased || 0,
+      totalSpent: purchaseStats[0]?.totalSpent || 0
+    };
+
     return NextResponse.json({
       success: true,
-      data: user
+      data: userWithStats
     });
 
   } catch (error) {
@@ -148,14 +83,14 @@ export async function GET(request, { params }) {
 // PATCH - Update user status or information
 export async function PATCH(request, { params }) {
   try {
-    const { id } = params;
-    const userId = parseInt(id);
+    await connectToMongoose();
+    const { id } = await params;
     const body = await request.json();
     const { status, role, rtn } = body;
 
-    const userIndex = users.findIndex(u => u.id === userId);
+    const user = await User.findById(id);
 
-    if (userIndex === -1) {
+    if (!user) {
       return NextResponse.json(
         { success: false, error: 'Usuario no encontrado' },
         { status: 404 }
@@ -163,26 +98,67 @@ export async function PATCH(request, { params }) {
     }
 
     // Update user information
-    const updatedUser = { ...users[userIndex] };
+    const updateData = {};
     
     if (status && ['active', 'suspended', 'pending'].includes(status)) {
-      updatedUser.status = status;
+      updateData.status = status;
     }
     
     if (role && ['user', 'organizer', 'admin'].includes(role)) {
-      updatedUser.role = role;
+      updateData.rol = role;
     }
     
     if (rtn !== undefined) {
-      updatedUser.rtn = rtn;
+      updateData.rtn = rtn;
     }
 
-    users[userIndex] = updatedUser;
+    const updatedUser = await User.findByIdAndUpdate(
+      id,
+      updateData,
+      { new: true, runValidators: true }
+    ).lean();
+
+    // Calculate stats for response
+    const purchaseStats = await Purchase.aggregate([
+      { $match: { user: updatedUser._id } },
+      {
+        $group: {
+          _id: null,
+          totalSpent: { $sum: '$totalAmount' },
+          ticketsPurchased: { $sum: '$ticketQuantity' }
+        }
+      }
+    ]);
+
+    const eventStats = await Event.aggregate([
+      { $match: { organizer: updatedUser._id } },
+      {
+        $group: {
+          _id: null,
+          eventsCount: { $sum: 1 }
+        }
+      }
+    ]);
+
+    const responseUser = {
+      id: updatedUser._id.toString(),
+      userId: updatedUser._id.toString().slice(-6).toUpperCase(),
+      name: updatedUser.nombre,
+      email: updatedUser.correo,
+      role: updatedUser.rol || 'user',
+      status: updatedUser.status || 'active',
+      createdAt: updatedUser.creadoEn ? formatDateLocal(updatedUser.creadoEn) : formatDateLocal(new Date()),
+      lastLogin: updatedUser.lastLogin ? formatDateLocal(updatedUser.lastLogin) : null,
+      rtn: updatedUser.identidad || null,
+      eventsCount: eventStats[0]?.eventsCount || 0,
+      ticketsPurchased: purchaseStats[0]?.ticketsPurchased || 0,
+      totalSpent: purchaseStats[0]?.totalSpent || 0
+    };
 
     return NextResponse.json({
       success: true,
       message: 'Usuario actualizado exitosamente',
-      data: updatedUser
+      data: responseUser
     });
 
   } catch (error) {
@@ -197,24 +173,29 @@ export async function PATCH(request, { params }) {
 // DELETE - Delete user
 export async function DELETE(request, { params }) {
   try {
-    const { id } = params;
-    const userId = parseInt(id);
+    await connectToMongoose();
+    const { id } = await params;
 
-    const userIndex = users.findIndex(u => u.id === userId);
+    const user = await User.findById(id);
 
-    if (userIndex === -1) {
+    if (!user) {
       return NextResponse.json(
         { success: false, error: 'Usuario no encontrado' },
         { status: 404 }
       );
     }
 
-    const deletedUser = users.splice(userIndex, 1)[0];
+    // Delete the user
+    await User.findByIdAndDelete(id);
 
     return NextResponse.json({
       success: true,
       message: 'Usuario eliminado exitosamente',
-      data: deletedUser
+      data: {
+        id: user._id.toString(),
+        name: user.name,
+        email: user.email
+      }
     });
 
   } catch (error) {
