@@ -6,6 +6,7 @@ const UserSchema = new mongoose.Schema({
   passwordHash: { type: String, required: true },
   rol: { type: String, enum: ["default", "organizer"], default: "default" },
   creadoEn: { type: Date, default: Date.now },
+  lastLogin: { type: Date, default: null },
   
   // Campos solo para organizadores
   organizacion: { type: String },

@@ -83,8 +83,11 @@ export const authOptions = {
         }
         if (!existingUser.foto || existingUser.foto === "") {
           existingUser.foto = profile.picture;
-          await existingUser.save();
         }
+        
+        // Update last login time
+        existingUser.lastLogin = new Date();
+        await existingUser.save();
 
         user.id = existingUser._id
         
@@ -95,6 +98,18 @@ export const authOptions = {
           rol: existingUser.rol || "default",
           foto: existingUser.foto || ""
         };
+      }
+
+      // For credentials login, update last login
+      if (account.provider === "user-login" || account.provider === "user-register") {
+        try {
+          await connectToMongoose();
+          await Users.findByIdAndUpdate(user.id, { 
+            lastLogin: new Date() 
+          });
+        } catch (error) {
+          console.error('Error updating last login:', error);
+        }
       }
 
       return true;

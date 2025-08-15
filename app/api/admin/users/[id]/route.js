@@ -4,6 +4,15 @@ import { connectToMongoose } from '../../../../../src/lib/db';
 import Purchase from '../../../../../src/models/purchase';
 import Event from '../../../../../src/models/event';
 
+// Helper function to format date in local timezone
+function formatDateLocal(date) {
+  const localDate = new Date(date);
+  const year = localDate.getFullYear();
+  const month = String(localDate.getMonth() + 1).padStart(2, '0');
+  const day = String(localDate.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
 // GET - Retrieve specific user
 export async function GET(request, { params }) {
   try {
@@ -45,13 +54,13 @@ export async function GET(request, { params }) {
     const userWithStats = {
       id: user._id.toString(),
       userId: user._id.toString().slice(-6).toUpperCase(),
-      name: user.name,
-      email: user.email,
+      name: user.nombre,
+      email: user.correo,
       role: user.rol || 'user',
       status: user.status || 'active',
-      createdAt: user.registrationDate?.toISOString().split('T')[0] || new Date().toISOString().split('T')[0],
-      lastLogin: user.lastLogin?.toISOString().split('T')[0] || null,
-      rtn: user.rtn || null,
+      createdAt: user.creadoEn ? formatDateLocal(user.creadoEn) : formatDateLocal(new Date()),
+      lastLogin: user.lastLogin ? formatDateLocal(user.lastLogin) : null,
+      rtn: user.identidad || null,
       eventsCount: eventStats[0]?.eventsCount || 0,
       ticketsPurchased: purchaseStats[0]?.ticketsPurchased || 0,
       totalSpent: purchaseStats[0]?.totalSpent || 0
@@ -134,13 +143,13 @@ export async function PATCH(request, { params }) {
     const responseUser = {
       id: updatedUser._id.toString(),
       userId: updatedUser._id.toString().slice(-6).toUpperCase(),
-      name: updatedUser.name,
-      email: updatedUser.email,
+      name: updatedUser.nombre,
+      email: updatedUser.correo,
       role: updatedUser.rol || 'user',
       status: updatedUser.status || 'active',
-      createdAt: updatedUser.registrationDate?.toISOString().split('T')[0] || new Date().toISOString().split('T')[0],
-      lastLogin: updatedUser.lastLogin?.toISOString().split('T')[0] || null,
-      rtn: updatedUser.rtn || null,
+      createdAt: updatedUser.creadoEn ? formatDateLocal(updatedUser.creadoEn) : formatDateLocal(new Date()),
+      lastLogin: updatedUser.lastLogin ? formatDateLocal(updatedUser.lastLogin) : null,
+      rtn: updatedUser.identidad || null,
       eventsCount: eventStats[0]?.eventsCount || 0,
       ticketsPurchased: purchaseStats[0]?.ticketsPurchased || 0,
       totalSpent: purchaseStats[0]?.totalSpent || 0

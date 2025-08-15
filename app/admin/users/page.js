@@ -116,6 +116,31 @@ const UserManagement = () => {
     }
   };
 
+  // Helper function to format date preserving local timezone
+  const formatLocalDate = (dateString, options = {}) => {
+    if (!dateString) return 'Nunca';
+    
+    const date = new Date(dateString);
+    const defaultOptions = {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+      ...options
+    };
+    
+    return date.toLocaleDateString('es-ES', defaultOptions);
+  };
+
+  // Short date format for list view
+  const formatShortDate = (dateString) => {
+    return formatLocalDate(dateString, { 
+      year: 'numeric', 
+      month: '2-digit', 
+      day: '2-digit' 
+    });
+  };
+
   // Filter users based on search term and status
   const filteredUsers = users.filter(user => {
     const matchesSearch = user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -237,7 +262,7 @@ const UserManagement = () => {
                     </div>
                     <div className="flex flex-wrap items-center space-x-4 text-sm text-gray-600 dark:text-gray-400">
                       <span>🆔 {user.userId}</span>
-                      <span>📅 Registrado: {new Date(user.createdAt).toLocaleDateString('es-ES')}</span>
+                      <span>📅 Registrado: {formatShortDate(user.createdAt)}</span>
                       <span>📊 {user.eventsCount || 0} eventos</span>
                       <span>💰 {user.totalSpent || 0} L. gastados</span>
                     </div>
@@ -337,17 +362,13 @@ const UserManagement = () => {
                   <div>
                     <span className="text-gray-500 dark:text-gray-400">Fecha de Registro:</span>
                     <p className="font-medium text-gray-900 dark:text-white">
-                      {new Date(selectedUser.createdAt).toLocaleDateString('es-ES', {
-                        year: 'numeric',
-                        month: 'long',
-                        day: 'numeric'
-                      })}
+                      {formatLocalDate(selectedUser.createdAt)}
                     </p>
                   </div>
                   <div>
                     <span className="text-gray-500 dark:text-gray-400">Último Acceso:</span>
                     <p className="font-medium text-gray-900 dark:text-white">
-                      {selectedUser.lastLogin ? new Date(selectedUser.lastLogin).toLocaleDateString('es-ES') : 'Nunca'}
+                      {formatLocalDate(selectedUser.lastLogin)}
                     </p>
                   </div>
                 </div>
