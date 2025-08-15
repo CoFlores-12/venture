@@ -63,10 +63,10 @@ const EventPlanSelector = ({ onPlanSelect }) => {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
       <div className="text-center mb-12">
-        <h2 className="text-3xl font-extrabold text-white sm:text-4xl">
+        <h2 className="text-3xl font-extrabold  sm:text-4xl">
           Elige el plan perfecto para tu evento
         </h2>
-        <p className="mt-4 text-xl text-white opacity-75">
+        <p className="mt-4 text-xl  opacity-75">
           Selecciona la opción que mejor se adapte a tus necesidades
         </p>
       </div>
@@ -80,7 +80,7 @@ const EventPlanSelector = ({ onPlanSelect }) => {
               ${plan.popular ? 'border-t-4 border-purple-800' : ''}`}
           >
             {plan.popular && (
-              <div className="absolute top-0 right-0 bg-purple-800 text-white px-3 py-1 text-xs font-bold rounded-bl-lg">
+              <div className="absolute top-0 right-0 bg-purple-800  px-3 py-1 text-xs font-bold rounded-bl-lg">
                 MÁS POPULAR
               </div>
             )}
@@ -92,14 +92,14 @@ const EventPlanSelector = ({ onPlanSelect }) => {
                 <span className={`text-3xl font-bold ${plan.id === 'basic' ? 'text-gray-900 dark:bg-slate-800 dark:text-gray-300' : 'text-purple-800'}`}>
                   {plan.price}
                 </span>
-              <p className="mt-2 text-white opacity-80">{plan.description}</p>
+              <p className="mt-2  opacity-80">{plan.description}</p>
               
               <div className="mt-8">
                 <ul className="space-y-4">
                   {plan.features.map((feature, index) => (
                     <li key={index} className="flex items-start">
                       
-                      <span className="ml-3 text-white">{feature}</span>
+                      <span className="ml-3 ">{feature}</span>
                     </li>
                   ))}
                 </ul>
@@ -112,7 +112,7 @@ const EventPlanSelector = ({ onPlanSelect }) => {
                 onClick={() => handleSelectPlan(plan.id)}
                 className={`w-full py-3 px-4 rounded-md font-medium 
                   ${selectedPlan === plan.id 
-                    ? 'bg-purple-800 text-white hover:bg-purple-900' 
+                    ? 'bg-purple-800  hover:bg-purple-900' 
                     : 'bg-white text-purple-800 border border-purple-800  dark:bg-slate-900 dark:text-gray-300'}
                   transition-colors duration-300`}
               >

@@ -8,7 +8,7 @@ const ShareButton = ({ event }) => {
   const [isCopied, setIsCopied] = useState(false);
   const menuRef = useRef(null);
   
-  const eventUrl = `https://venture-navy.vercel.app/event/${event.id}`;
+  const eventUrl = `https://venture-navy.vercel.app/event/${event._id}`;
   
   useEffect(() => {
     const handleClickOutside = (e) => {
