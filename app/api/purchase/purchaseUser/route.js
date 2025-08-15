@@ -5,8 +5,9 @@ import mongoose from "mongoose";
 import Event from '@/src/models/event';
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import CryptoJS from "crypto-js";
+const secret = process.env.QR_SECRET;
 
-// obtiene las compras del usario en la sesoin actual
 export async function GET(request, context) {
   try {
     const session = await getServerSession(authOptions);
@@ -54,8 +55,21 @@ export async function GET(request, context) {
       }
     ]);
 
+   const purchasesWithTokens = purchases.map(purchase => {
+  const tokenPayload = JSON.stringify({
+    userId: userId,
+    purchaseId: purchase._id.toString()
+  });
 
-    return NextResponse.json(purchases, { status: 200 });
+  const encryptedToken = CryptoJS.AES.encrypt(tokenPayload, secret).toString();
+
+  return {
+    ...purchase,
+    token: encryptedToken
+  };
+});
+
+    return NextResponse.json(purchasesWithTokens, { status: 200 });
 
   } catch (error) {
     return NextResponse.json(
