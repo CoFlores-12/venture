@@ -215,9 +215,13 @@ const EventDetailPage = () => {
         <div className="absolute inset-0 bg-gradient-to-t from-black to-transparent opacity-80"></div>
         
         <div className="absolute top-4 left-4">
-          <Link href="/home" className="bg-white dark:bg-slate-800 dark:text-gray-300 bg-opacity-90 rounded-full p-2 shadow-md inline-block">
+          <button
+            onClick={() => router.back()
+            }
+            className="bg-white dark:bg-slate-800 dark:text-gray-300 bg-opacity-90 rounded-full p-2 shadow-md inline-block"
+          >
             <FiArrowLeft className="text-gray-800 dark:bg-slate-800 dark:text-gray-300 text-xl" />
-          </Link>
+          </button>
         </div>
         
         <div className="absolute top-4 right-4 flex space-x-2">
