@@ -13,11 +13,19 @@ export async function GET(request, context) {
     const eventIds = organizerEvents.map(event => event._id);
 
     // Then find all purchases for those events
-    const purchases = await Purchase.find({ 
-      event: { $in: eventIds } 
-    }).populate('event').populate('user', 'name email');
+  const purchases = await Purchase.find({
+  event: { $in: eventIds }
+})
+.populate('event')
+.populate('user', 'name email')
+.lean();
 
-    return NextResponse.json(purchases);
+const purchasesWithCommission = purchases.map(p => ({
+  ...p,
+  totalAmount: p.totalAmount - (p.totalAmount * 0.10)
+}));
+
+    return NextResponse.json(purchasesWithCommission);
   } catch (error) {
     console.error('Error fetching organizer purchases:', error);
     return NextResponse.json({ error: 'Failed to fetch purchases' }, { status: 500 });

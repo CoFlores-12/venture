@@ -447,13 +447,19 @@ const OrganizerDashboard = () => {
       trend: 'up'
     },
     { 
-      title: 'Ingresos Totales', 
+      title: 'Ingresos Totales',
       value: `L.${events.reduce((sum, event) => 
-        sum + (event.tickets ? event.tickets.reduce((tSum, t) => tSum + (((t.quantity || 0) - (t.quantityAvailable || 0)) * (t.price || 0)), 0) : 0)
+        sum + (event.tickets 
+          ? event.tickets.reduce(
+              (tSum, t) => tSum + (((t.quantity || 0) - (t.quantityAvailable || 0)) * (t.price || 0) * 0.9), 
+              0
+            ) 
+          : 0)
       , 0).toLocaleString()}`,
       icon: <FiDollarSign className="text-2xl" />,
       change: '',
       trend: 'up'
+
     },
     { 
       title: 'Próximo Evento', 
@@ -726,16 +732,14 @@ const OrganizerDashboard = () => {
                                 {event.title || event.name}
                               </h4>
                               <div className="flex items-center mt-1 text-xs text-gray-500 dark:text-gray-400">
-                                <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
-                                </svg>
+                                
                                 {event.calculatedAttendees} asistentes
                               </div>
                             </div>
                           </div>
                           <div className="text-right flex-shrink-0 ml-3">
                             <span className="text-sm sm:text-base font-semibold text-purple-600 dark:text-purple-400">
-                              L.{event.calculatedRevenue.toLocaleString()}
+                              L.{(event.calculatedRevenue*0.9).toLocaleString()}
                             </span>
                             {event.calculatedRevenue > 0 && (
                               <div className="text-xs text-gray-400 dark:text-gray-500 mt-1">

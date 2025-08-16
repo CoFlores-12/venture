@@ -74,7 +74,7 @@ const UserHome = ({isMapExpanded, setIsMapExpanded}) => {
               ) : events.length > 0 ? (
                 <div className="relative">
                   <div className="overflow-x-auto pb-4 scrollbar-hide">
-                    <div className="flex space-x-4" style={{ width: `${events.length * 288}px` }}>
+                    <div className="flex space-x-4" style={{ width: `${events.filter(event => event.featured).length * 288}px` }}>
                       {events
                       .filter(event => event.featured)
                       .map(event => (

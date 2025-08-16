@@ -1,14 +1,17 @@
 "use client"
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import React from 'react';
 import 'aos/dist/aos.css';
 import AOS from 'aos';
-import { useEffect } from 'react';
 
-const events = [
-  { title: "Concierto de Verano", time: "Hoy, 20:00", location: "Plaza Central", distance: "2 km", emoji: "🎵" },
-  { title: "Feria Cultural", time: "Sábado, 15:00", location: "Parque Libertad", distance: "5 km", emoji: "🎨" },
-  { title: "Cine al Aire Libre", time: "Domingo, 19:00", location: "Anfiteatro", distance: "3 km", emoji: "🎬" },
+const features = [
+  {icon: '🔔', title: 'Notificaciones', desc: 'Recibe alertas cuando tus artistas favoritos están en tu ciudad'},
+  {icon: '📍', title: 'Ubicación en tiempo real', desc: 'Encuentra eventos cerca de ti con nuestro sistema de geolocalización'},
+  {icon: '🎟️', title: 'Entradas digitales', desc: 'Compra y almacena tus entradas directamente en la app'},
+  {icon: '📱', title: 'App PWA', desc: 'Funciona sin internet y se instala en cualquier dispositivo'},
+  {icon: '👥', title: 'Comparte con amigos', desc: 'Invita amigos y coordina planes para eventos'},
+  {icon: '⭐', title: 'Favoritos', desc: 'Guarda tus eventos favoritos y recibe actualizaciones'}
 ];
 
 const EventAppLanding = () => {
@@ -20,142 +23,178 @@ const EventAppLanding = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-900 to-indigo-800 text-white">
       <nav className="navbar bg-base-200 bg-opacity-20 backdrop-blur-sm sticky top-0 z-50">
-  <div className="container mx-auto px-4 flex items-center justify-between">
-    {/* Logo */}
-    <div className="flex-1">
-      <a className="btn btn-ghost text-xl scale-110">
-        <span className="text-black dark:text-white flex items-end" data-aos="zoom-in">
-          <img src="/logo.png" height="40px" width={40} />enture
-        </span>
-      </a>
-    </div>
-
-    {/* Menú para pantallas grandes */}
-    <div className="hidden md:flex">
-      <ul className="menu menu-horizontal px-1 text-black dark:text-white">
-        <li><a>Características</a></li>
-        <li><a>Eventos</a></li>
-        <li>
-          <button
-            onClick={() => router.push('/register')}
-            className="btn bg-purple-700 ml-4 text-white"
-          >
-            Empezar
-          </button>
-        </li>
-      </ul>
-    </div>
-
-    {/* Menú para móviles */}
-    <div className="dropdown dropdown-end md:hidden">
-      <label tabIndex={0} className="btn btn-ghost text-black dark:text-slate-600">
-        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none"
-             viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
-                d="M4 6h16M4 12h16M4 18h16" />
-        </svg>
-      </label>
-      <ul tabIndex={0} className="menu menu-sm dropdown-content mt-3 p-2 shadow bg-base-100 rounded-box w-52 text-black dark:text-white">
-        <li><a>Características</a></li>
-        <li><a>Eventos</a></li>
-        <li>
-          <button
-            onClick={() => router.push('/register')}
-            className="btn bg-purple-700 text-white mt-2"
-          >
-            Empezar
-          </button>
-        </li>
-      </ul>
-    </div>
-  </div>
-</nav>
-
-
-      <section className="py-20 px-4">
-        <div className="container mx-auto flex flex-col md:flex-row items-center">
-          <div className="md:w-1/2 mb-12 md:mb-0 pl-8"  data-aos="fade-right">
-            <h1 className="text-5xl font-bold leading-tight mb-4">
-              Encuentra los mejores eventos cerca de ti
-            </h1>
-            <p className="text-xl mb-8 text-gray-200">
-              Conciertos, fiestas, festivales y más. Todo en una sola aplicación.
-            </p>
-            <div className="flex flex-wrap gap-4">
-            
-              <button onClick={() => router.push('/register')} className="btn btn-outline btn-lg">
-                Explorar Eventos
-              </button>
-            </div>
+        <div className="container mx-auto px-4 flex items-center justify-between">
+          {/* Logo */}
+          <div className="flex-1">
+            <a className="btn btn-ghost text-xl scale-110">
+              <span className="text-black dark:text-white flex items-end" data-aos="zoom-in">
+                <img src="/logo.png" height="40px" width={40} />enture
+              </span>
+            </a>
           </div>
-          <div className="md:w-1/2 flex justify-center"  data-aos="fade-left">
-            <div className="relative w-[300px] mx-auto">
-              <div className="absolute top-[3.5%] left-[7.5%] w-[84.5%] h-[94%] bg-gray-900 rounded-[1rem] z-10 overflow-hidden">
-                <div className="bg-gradient-to-r from-pink-600 to-purple-700 p-3 pt-8">
-                  <h2 className="text-lg font-bold text-white">Eventos Cercanos</h2>
-                </div>
-                <div className="p-3 space-y-3 overflow-y-auto h-[calc(100%-3.5rem)]">
-                  {events.map((event, idx) => (
-                    <div key={idx} className="flex bg-slate-800 rounded-lg shadow p-2 items-center space-x-2">
-                      <div className="w-1/4 bg-slate-900 text-2xl flex justify-center items-center text-white rounded">
-                        {event.emoji}
-                      </div>
-                      <div className="w-3/4 text-white text-sm">
-                        <h3 className="font-bold">{event.title}</h3>
-                        <p>{event.time}</p>
-                        <p className="text-xs">{event.location}</p>
-                        <span className="bg-blue-600 text-xs px-2 py-0.5 rounded mt-1 inline-block">{event.distance}</span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
 
-              <img
-                src="/iphone-mockup.png" 
-                alt="iPhone Mockup"
-                className="w-full h-auto pointer-events-none select-none z-20 relative"
-              />
-            </div>
+          {/* Menú para pantallas grandes */}
+          <div className="hidden md:flex">
+            <ul className="menu menu-horizontal px-1 text-black dark:text-white">
+              <li>
+                <button
+                  onClick={() => router.push('/register')}
+                  className="btn bg-purple-700 ml-4 text-white"
+                >
+                  Empezar
+                </button>
+              </li>
+            </ul>
+          </div>
+
+          {/* Menú para móviles */}
+          <div className="dropdown dropdown-end md:hidden">
+            <label tabIndex={0} className="btn btn-ghost text-black dark:text-slate-600">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none"
+                  viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
+                      d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
+            </label>
+            <ul tabIndex={0} className="menu menu-sm dropdown-content mt-3 p-2 shadow bg-base-100 rounded-box w-52 text-black dark:text-white">
+              <li>
+                <button
+                  onClick={() => router.push('/register')}
+                  className="btn bg-purple-700 text-white mt-2"
+                >
+                  Empezar
+                </button>
+              </li>
+            </ul>
           </div>
         </div>
-      </section>
+      </nav>
 
-      <section className="py-20 bg-gray-900 bg-opacity-50">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-16"  data-aos="fade-up">
-           <h2 className="text-2xl md:text-4xl font-bold mb-4 flex flex-wrap items-center gap-2 text-center justify-center">
-  ¿Por qué elegir
-  <span className="flex items-center gap-2">
-    <img src="/logo.png" alt="Logo" className="w-8 md:w-12 h-auto" />
-    <span>enture</span>
-  </span>
-  ?
-</h2>
 
+      <section className="py-20 px-4 relative overflow-hidden min-h-[80vh] flex items-center">
+  {/* Efectos de fondo mejorados */}
+  <div className="absolute inset-0 overflow-hidden">
+    <div className="absolute top-0 left-0 w-full h-full bg-[url('/grid.svg')] opacity-10"></div>
+    <div className="absolute top-1/4 -left-20 w-96 h-96 rounded-full bg-purple-600 opacity-20 blur-3xl animate-float-slow"></div>
+    <div className="absolute bottom-1/4 -right-20 w-96 h-96 rounded-full bg-pink-600 opacity-20 blur-3xl animate-float"></div>
+    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120%] h-[120%] bg-radial-gradient from-purple-900/30 to-transparent opacity-30"></div>
+  </div>
+  
+  <div className="container mx-auto relative z-10">
+    <div className="max-w-2xl mx-auto text-center" data-aos="fade-up">
+      {/* Badge de destacado */}
+      <div className="inline-flex items-center px-4 py-2 bg-purple-900/50 backdrop-blur-sm rounded-full border border-purple-700/50 mb-6">
+        <span className="relative flex h-3 w-3 mr-2">
+          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-purple-400 opacity-75"></span>
+          <span className="relative inline-flex rounded-full h-3 w-3 bg-purple-500"></span>
+        </span>
+        <span className="text-sm font-medium text-purple-200">¡Nueva actualización disponible!</span>
+      </div>
+
+      {/* Título principal con gradiente animado */}
+      <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold leading-tight mb-6">
+        <span className="bg-clip-text text-transparent bg-gradient-to-r from-white via-purple-300 to-pink-300 animate-text-shimmer bg-[length:200%_100%]">
+          Encuentra los mejores <span className="text-[#f76a12]">eventos</span> cerca de ti
+        </span>
+      </h1>
+
+      {/* Subtítulo */}
+      <p className="text-xl md:text-2xl mb-8 text-gray-300 max-w-3xl mx-auto leading-relaxed">
+        Descubre experiencias únicas en tu ciudad con nuestra plataforma inteligente que aprende de tus gustos
+      </p>
+
+      {/* Botones de acción */}
+      <div className="flex flex-wrap gap-4 justify-center">
+        <button 
+          onClick={() => router.push('/events')} 
+          className="btn btn-lg bg-purple-600 hover:bg-purple-700 border-0 text-white rounded-full px-8 shadow-lg hover:shadow-purple-500/30 transition-all group"
+        >
+          <span className="group-hover:scale-105 transition-transform block">Explorar Eventos</span>
+          <svg className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+          </svg>
+        </button>
+        
+      
+      </div>
+
+      {/* Tarjeta flotante de evento destacado */}
+     
+
+      {/* Testimonios y ratings */}
+      <div className="mt-16 flex flex-col items-center" data-aos="fade-up" data-aos-delay="400">
+        <div className="flex -space-x-3 mb-4">
+          {[1,2,3,4,5].map((i) => (
+            <img 
+              key={i}
+              src={`/user.webp`}
+              className="w-10 h-10 rounded-full border-2 border-purple-900 bg-purple-950 hover:scale-110 transition-transform"
+              alt={`Usuario ${i}`}
+            />
+          ))}
+        </div>
+        <div className="text-center">
+          <div className="flex justify-center items-center">
+            {[...Array(5)].map((_, i) => (
+              <svg key={i} className="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+              </svg>
+            ))}
+            <span className="ml-2 font-medium">5.0</span>
+          </div>
+          <p className="text-sm text-gray-400 mt-1">Más de 1,000 reseñas en la App</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  {/* Efecto de partículas (opcional) */}
+  <div className="absolute inset-0 pointer-events-none">
+    {[...Array(20)].map((_, i) => (
+      <div 
+        key={i}
+        className="absolute rounded-full bg-purple-500/20"
+        style={{
+          width: `${Math.random() * 6 + 2}px`,
+          height: `${Math.random() * 6 + 2}px`,
+          top: `${Math.random() * 100}%`,
+          left: `${Math.random() * 100}%`,
+          animation: `float ${Math.random() * 10 + 10}s linear infinite`,
+          animationDelay: `${Math.random() * 5}s`
+        }}
+      ></div>
+    ))}
+  </div>
+</section>
+
+      <section className="py-20 relative">
+        <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-5"></div>
+        <div className="container mx-auto px-4 relative">
+          <div className="text-center mb-16" data-aos="fade-up">
+            <h2 className="text-3xl md:text-5xl font-bold mb-6">
+              Vive experiencias <span className="text-purple-400">inolvidables</span>
+            </h2>
             <p className="text-xl text-gray-300 max-w-2xl mx-auto">
-              La mejor aplicación para descubrir eventos cerca de ti con funciones diseñadas para amantes de la diversión
+              Descubre cómo Venture transforma tu forma de encontrar y disfrutar eventos
             </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {[
-              {icon: '🔔', title: 'Notificaciones', desc: 'Recibe alertas cuando tus artistas favoritos están en tu ciudad'},
-              {icon: '📍', title: 'Ubicación en tiempo real', desc: 'Encuentra eventos cerca de ti con nuestro sistema de geolocalización'},
-              {icon: '🎟️', title: 'Entradas digitales', desc: 'Compra y almacena tus entradas directamente en la app'},
-              {icon: '📱', title: 'App PWA', desc: 'Funciona sin internet y se instala en cualquier dispositivo'},
-              {icon: '👥', title: 'Comparte con amigos', desc: 'Invita amigos y coordina planes para eventos'},
-              {icon: '⭐', title: 'Favoritos', desc: 'Guarda tus eventos favoritos y recibe actualizaciones'}
-            ].map((feature, index) => (
-              <div key={index} 
-              className="card bg-slate-800 shadow-xl hover:shadow-2xl transition-all"
-              data-aos="zoom-in"
-              data-aos-delay={index * 100} // animación escalonada
-              data-aos-duration="800">
-                <div className="card-body items-center text-center text-white">
-                  <div className="text-4xl mb-4">{feature.icon}</div>
-                  <h3 className="card-title text-2xl mb-2">{feature.title}</h3>
-                  <p className="text-gray-300">{feature.desc}</p>
+            {features.map((feature, index) => (
+              <div 
+                key={index}
+                className="relative group overflow-hidden rounded-2xl bg-gradient-to-b from-gray-800 to-gray-900 border border-gray-800 hover:border-purple-500/30 transition-all"
+                data-aos="zoom-in"
+                data-aos-delay={index * 100}
+              >
+                <div className="absolute inset-0 bg-[url('/noise.png')] opacity-10"></div>
+                <div className="relative z-10 p-8 h-full flex flex-col">
+                  <div className="text-5xl mb-6">{feature.icon}</div>
+                  <h3 className="text-2xl font-bold mb-3">{feature.title}</h3>
+                  <p className="text-gray-400 flex-grow">{feature.desc}</p>
+                  <div className="mt-6 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <div className="w-8 h-1 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full"></div>
+                  </div>
                 </div>
               </div>
             ))}
